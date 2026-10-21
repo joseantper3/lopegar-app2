@@ -604,11 +604,7 @@ function vInicio(){
   ["radios","radio","Radios",S.radios.length+" emisoras"],
   ["empresa","user","Empresa","Contacto y gerencia"]
  ].filter((t,i,a)=>a.findIndex(x=>x[0]===t[0])===i);
- return `<section class="hero"><span class="hi">${greet()}</span>
-  <h1>${esc(S.marca.split(" ")[0])} <em>${esc(S.marca.split(" ").slice(1).join(" "))}</em></h1>
-  <p>${esc(S.lema)}</p>
-  <div class="row"><span class="pill">Transporte nacional</span><span class="pill">Huelva · Sevilla · Madrid</span></div></section>
-  ${location.protocol==="file:"&&!window.__lgxNative?`<div class="aviso offl" role="note" style="flex-wrap:wrap">${ic("up")}<div style="flex:1;min-width:200px"><b>Instala la app</b>La has abierto desde un archivo. Instálala en este dispositivo para tener su icono, la radio, el clima en directo, la voz y el aviso de radares por GPS.</div>${(S.appUrl||"").trim()?`<button type="button" class="btn sm" id="fileInst" style="align-self:center">${ic("up")}Instalar</button>`:""}</div>`:""}
+ return `  ${location.protocol==="file:"&&!window.__lgxNative?`<div class="aviso offl" role="note" style="flex-wrap:wrap">${ic("up")}<div style="flex:1;min-width:200px"><b>Instala la app</b>La has abierto desde un archivo. Instálala en este dispositivo para tener su icono, la radio, el clima en directo, la voz y el aviso de radares por GPS.</div>${(S.appUrl||"").trim()?`<button type="button" class="btn sm" id="fileInst" style="align-self:center">${ic("up")}Instalar</button>`:""}</div>`:""}
   ${S.aviso&&S.aviso.trim()?`<div class="aviso" role="status">${ic("bell")}<div><b>Aviso a conductores</b>${esc(S.aviso)}</div></div>`:""}
   ${instEv?`<div class="card install"><div><b>Instala la app</b><span>Icono en tu móvil u ordenador, pantalla completa y permisos guardados.</span></div><button type="button" class="btn" id="instBtn">Instalar</button></div>`:installHint()}
   <div class="tiles">${tiles.map(t=>t[0]==="web"
