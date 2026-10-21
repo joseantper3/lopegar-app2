@@ -1,0 +1,84 @@
+{
+ "id": "/",
+ "name": "LOPEGAR EXPRESS",
+ "short_name": "LOPEGAR EXPRESS",
+ "description": "App del conductor de Lopegar Express S.L.U.: gasolineras, rutas TIPSA, tráfico DGT, clima, radares y radio.",
+ "lang": "es-ES",
+ "dir": "ltr",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#25272b",
+ "theme_color": "#25272b",
+ "categories": [
+  "navigation",
+  "business",
+  "travel"
+ ],
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ],
+ "shortcuts": [
+  {
+   "name": "Radares en ruta",
+   "short_name": "Radares",
+   "url": "./#radares",
+   "icons": [
+    {
+     "src": "icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  },
+  {
+   "name": "Radio",
+   "url": "./#radios",
+   "icons": [
+    {
+     "src": "icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  },
+  {
+   "name": "Asistencia en carretera",
+   "short_name": "SOS",
+   "url": "./#asistencia",
+   "icons": [
+    {
+     "src": "icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  },
+  {
+   "name": "Clima en ruta",
+   "short_name": "Clima",
+   "url": "./#clima",
+   "icons": [
+    {
+     "src": "icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  }
+ ]
+}

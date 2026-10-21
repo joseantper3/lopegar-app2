@@ -1,0 +1,13 @@
+LOPEGAR EXPRESS · APP EN INTERNET CON GITHUB PAGES
+==================================================
+Va en el repositorio PÚBLICO  joseantper3/lopegar-app2
+Dirección de la app: https://joseantper3.github.io/lopegar-app2/
+
+1. Entra en github.com/joseantper3/lopegar-app2 > «Add file» > «Upload files».
+2. Arrastra a la vez las carpetas docs y .github de este paquete. «Commit changes».
+   (En Windows, si no ves la carpeta .github: en el Explorador, Vista > Mostrar > Elementos ocultos.)
+3. «Settings» > «Pages» > en «Source» elige «GitHub Actions».
+4. «Actions» > «Publicar web» > «Run workflow». Cuando salga en verde, la app está en la dirección de arriba.
+
+Para actualizar la app más adelante, sube la carpeta docs nueva: se vuelve a publicar sola.
+GitHub Pages gratis solo funciona en repositorios públicos (por eso va en lopegar-app2).
