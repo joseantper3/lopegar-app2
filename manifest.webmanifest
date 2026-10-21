@@ -2,7 +2,7 @@
  "id": "/",
  "name": "LOPEGAR EXPRESS",
  "short_name": "LOPEGAR EXPRESS",
- "description": "App del conductor de Lopegar Express S.L.U.: gasolineras, rutas TIPSA, tráfico DGT, clima, radares y radio.",
+ "description": "App del conductor de Lopegar Express S.L.U.: gasolineras, rutas TIPSA, tráfico, clima, radares y radio.",
  "lang": "es-ES",
  "dir": "ltr",
  "start_url": "./",
