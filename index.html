@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="App del conductor de Lopegar Express S.L.U.: gasolineras, rutas TIPSA, tráfico DGT, clima, radares y radio.">
+<meta name="theme-color" content="#25272b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LOPEGAR EXPRESS">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>LOPEGAR EXPRESS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&amp;family=Barlow:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;background:#f8f8f7}img{max-width:100%}[hidden]{display:none!important}</style>
+<style id="css">
+/* Layout: app de cabina — cabecera grafito con el arco naranja del logo, navegación lateral en escritorio y barra inferior en móvil, cada sección es una vista */
+:root{
+  --bg:#eceeef; --panel:#ffffff; --ink:#1c1e21; --muted:#5f656c; --line:#d6d9dc;
+  --brand:#e8571a; --brand-2:#c94512; --brand-ink:#ffffff; --brand-soft:#fde9df;
+  --char:#25272b; --char-ink:#f2f3f4; --char-muted:#a7abb0;
+  --ok:#1e7a4c; --warn:#a85410; --sos:#c62828;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Barlow","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111214;--panel:#1a1c1f;--ink:#eceef0;--muted:#9ca2a8;--line:#2b2e33;
+  --brand:#ff6a2b;--brand-2:#ff8a57;--brand-ink:#1a0c05;--brand-soft:#3a1d10;
+  --char:#0b0c0d;--char-ink:#f2f3f4;--char-muted:#9ca2a8;--ok:#4cc38a;--warn:#f0a35a;--sos:#ff6b6b;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111214;--panel:#1a1c1f;--ink:#eceef0;--muted:#9ca2a8;--line:#2b2e33;
+  --brand:#ff6a2b;--brand-2:#ff8a57;--brand-ink:#1a0c05;--brand-soft:#3a1d10;
+  --char:#0b0c0d;--char-ink:#f2f3f4;--char-muted:#9ca2a8;--ok:#4cc38a;--warn:#f0a35a;--sos:#ff6b6b;color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;margin:0}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:6px}
+.d{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.03em}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* Estructura */
+.app{display:grid;grid-template-columns:1fr;min-height:100%}
+.top{background:var(--char);color:var(--char-ink);position:sticky;top:env(safe-area-inset-top,0px);z-index:10}
+.top-in{display:flex;align-items:center;gap:12px;padding:10px 16px;max-width:1240px;margin:0 auto}
+.logo{width:44px;height:44px;border-radius:50%;flex:none;background:#e8e8e8;overflow:hidden;display:block}
+.logo img{width:100%;height:100%;display:block}
+.brandtxt{min-width:0;flex:1;text-decoration:none}
+.brandtxt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--f-display);font-weight:800;font-size:22px;letter-spacing:.04em;line-height:1;text-transform:uppercase}
+.brandtxt span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--char-muted);letter-spacing:.08em;text-transform:uppercase;font-family:var(--f-display);font-weight:600;margin-top:3px}
+.iconbtn{width:42px;height:42px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:transparent;display:grid;place-items:center;cursor:pointer;color:var(--char-ink);text-decoration:none}
+.iconbtn:hover{border-color:var(--brand)}
+.iconbtn svg{width:20px;height:20px}
+svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.shell{max-width:1240px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr;gap:0}
+.side{display:none}
+main{padding:20px 16px 110px;min-width:0}
+@media (min-width:900px){
+  .shell{grid-template-columns:236px 1fr;gap:8px}
+  .side{display:block;position:sticky;top:calc(64px + env(safe-area-inset-top,0px));align-self:start;padding:20px 0 20px 16px}
+  .side nav{display:grid;gap:2px}
+  .side a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;text-decoration:none;color:var(--muted);font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:16px}
+  .side a svg{width:20px;height:20px}
+  .side a:hover{color:var(--ink);background:var(--panel)}
+  .side a.on{color:var(--ink);background:var(--panel);box-shadow:inset 3px 0 0 var(--brand)}
+  .side .sep{height:1px;background:var(--line);margin:10px 12px}
+  .bottom{display:none!important}
+  main{padding:24px 16px 56px}
+}
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--panel);border-top:1px solid var(--line);
+  padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(5,1fr)}
+.bottom a{display:grid;justify-items:center;gap:2px;text-decoration:none;color:var(--muted);font-family:var(--f-display);font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase;padding:6px 2px;border-radius:10px}
+.bottom a svg{width:22px;height:22px}
+.bottom a.on{color:var(--brand)}
+.bottom a.sos{color:var(--sos)}
+
+/* Cabecera de vista */
+.vh{display:grid;gap:6px;margin-bottom:18px}
+.vh .eyebrow{font-family:var(--f-display);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:var(--brand)}
+h1,h2{font-family:var(--f-display);font-weight:800;text-transform:uppercase;margin:0;letter-spacing:.01em;text-wrap:balance}
+h1{font-size:clamp(34px,6vw,52px);line-height:.95}
+h2{font-size:24px;line-height:1.05}
+.vh p{margin:0;color:var(--muted);max-width:60ch}
+
+/* Inicio */
+.hero{position:relative;overflow:hidden;background:var(--char);color:var(--char-ink);border-radius:18px;padding:26px 22px;margin-bottom:16px}
+.hero::before{content:"";position:absolute;width:340px;height:340px;right:-120px;top:-150px;border-radius:50%;border:26px solid var(--brand);border-left-color:transparent;border-bottom-color:transparent;transform:rotate(-20deg);opacity:.95}
+.hero::after{content:"";position:absolute;width:250px;height:250px;right:-60px;top:-90px;border-radius:50%;border:8px solid #6b6e73;border-right-color:transparent;border-top-color:transparent;transform:rotate(-20deg)}
+.hero > *{position:relative;z-index:1}
+.hero .hi{font-family:var(--f-display);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:14px;color:var(--char-muted)}
+.hero h1{font-size:clamp(38px,7vw,64px);margin:6px 0 8px;max-width:12ch}
+.hero h1 em{font-style:normal;color:var(--brand)}
+.hero p{margin:0;max-width:44ch;color:#d5d7da}
+.hero .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.pill{font-family:var(--f-display);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px;border:1px solid rgba(255,255,255,.25);padding:4px 10px;border-radius:999px}
+
+.aviso{display:flex;gap:12px;align-items:flex-start;background:var(--brand-soft);border:1px solid var(--brand);color:var(--ink);border-radius:var(--r);padding:12px 14px;margin-bottom:16px}
+.aviso svg{width:22px;height:22px;flex:none;color:var(--brand);margin-top:2px}
+.aviso b{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;display:block;font-size:14px;color:var(--brand-2)}
+
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:1100px){.tiles{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.tile{display:grid;gap:10px;align-content:space-between;min-height:128px;text-decoration:none;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;transition:transform .15s,border-color .15s}
+.tile:hover{transform:translateY(-2px);border-color:var(--brand)}
+.tile .ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.tile .ic svg{width:22px;height:22px}
+.tile b{display:block;font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:19px;letter-spacing:.03em;line-height:1.05}
+.tile span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.tile.sos .ic{background:var(--sos);color:#fff}
+
+.sosbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sos);border-radius:var(--r);padding:14px 16px}
+.sosbar b{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:15px;color:var(--muted);display:block}
+.sosbar .mono{font-size:22px}
+
+/* Componentes */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.list{display:grid}
+.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--char);color:var(--char-ink);font-family:var(--f-mono);font-size:13px}
+.item .t{min-width:0}
+.item .t b{display:block;font-family:var(--f-display);font-weight:700;font-size:20px;text-transform:uppercase;letter-spacing:.02em;line-height:1.1;overflow-wrap:anywhere}
+.item .t span{font-size:14px;color:var(--muted)}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:11px;background:var(--brand);color:var(--brand-ink);padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:1px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:14px;padding:9px 14px;border-radius:10px;border:1px solid transparent;cursor:pointer;white-space:nowrap;background:var(--brand);color:var(--brand-ink)}
+.btn:hover{background:var(--brand-2)}
+.btn svg{width:16px;height:16px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--brand);background:transparent}
+.btn.dark{background:var(--char);color:var(--char-ink)}
+.btn.danger{background:transparent;color:var(--sos);border-color:var(--line)}
+.btn.sm{font-size:12px;padding:6px 10px}
+
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.search{flex:1 1 240px;min-width:0;position:relative}
+.search input{width:100%;font:inherit;padding:11px 14px 11px 40px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:14px;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--char);color:var(--char-ink);border-color:var(--char)}
+.meta{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-top:8px}
+.empty{padding:22px;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:12px}
+.pad{padding:18px}
+.stack{display:grid;gap:12px}
+
+.phone{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;flex-wrap:wrap}
+.phone .lbl{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:16px}
+.phone .lbl small{display:block;font-family:var(--f-body);text-transform:none;letter-spacing:0;font-weight:400;font-size:13px;color:var(--muted)}
+.phone .n{font-family:var(--f-display);font-weight:800;font-size:34px;letter-spacing:.03em;line-height:1;font-variant-numeric:tabular-nums;user-select:all}
+.phone .acts{display:flex;gap:6px}
+.emerg{background:var(--sos);color:#fff;border-color:transparent}
+.emerg .lbl small{color:#fff;opacity:.85}
+.insurer{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.insurer b{font-family:var(--f-display);font-weight:800;font-size:22px;letter-spacing:.06em;text-transform:uppercase;color:var(--sos)}
+.steps{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;font-size:15px}
+.steps li::before{counter-increment:s;content:counter(s);font-family:var(--f-mono);font-size:13px;width:26px;height:26px;border-radius:6px;display:grid;place-items:center;background:var(--bg);border:1px solid var(--line)}
+
+dl.kv{margin:0;display:grid}
+.kv > div{display:grid;grid-template-columns:minmax(100px,160px) minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 18px;border-top:1px solid var(--line)}
+.kv > div:first-child{border-top:0}
+.kv dt{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:14px;color:var(--muted)}
+.kv dd{margin:0;font-family:var(--f-mono);font-size:15px;min-width:0;overflow-wrap:anywhere;user-select:all}
+@media (max-width:560px){.kv > div{grid-template-columns:minmax(0,1fr) auto}.kv dt{grid-column:1/-1}}
+
+.iconbtn.mic.on{background:var(--sos);border-color:var(--sos);color:#fff;animation:micp 1.6s infinite}
+@keyframes micp{0%{box-shadow:0 0 0 0 rgba(198,40,40,.55)}70%{box-shadow:0 0 0 10px rgba(198,40,40,0)}100%{box-shadow:0 0 0 0 rgba(198,40,40,0)}}
+body.voice .toast{bottom:calc(140px + env(safe-area-inset-bottom,0px))}
+@media (min-width:900px){body.voice .toast{bottom:84px}}
+@media (max-width:420px){.brandtxt b{font-size:19px}.top-in{gap:8px}.iconbtn{width:40px;height:40px}}
+.radctl{display:flex;align-items:center;gap:14px;padding:14px 16px;flex-wrap:wrap;margin-bottom:12px}
+.radctl .rci{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--bg);color:var(--muted);flex:none}
+.radctl.on{border-color:var(--ok)}.radctl.on .rci{background:var(--ok);color:#fff}
+.radctl .rci svg{width:24px;height:24px}
+.rct{flex:1;min-width:180px}.rct b{display:block;font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:18px}
+.rct span{font-size:13px;color:var(--muted)}
+.radnear{padding:14px 16px;margin-bottom:12px;display:grid;gap:2px;border-left:4px solid var(--ok)}
+.radnear.hot{border-left-color:var(--sos)}
+.radnear .d{font-size:12px;letter-spacing:.1em;color:var(--muted);font-weight:700}
+.radnear b{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1}
+.radnear.hot b{color:var(--sos)}
+.radnear > span:last-child{font-size:14px}
+.sel{font:inherit;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.num.rt0{background:#1f4e9c;color:#fff}.num.rt1{background:var(--brand);color:var(--brand-ink)}
+.rkm{font-family:var(--f-body);font-weight:500;text-transform:none;font-size:14px;color:var(--muted);letter-spacing:0}
+b.hot{color:var(--sos)}
+.radchip{color:#7be0a6!important;border-color:#2f7a52!important}
+.radchip.alert{background:var(--sos);border-color:var(--sos)!important;color:#fff!important;animation:micp 1.2s infinite}
+.radbar{position:fixed;left:50%;transform:translateX(-50%);top:calc(12px + env(safe-area-inset-top,0px));z-index:35;display:flex;align-items:center;gap:12px;background:var(--sos);color:#fff;text-decoration:none;border-radius:16px;padding:10px 16px 10px 10px;width:min(520px,calc(100% - 24px));box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.radbar .rbi{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.18);display:grid;place-items:center;flex:none;animation:pulse 1s infinite}
+.radbar .rbi svg{width:28px;height:28px}
+.rbt{display:grid;min-width:0}.rbt small{font-family:var(--f-display);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:12px;opacity:.9}
+.rbt b{font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1}
+.rbt span{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.share{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:16px 18px;margin-bottom:12px}
+.share > div:last-child{flex:1;min-width:220px;display:grid;gap:6px}
+.share b.d{font-weight:800;font-size:20px}
+.share p{margin:0;font-size:14px;color:var(--muted)}
+.qrbox{width:150px;height:150px;flex:none;background:#fff;border-radius:10px;padding:6px;display:grid;place-items:center;border:1px solid var(--line)}
+.qrbox svg{width:100%;height:100%}
+.qrbox.empty{background:var(--bg);color:var(--muted)}.qrbox.empty svg{width:40px;height:40px}
+.qurl{font-size:13px!important;color:var(--ink)!important;overflow-wrap:anywhere}
+.aviso.offl{background:var(--panel);border-color:var(--line)}
+.aviso.offl b{color:var(--ink)}
+.msheet-bg{position:fixed;inset:0;z-index:40;background:rgba(10,12,14,.55);display:grid;place-items:center;padding:16px}
+.msheet{max-width:440px;width:100%;padding:22px;display:grid;gap:10px;max-height:90vh;overflow:auto}
+.msheet h2{font-size:24px}
+.msheet p{margin:0;font-size:15px}
+.mic-ic{width:52px;height:52px;border-radius:50%;background:var(--sos);color:#fff;display:grid;place-items:center}
+.mic-ic svg{width:26px;height:26px}
+.msh-b{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
+.install{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;margin:0 0 16px;padding:14px 16px;border:1px solid var(--brand)}
+.install b.in{font-family:inherit;text-transform:none;font-size:inherit;display:inline;font-weight:700;color:var(--ink)}
+.msheet .shr,.install .shr{width:16px;height:16px;vertical-align:-3px;color:var(--brand)}
+.install > div{flex:1;min-width:200px}
+.install b{font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:17px;display:block}
+.install span{font-size:13px;color:var(--muted)}
+.vbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:25;display:flex;align-items:center;gap:10px;background:var(--char);color:var(--char-ink);border:1px solid var(--sos);border-radius:999px;padding:8px 8px 8px 16px;width:min(560px,calc(100% - 32px));box-shadow:0 8px 30px rgba(0,0,0,.25)}
+@media (min-width:900px){.vbar{bottom:24px}}
+.vbar .vt{flex:1;min-width:0;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vbar[data-st="ok"]{border-color:var(--ok)}
+.vbar[data-st="no"],.vbar[data-st="err"]{border-color:var(--brand)}
+.vdot{width:10px;height:10px;border-radius:50%;background:var(--sos);flex:none;animation:pulse 1.2s infinite}
+.vbar[data-st="ok"] .vdot{background:var(--ok)}
+.vhelp,.vclose{width:34px;height:34px;flex:none;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:transparent;color:var(--char-ink);cursor:pointer;display:grid;place-items:center;font-weight:800;font-family:var(--f-display);font-size:17px}
+.vclose svg{width:16px;height:16px}
+.vhelpbox{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(140px + env(safe-area-inset-bottom,0px));z-index:26;width:min(560px,calc(100% - 32px));padding:14px 16px;max-height:60vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+@media (min-width:900px){.vhelpbox{bottom:84px}}
+.vhh{display:flex;align-items:center;justify-content:space-between}
+.vhh b{font-weight:800;font-size:18px}
+.vhh .pb{color:var(--ink)}
+.vhelpbox dl{margin:6px 0 0;display:grid;gap:4px}
+.vhelpbox dt{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:var(--brand);margin-top:6px}
+.vhelpbox dd{margin:0;font-size:14px}
+.vopts{display:grid;gap:6px;margin:12px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
+.vopts label{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer}
+.vopts input{width:20px;height:20px;accent-color:var(--brand)}
+.player{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:4px 6px 4px 4px;min-width:0;flex:0 1 500px}
+.player[data-st="playing"]{border-color:var(--brand)}
+.pb{width:36px;height:36px;flex:none;border-radius:50%;border:0;background:transparent;color:var(--char-ink);display:grid;place-items:center;cursor:pointer;text-decoration:none}
+.pb:hover{background:rgba(255,255,255,.1)}
+.pb svg{width:18px;height:18px}
+.pb.pp{width:42px;height:42px;background:var(--brand);color:var(--brand-ink)}
+.pb.pp:hover{background:var(--brand-2)}
+.pb.pp svg{width:20px;height:20px;fill:currentColor;stroke:none}
+#pPlay svg path{fill:currentColor}
+.pvol{display:flex;align-items:center;gap:2px;flex:none}
+#pMute svg{width:20px;height:20px}
+#pMute[aria-pressed="true"]{color:#ff8a80}
+#pVolR{-webkit-appearance:none;appearance:none;width:84px;height:22px;background:transparent;cursor:pointer;margin:0 4px 0 0}
+#pVolR::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:linear-gradient(90deg,var(--brand) var(--v,80%),rgba(255,255,255,.22) var(--v,80%))}
+#pVolR::-moz-range-track{height:4px;border-radius:4px;background:rgba(255,255,255,.22)}
+#pVolR::-moz-range-progress{height:4px;border-radius:4px;background:var(--brand)}
+#pVolR::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;margin-top:-5px;border:0}
+#pVolR::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:0}
+@media (max-width:420px){#pVolR{width:64px}}
+.pinfo{min-width:0;flex:1;display:grid;text-decoration:none;padding:0 6px;line-height:1.15}
+.pinfo b{font-family:var(--f-display);font-weight:700;font-size:16px;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pst{white-space:nowrap;overflow:hidden;font-family:var(--f-display);font-weight:600;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--char-muted);display:flex;align-items:center;gap:6px}
+.player[data-st="playing"] .pst{color:var(--brand)}
+.player[data-st="playing"] .pst::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brand);animation:pulse 1.4s infinite}
+.player[data-st="error"] .pst{color:#ff8a80}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{50%{opacity:.25}}
+@media (max-width:760px){.top-in{flex-wrap:wrap;row-gap:8px}.player{order:5;flex:1 1 100%}}
+.radios{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:10px}
+.radio{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;text-decoration:none;text-align:left;cursor:pointer;font:inherit;color:var(--ink);width:100%}
+.radio.on{border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}
+.radio.on .av{background:var(--brand);color:var(--brand-ink)}
+.radio.on .rs{color:var(--brand)}
+.radio .rn{min-width:0}
+.eq{display:flex;align-items:flex-end;gap:2px;height:16px;opacity:0}
+.eq i{width:3px;background:var(--brand);border-radius:1px;height:30%}
+.radio.on .eq{opacity:1}
+.radio.on .eq i{animation:eq 1s ease-in-out infinite}
+.radio.on .eq i:nth-child(2){animation-delay:-.4s}.radio.on .eq i:nth-child(3){animation-delay:-.7s}
+@keyframes eq{0%,100%{height:25%}50%{height:100%}}
+.radio:hover{border-color:var(--brand)}
+.radio .av{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:var(--char);color:var(--char-ink);font-family:var(--f-display);font-weight:800;font-size:17px;letter-spacing:.02em}
+.radio b{display:block;font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:18px;line-height:1.05;overflow-wrap:anywhere}
+.radio span{font-size:13px;color:var(--muted)}
+
+.stamp{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--muted);margin-bottom:12px}
+.stamp > svg{width:18px;height:18px;color:var(--brand);flex:none}
+.stamp span{flex:1;min-width:200px}
+.stamp b{color:var(--ink)}
+.links3{display:flex;gap:8px;flex-wrap:wrap}
+.tsum{display:flex;gap:8px 14px;flex-wrap:wrap;font-size:13px;margin-bottom:10px}
+.tsum span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
+.tsum span::before{content:"";width:10px;height:10px;border-radius:3px}
+.tsum .lv3::before{background:var(--sos)}.tsum [style*="--c"]::before{background:var(--c)!important}.tsum .lv2::before{background:var(--brand)}.tsum .lv1::before{background:#c9a227}
+.incs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:10px}
+.inc{padding:12px 14px;border-left:4px solid #c9a227;display:grid;gap:4px;align-content:start}
+.inc.lv3{border-left-color:var(--sos)}.inc.lv2{border-left-color:var(--brand)}
+.ihd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ihd b{font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:18px;letter-spacing:.02em;line-height:1.1}
+.road{font-family:var(--f-display);font-weight:800;font-size:15px;letter-spacing:.04em;background:#1f4e9c;color:#fff;padding:2px 8px;border-radius:5px;border:2px solid #fff;box-shadow:0 0 0 1px #1f4e9c}
+.dir{font-size:12px;font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-left:auto}
+.iloc{margin:0;font-weight:600;font-size:15px}
+.idet{margin:0;font-size:14px}.idet span{color:var(--muted)}
+.itime{margin:0;font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.wsum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:4px 0 10px}
+.wsum > div{padding:12px 14px;border-left:1px solid var(--line);display:grid;gap:2px}
+.wsum > div:first-child{border-left:0}
+.wsum .d{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.05em;overflow-wrap:anywhere}
+@media (max-width:420px){.wsum b{font-size:21px}.wsum > div{padding:10px}}
+.wsum b{font-family:var(--f-display);font-weight:800;font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.wsum small{font-size:12px;color:var(--muted)}
+.wwarn{display:grid;gap:6px;margin-bottom:14px}
+.ww{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;background:var(--panel);border:1px solid var(--line)}
+.ww svg{width:20px;height:20px;flex:none}
+.ww.lv3{border-color:var(--sos);color:var(--sos)}.ww.lv2{border-color:var(--brand);color:var(--brand-2)}.ww.lv1{color:var(--ok)}
+.wroute{list-style:none;margin:0;padding:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.wroute li{position:relative;display:grid;grid-template-columns:28px minmax(0,1.3fr) 40px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 14px 12px 8px;border-top:1px solid var(--line)}
+.wroute li:first-child{border-top:0}
+.wroute li::before{content:"";position:absolute;left:21px;top:0;bottom:0;width:3px;background:var(--brand-soft)}
+.wroute li.first::before{top:50%}.wroute li.last::before{bottom:50%}
+.wdot{position:relative;z-index:1;width:14px;height:14px;border-radius:50%;background:var(--panel);border:3px solid var(--brand);justify-self:center}
+.wroute li.first .wdot,.wroute li.last .wdot{background:var(--brand)}
+.wn{min-width:0}.wn b{display:block;font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:17px;line-height:1.1;overflow-wrap:anywhere}
+.wn span{font-size:12px;color:var(--muted)}
+.wic svg{width:32px;height:32px;color:var(--brand)}
+.wt b{display:block;font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1}
+.wt span{font-size:12px;color:var(--muted)}
+.wx3{display:grid;gap:2px;justify-items:end;font-size:12px;font-family:var(--f-mono);color:var(--muted);white-space:nowrap}
+.wx3 span{display:inline-flex;align-items:center;gap:4px}
+.wx3 svg{width:12px;height:12px}
+.wx3 .hi{color:var(--sos);font-weight:700}
+@media (max-width:520px){.wroute li{grid-template-columns:24px minmax(0,1fr) 32px auto;row-gap:2px}.wroute li .wt{display:none}.wic svg{width:26px;height:26px}.wroute li::before{left:19px}}
+.pas{padding:16px 18px;margin-bottom:22px;border-left:4px solid var(--sos)}
+.pas > b{display:block;font-weight:700;font-size:16px;margin-bottom:10px}
+.pas3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:10px}
+.pas3 > div{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center}
+.pas3 span{grid-row:span 2;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--sos);color:#fff;font-family:var(--f-display);font-weight:800;font-size:22px}
+.pas3 b{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:17px;line-height:1.1}
+.pas3 small{font-size:13px;color:var(--muted);line-height:1.35}
+h2.sec{margin:26px 0 12px}
+.risks{display:grid;gap:8px}
+.risk summary{list-style:none;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;cursor:pointer}
+.risk summary::-webkit-details-marker{display:none}
+.risk .rt b{display:block;font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:19px;letter-spacing:.02em;line-height:1.1}
+.risk .rt span{display:block;font-size:14px;color:var(--muted);margin-top:2px}
+.risk .chev{width:20px;height:20px;color:var(--muted);transition:transform .2s}
+.risk[open] .chev{transform:rotate(180deg)}
+.risk[open]{border-color:var(--brand)}
+.rbody{display:grid;gap:14px;padding:0 18px 18px 60px}
+@media (max-width:560px){.rbody{padding:0 14px 16px}}
+.ex{background:var(--brand-soft);border-radius:10px;padding:12px 14px}
+.ex b,.rbody b.ok{display:block;font-weight:700;font-size:13px;letter-spacing:.1em;color:var(--brand-2);margin-bottom:4px}
+.rbody b.ok{color:var(--ok)}
+.ex p{margin:0;font-size:15px}
+.meds{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.meds li{display:grid;grid-template-columns:18px 1fr;gap:8px;font-size:15px}
+.meds li::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--ok);margin-top:8px}
+.vids{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:10px}
+.vid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;padding:14px;text-decoration:none}
+.vid:hover{border-color:var(--brand)}
+.play{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--brand);color:var(--brand-ink)}
+.play svg{width:22px;height:22px;fill:currentColor;stroke:none;margin-left:3px}
+.vt small{display:block;font-family:var(--f-display);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--brand)}
+.vt b{display:block;font-family:var(--f-display);font-weight:700;font-size:18px;line-height:1.1;text-transform:uppercase;overflow-wrap:anywhere}
+.vt span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.item .num svg{width:16px;height:16px}
+
+.about p{margin:0 0 10px;max-width:62ch}
+.about q{display:block;font-family:var(--f-display);font-weight:700;font-size:24px;text-transform:uppercase;line-height:1.1;color:var(--brand);margin-top:6px}
+
+/* Ajustes */
+.pinbox{max-width:360px;margin:20px auto;text-align:center;display:grid;gap:14px;padding:24px}
+.pinbox .lock{width:56px;height:56px;border-radius:50%;margin:0 auto;display:grid;place-items:center;background:var(--char);color:var(--char-ink)}
+.pinbox .lock svg{width:26px;height:26px}
+.dots{display:flex;justify-content:center;gap:10px}
+.dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted)}
+.dots i.f{background:var(--brand);border-color:var(--brand)}
+.dots.err i{border-color:var(--sos)}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.keys button{font-family:var(--f-display);font-weight:700;font-size:26px;padding:12px 0;border-radius:12px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
+.keys button:hover{border-color:var(--brand)}
+.keys button:active{background:var(--brand-soft)}
+.pinerr{color:var(--sos);font-size:14px;min-height:21px;margin:0}
+
+.stabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;padding-bottom:2px}
+.stabs::-webkit-scrollbar{display:none}
+.stabs button{flex:none;font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:14px;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer}
+.stabs button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.ed{display:grid;gap:10px}
+.erow{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.erow .hd{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.erow .hd b{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.erow .hd div{display:flex;gap:4px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:8px}
+.f{display:grid;gap:4px}
+.f label{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:var(--muted)}
+.f input,.f textarea{font:inherit;font-size:15px;padding:9px 11px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+.f textarea{min-height:74px;resize:vertical}
+.savebar{position:sticky;bottom:calc(76px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--char);color:var(--char-ink);border-radius:12px;padding:10px 12px;margin-top:16px;z-index:5}
+@media (min-width:900px){.savebar{bottom:16px}}
+.savebar span{font-size:14px;color:var(--char-muted)}
+.savebar .btn.ghost{color:var(--char-ink);border-color:rgba(255,255,255,.25)}
+.note{font-size:13px;color:var(--muted);margin:0}
+
+.dk-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);opacity:0}
+.dk-steps{display:grid;gap:12px}
+.dk-step{padding:16px;display:grid;gap:12px}
+.dk-sh{display:flex;align-items:center;gap:10px}
+.dk-sh span{width:28px;height:28px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-family:var(--f-mono);font-size:13px;flex:none}
+.dk-sh b{font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:20px;letter-spacing:.03em}
+.dk-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:10px}
+.dk-big{flex-direction:column;min-height:84px;font-size:16px;white-space:normal;gap:4px}
+.dk-big svg{width:24px;height:24px}
+.dk-big small{font-family:var(--f-body);text-transform:none;letter-spacing:0;font-weight:500;font-size:13px;opacity:.85}
+.dk-prev{display:flex;gap:14px;align-items:center;min-width:0}
+.dk-prev img,.dk-noimg{width:84px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:var(--bg);flex:none;display:grid;place-items:center;color:var(--muted)}
+.dk-prev > div{min-width:0;display:grid;gap:6px;justify-items:start}
+.dk-prev b{overflow-wrap:anywhere}
+.dk-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 9px;border-radius:999px;width:max-content;max-width:100%}
+.dk-pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.dk-pill .spin{width:12px;height:12px;border-width:2px}
+.dk-pill.busy::before{display:none}
+.dk-pill.ok{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.dk-pill.warn{background:var(--brand-soft);color:var(--warn)}
+.dk-pill.busy{background:var(--bg);color:var(--muted)}
+.dk-qrrow{display:flex;gap:14px;align-items:center;min-width:0}
+.dk-qrrow > div:last-child{min-width:0}
+.dk-qr{width:96px;flex:none;background:#fff;border-radius:8px;line-height:0}
+.dk-qr svg,.dk-qrbig svg{width:100%;height:auto;display:block}
+.dk-url{font-family:var(--f-mono);font-size:12px;overflow-wrap:anywhere;margin:6px 0 0}
+.dk-step .f input,.dk-step .f textarea{font:inherit;font-size:16px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.dk-step .f textarea{min-height:70px;resize:vertical}
+.dk-step .f{display:grid;gap:5px}
+.dk-step .f label{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:13px;color:var(--muted)}
+.dk-step .f label .note{text-transform:none;letter-spacing:0;font-family:var(--f-body)}
+.dk-platein{font-family:var(--f-mono)!important;font-size:20px!important;letter-spacing:.08em;text-transform:uppercase}
+.dk-save{min-height:54px;font-size:17px}
+.dk-plate{display:inline-flex;align-items:stretch;border:2px solid var(--ink);border-radius:5px;overflow:hidden;background:#fff;color:#111;height:30px;flex:none}
+.dk-plate .eu{background:#1f4e9c;color:#fff;font-family:var(--f-display);font-weight:700;font-size:12px;width:16px;display:grid;place-items:end center;padding-bottom:2px}
+.dk-plate .pn{font-family:var(--f-mono);font-weight:600;font-size:15px;letter-spacing:.06em;padding:0 8px;display:grid;place-items:center;white-space:nowrap}
+.dk-gh{display:flex;justify-content:space-between;font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:14px;color:var(--muted);margin:16px 0 8px}
+.dk-gh span:first-child::first-letter{text-transform:uppercase}
+.dk-list{display:grid;gap:8px}
+.dk-item{width:100%;text-align:left;padding:12px 14px;display:grid;gap:6px;cursor:pointer;font:inherit;color:var(--ink)}
+.dk-item:hover{border-color:var(--brand)}
+.dk-item .l1{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.dk-item b{font-weight:600;overflow-wrap:anywhere}
+.dk-sheet{position:fixed;inset:0;z-index:45;background:var(--bg);overflow-y:auto;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.dk-shh{position:sticky;top:0;z-index:2;background:var(--char);color:var(--char-ink);display:flex;align-items:center;gap:12px;padding:10px 16px}
+.dk-shh .btn.ghost{color:var(--char-ink);border-color:rgba(255,255,255,.25)}
+.dk-shh b{font-family:var(--f-display);font-weight:700;font-size:20px;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dk-shb{max-width:640px;margin:0 auto;padding:16px 16px 40px}
+.dk-hero{padding:18px;display:grid;justify-items:center;gap:10px;text-align:center}
+.dk-qrbig{width:min(270px,74vw);background:#fff;border-radius:8px;line-height:0}
+.dk-hero b{font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:19px}
+.dk-facts{display:grid;grid-template-columns:max-content 1fr;gap:8px 14px;margin:16px 0;font-size:15px}
+.dk-facts dt{color:var(--muted)}
+.dk-facts dd{margin:0;min-width:0;overflow-wrap:anywhere;font-weight:500}
+.dk-acts{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.dk-acts .btn{min-height:46px;white-space:normal}
+.btn.danger.armed{background:var(--sos);color:#fff;border-color:var(--sos)}
+.dk-view{margin-top:14px;display:grid;gap:10px}
+.dk-view img{width:100%;height:auto;border:1px solid var(--line);border-radius:6px;background:#fff}
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--char);color:var(--char-ink);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:30;max-width:calc(100% - 32px);text-align:center;border:1px solid var(--brand)}
+foot,footer{display:block}
+.foot{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);display:flex;gap:8px 16px;flex-wrap:wrap;justify-content:space-between}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast" class="toast" hidden></div>
+<script type="application/json" id="state">{"marca": "LOPEGAR EXPRESS", "subtitulo": "Portal del conductor", "empresa": "LOPEGAR EXPRESS S.L.U.", "lema": "Confianza en movimiento, tu mercancía segura en nuestras manos.", "aviso": "", "web": "https://www.lopegarexpress.es/", "sobre": "Empresa de transporte de mercancías por carretera a nivel nacional, dirigida por Ana María López Domínguez. Especializada en paquetería entre Huelva, Sevilla y Madrid, colaborando con TIPSA, MRW y ONTIME, y abriendo nuevas rutas en la provincia de Huelva.", "logo": "data:image/webp;base64,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", "pinHash": "59355ddcfe03d153585895f45b737816e210d831428dab76277b93869a619e7f", "estaciones": [{"nombre": "San Juan del Puerto", "provincia": "Huelva", "zona": "Huelva", "via": "A-49", "nota": "Pol. Tartessos", "url": "https://maps.app.goo.gl/xba3tjyVR6b4CBS18"}, {"nombre": "Bollullos Par del Condado", "provincia": "Huelva", "zona": "Huelva", "via": "A-49", "nota": "", "url": "https://maps.app.goo.gl/iwmFNn5sx32SQHfb7"}, {"nombre": "Tomares", "provincia": "Sevilla", "zona": "Sevilla", "via": "", "nota": "Aljarafe", "url": "https://maps.app.goo.gl/8DhidougNfs3ooTj6"}, {"nombre": "Camas", "provincia": "Sevilla", "zona": "Sevilla", "via": "", "nota": "", "url": "https://maps.app.goo.gl/XXxQoBt1e2sFnL4o6"}, {"nombre": "Alcalá de Guadaíra", "provincia": "Sevilla", "zona": "Sevilla", "via": "", "nota": "", "url": "https://maps.app.goo.gl/m7yRyPbs7FMwovsp8"}, {"nombre": "Écija", "provincia": "Sevilla", "zona": "Sevilla", "via": "A-4", "nota": "A 2,5 km de la A-4", "url": "https://maps.app.goo.gl/tYqCeps9GvNLH2Zs8"}, {"nombre": "La Carlota", "provincia": "Córdoba", "zona": "Córdoba", "via": "A-4", "nota": "", "url": "https://maps.app.goo.gl/VxwCSFdd6BF72n6KA"}, {"nombre": "Valdepeñas", "provincia": "Ciudad Real", "zona": "La Mancha", "via": "A-4", "nota": "A 2,4 km de la A-4", "url": "https://maps.app.goo.gl/dxrwtswPiGVfYSEE6"}, {"nombre": "Manzanares", "provincia": "Ciudad Real", "zona": "La Mancha", "via": "A-4", "nota": "A 2,2 km de la A-4", "url": "https://maps.app.goo.gl/GpKLvMQYGThPD9ie6"}, {"nombre": "Valdemoro", "provincia": "Madrid", "zona": "Madrid", "via": "A-4", "nota": "", "url": "https://maps.app.goo.gl/GUARrhNimjR69oP68"}, {"nombre": "Coslada", "provincia": "Madrid", "zona": "Madrid", "via": "", "nota": "A 1,5 km de ONTIME", "url": "https://maps.app.goo.gl/zn6Eu1cjwTpQy5gU6"}, {"nombre": "Mérida II", "provincia": "Badajoz", "zona": "Extremadura", "via": "", "nota": "", "url": "https://maps.app.goo.gl/eePxDtkYSL69yuaC7"}], "tipsa": [{"nombre": "TIPSA Huelva", "nota": "", "url": "https://maps.app.goo.gl/wNyBaZ2tt2yRGYPG7"}, {"nombre": "TIPSA Huelva-Costa", "nota": "", "url": "https://maps.app.goo.gl/qrZyLT3XLy3aV71h9"}, {"nombre": "TIPSA Aracena", "nota": "", "url": "https://maps.app.goo.gl/5YC9QAEmHwscDh1A7"}, {"nombre": "TIPSA Aljarafe Sur", "nota": "", "url": "https://maps.app.goo.gl/UKGwziNAdocjw649A"}, {"nombre": "TIPSA Sevilla Sur", "nota": "", "url": "https://maps.app.goo.gl/cLGge96FMhN7LNYF6"}, {"nombre": "TIPSA Marchena", "nota": "", "url": "https://maps.app.goo.gl/FGadDfPU6b9GYro16"}, {"nombre": "TIPSA Bailén", "nota": "", "url": "https://maps.app.goo.gl/tyn1yvCV58h13kj87"}, {"nombre": "TIPSA Madrid", "nota": "", "url": "https://maps.app.goo.gl/7mApTMGbDNA2RSFS9"}, {"nombre": "TIPSA Cheste", "nota": "", "url": "https://maps.app.goo.gl/994FYaWAywPuDU7n6"}], "asistencia": {"aseguradora": "Generali", "telefonos": [{"etiqueta": "Asistencia en carretera", "numero": "911123443", "nota": ""}, {"etiqueta": "Asistencia en carretera", "numero": "900903433", "nota": "Gratuito"}, {"etiqueta": "Asistencia en carretera", "numero": "915149907", "nota": ""}]}, "facturacion": {"razon": "LOPEGAR EXPRESS S.L.U.", "direccion": "Calle Bolivia, 16", "cp_ciudad": "21400 Ayamonte (Huelva)", "cif": "B56264427"}, "contacto": {"gerente": "Ana María López Domínguez", "cargo": "Administradora / Gerente", "telefonos": ["611060141", "675697930"], "email": "lopegarexpress@gmail.com"}, "radios": [{"nombre": "Kiss FM", "genero": "Música", "url": "https://kissfm.kissfmradio.cires21.com/kissfm.mp3"}, {"nombre": "Europa FM", "genero": "Música", "url": "https://20103.live.streamtheworld.com/EFMAAC/HLS/playlist.m3u8"}, {"nombre": "Radiolé", "genero": "Música", "url": "https://25253.live.streamtheworld.com/RADIOLE.mp3"}, {"nombre": "Melodía FM", "genero": "Música", "url": "https://27833.live.streamtheworld.com/MELODIA_FMAAC/HLS/playlist.m3u8"}, {"nombre": "LOS40 Huelva", "genero": "Música", "url": "https://27863.live.streamtheworld.com/LOS40_HUELVA.mp3"}, {"nombre": "LOS40 Classic", "genero": "Música", "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_CLASSIC.mp3"}, {"nombre": "LOS40 Dance", "genero": "Música", "url": "https://23543.live.streamtheworld.com/LOS40_DANCE_SC"}, {"nombre": "LOS40 Urban", "genero": "Música", "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_URBAN.mp3"}, {"nombre": "Hit FM", "genero": "Música", "url": "https://adhandler.kissfmradio.cires21.com/get_link?url=https://bbhitfm.kissfmradio.cires21.com/bbhitfm.mp3"}, {"nombre": "Canal Fiesta Radio", "genero": "Música", "url": "https://rtva-live-radio.flumotion.com/rtva/cfr.mp3"}, {"nombre": "Cadena Dial", "genero": "Música", "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENADIAL.mp3"}, {"nombre": "Cadena 100", "genero": "Música", "url": "https://cadena100-cope-rrcast.flumotion.com/cope/cadena100.mp3"}, {"nombre": "Rock FM", "genero": "Música", "url": "https://rockfm-cope.flumotion.com/chunks.m3u8"}, {"nombre": "Gozadera FM", "genero": "Música", "url": "https://azura.abcorp.es/radio/8030/live"}, {"nombre": "Loca FM", "genero": "Música", "url": "https://s3.we4stream.com:2020/stream/locafm"}, {"nombre": "Canal Sur Radio Huelva", "genero": "Información", "url": "https://rtva-live-radio.flumotion.com/rtva/csrhue.mp3"}, {"nombre": "Cadena SER Huelva", "genero": "Información", "url": "https://23603.live.streamtheworld.com/SER_HUELVA_SC"}, {"nombre": "Onda Cero Huelva", "genero": "Información", "url": "https://atres-live.ondacero.es/live/delegaciones/oc/huelva/bitrate_1.m3u8"}, {"nombre": "Radio Marca", "genero": "Deportes", "url": "https://25503.live.streamtheworld.com/RADIOMARCA_NACIONAL.mp3"}, {"nombre": "Wonder 80's", "genero": "Décadas", "url": "https://80.streeemer.com/listen/80s/radio.aac"}, {"nombre": "Top 90's", "genero": "Décadas", "url": "https://90.streeemer.com:8000/radio.aac"}, {"nombre": "Rewind 2000's", "genero": "Décadas", "url": "https://2000.streeemer.com/listen/2000s/radio.mp3"}], "prl": [{"titulo": "Fatiga y sueño al volante", "riesgo": "La somnolencia reduce los reflejos y provoca microsueños de varios segundos sin que te des cuenta.", "ejemplo": "Llevas cuatro horas por la A-4 de noche, notas los párpados pesados y bajas la ventanilla para despejarte. El efecto dura pocos minutos y el sueño vuelve. A 80 km/h, un microsueño de 3 segundos son más de 60 metros sin control del camión.", "medidas": "Tras 4 h 30 min de conducción, haz una pausa de al menos 45 minutos (se puede dividir en 15 + 30).\nDuerme al menos 7 horas antes de una ruta larga.\nSi bostezas, parpadeas mucho o te cuesta mantener el carril, para en la próxima zona segura y descansa.\nEvita comidas copiosas antes de conducir.\nNi el café ni la ventanilla abierta sustituyen al descanso."}, {"titulo": "Subir y bajar de la cabina", "riesgo": "Las caídas desde la cabina o la caja están entre los accidentes más frecuentes del conductor: esguinces, fracturas y golpes.", "ejemplo": "Llegas a la agencia y bajas de un salto con el móvil en la mano. El peldaño está mojado, el pie resbala y te tuerces el tobillo. Sin apoyo de las manos, todo el peso cae sobre una sola pierna.", "medidas": "Usa siempre tres puntos de apoyo: dos manos y un pie, o dos pies y una mano.\nBaja de cara a la cabina, nunca de espaldas ni saltando.\nLleva las manos libres: deja el móvil y los albaranes antes de bajar.\nUsa calzado de seguridad con suela antideslizante.\nMantén limpios los peldaños y los asideros."}, {"titulo": "Carga y descarga en muelles", "riesgo": "Atropellos por carretillas, atrapamientos con la plataforma del muelle y desplazamientos del camión durante la carga.", "ejemplo": "Mientras la carretilla entra en el remolque, te quedas entre el camión y el muelle revisando el albarán. El camión no tiene calzos y se desplaza unos centímetros: el hueco que se abre puede volcar la carretilla o atraparte.", "medidas": "Antes de cargar: freno de estacionamiento, motor apagado y calzos puestos.\nNo te quedes en la zona de paso de carretillas ni entre el camión y el muelle.\nPonte el chaleco reflectante en las instalaciones del cliente.\nRespeta las normas de la nave y los pasillos peatonales señalizados.\nSi la instalación usa bloqueo de llaves o semáforo de muelle, síguelo siempre."}, {"titulo": "Manipulación manual de cargas", "riesgo": "Lesiones de espalda, hombros y muñecas al levantar, empujar o girar con peso, sobre todo en reparto de paquetería.", "ejemplo": "En una entrega de varias cajas te agachas doblando la espalda y giras el tronco para dejarlas en la transpaleta. Repetido decenas de veces al día, es el origen típico de la lumbalgia.", "medidas": "Dobla las rodillas, espalda recta y la carga pegada al cuerpo.\nNo gires el tronco con peso: mueve los pies.\nUsa transpaleta o carretilla de mano siempre que puedas.\nComo referencia, no levantes solo más de 25 kg; pide ayuda con bultos pesados o voluminosos.\nUsa guantes para cantos, flejes y astillas."}, {"titulo": "Sujeción y estiba de la carga", "riesgo": "Una carga mal sujeta se mueve en frenadas y curvas, desestabiliza el vehículo y puede caer al abrir las puertas.", "ejemplo": "Un palé de bebidas sin cinchar se desplaza en una rotonda y queda apoyado contra las puertas traseras. Al abrirlas en destino, la mercancía cae sobre ti.", "medidas": "Reparte el peso de forma equilibrada y lo más pegado posible al frontal.\nSujeta con cinchas, barras o redes adecuadas al tipo de carga.\nRevisa la sujeción tras los primeros kilómetros y después de cada parada de reparto.\nAbre las puertas despacio y apartado, por si algo se ha movido.\nNo superes la masa máxima autorizada."}, {"titulo": "Ángulos muertos y marcha atrás", "riesgo": "Desde la cabina hay zonas que no se ven, sobre todo junto al lateral derecho, delante del frontal y detrás del vehículo.", "ejemplo": "En una calle estrecha de reparto giras a la derecha. Un ciclista se ha colocado junto a la rueda delantera derecha y no aparece en ningún espejo.", "medidas": "Ajusta todos los espejos antes de salir, también el de bordillo y el delantero.\nGira despacio y vuelve a mirar los espejos durante todo el giro.\nMarcha atrás solo con ayudante o bajando antes a comprobar la zona.\nSi no ves, no te muevas."}, {"titulo": "Distracciones y móvil", "riesgo": "Mirar el móvil 2 segundos a 90 km/h supone recorrer 50 metros a ciegas.", "ejemplo": "Te llega la dirección de la próxima entrega y la escribes en el navegador sin parar. Justo en ese momento, el tráfico de delante frena en seco.", "medidas": "Programa el navegador antes de arrancar.\nUsa solo manos libres y llamadas breves; mejor, para a contestar.\nNo escribas ni leas mensajes conduciendo.\nOrdena la cabina para que nada se caiga ni tengas que buscarlo en marcha."}, {"titulo": "Avería o accidente en la vía", "riesgo": "Bajarse en la calzada es una de las situaciones con más riesgo de atropello para el conductor.", "ejemplo": "Pinchas de noche en el arcén de la autovía. Bajas por el lado izquierdo para mirar la rueda, sin chaleco, con los coches pasando a un metro.", "medidas": "Apártate lo máximo posible y enciende las luces de emergencia.\nPonte el chaleco antes de bajar y sal por el lado contrario al tráfico si puedes.\nColoca la baliza V-16 en el techo.\nEspera detrás del guardarraíl, nunca delante del vehículo ni en la calzada.\nSi hay un accidente: Proteger, Avisar al 112 y Socorrer (P.A.S.)."}, {"titulo": "Calor, frío y salud", "riesgo": "El sedentarismo, la mala alimentación y los cambios de temperatura pasan factura a medio y largo plazo.", "ejemplo": "En verano, descargando a mediodía en un polígono de Sevilla, llevas toda la mañana sin beber. El mareo y el dolor de cabeza son los primeros avisos de un golpe de calor.", "medidas": "Bebe agua con frecuencia, aunque no tengas sed.\nEn verano, deja las tareas físicas para las horas de menos calor cuando sea posible.\nHaz comidas ligeras y regulares; evita picar en ruta.\nAprovecha las pausas para caminar y estirar.\nAcude a los reconocimientos médicos que ofrece la empresa."}], "recursos": [{"titulo": "Carga y descarga en el transporte de mercancías por carretera", "fuente": "INSST", "tipo": "Vídeo", "tema": "Carga y descarga", "url": "https://www.youtube.com/watch?v=3umLknWbKcw"}, {"titulo": "Trabajos seguros en el transporte de mercancías por carretera", "fuente": "INSST", "tipo": "Vídeo", "tema": "Trabajo seguro", "url": "https://www.youtube.com/watch?v=Zs3zEej5Z0U"}, {"titulo": "Napo en… el camino hacia la seguridad", "fuente": "EU-OSHA", "tipo": "Vídeo", "tema": "Conducción profesional · animación sin diálogos", "url": "https://www.napofilm.net/es/napos-films/napo-road-safety"}, {"titulo": "Napo en… moverse seguro", "fuente": "EU-OSHA", "tipo": "Vídeo", "tema": "Vehículos, cargas y maniobras · animación sin diálogos", "url": "https://www.napofilm.net/es/napos-films/napo-safe-moves/view-scenes"}, {"titulo": "Ángulos muertos en camiones", "fuente": "Revista DGT", "tipo": "Vídeo", "tema": "Ángulos muertos", "url": "https://revista.dgt.es/es/multimedia/video/2021/06JUNIO/0607angulos-muertos-campana-francia.shtml"}, {"titulo": "Plan de choque contra los accidentes mortales en el transporte de mercancías", "fuente": "INSST", "tipo": "Guía", "tema": "En ruta y en zonas de carga", "url": "https://www.insst.es/documentacion/material-divulgativo-y-audiovisual/folletos/plan-de-choque-contra-los-accidentes-mortales-en-actividad-de-transporte-mercancias-por-carretera-prevencion-accidentes-en-ruta-ano-2022"}, {"titulo": "Conducir con fatiga", "fuente": "DGT", "tipo": "Guía", "tema": "Fatiga y sueño", "url": "https://www.dgt.es/muevete-con-seguridad/evita-conductas-de-riesgo/conducir-con-fatiga/"}, {"titulo": "NTP 1076: Muelles de carga y descarga: seguridad", "fuente": "INSST", "tipo": "Guía", "tema": "Muelles", "url": "https://www.insst.es/documentacion/colecciones-tecnicas/ntp-notas-tecnicas-de-prevencion/31-serie-ntp-numeros-1066-a-1101-ano-2016/ntp-1.076-muelles-de-carga-y-descarga-seguridad"}], "wx": {"t": "2026-10-03T19:30", "p": [{"c": ["2026-10-03T19:30", 25.2, 3, 7.7, 20.5, 0, 1], "d": [["2026-10-03", 3, 27.7, 22.3, 35, 25.9], ["2026-10-04", 80, 26.7, 20.7, 35, 30.6], ["2026-10-05", 3, 25.6, 21.5, 20, 52.6]]}, {"c": ["2026-10-03T19:30", 28.4, 3, 13.8, 35.6, 0, 1], "d": [["2026-10-03", 81, 32.2, 22.5, 78, 37.1], ["2026-10-04", 3, 29.7, 22.3, 15, 28.1], ["2026-10-05", 3, 29.6, 21.4, 25, 59.8]]}, {"c": ["2026-10-03T19:30", 28.5, 3, 14.7, 27.7, 0, 1], "d": [["2026-10-03", 3, 32.4, 21.7, 25, 34.2], ["2026-10-04", 96, 27.4, 21, 28, 41], ["2026-10-05", 80, 28.6, 21.3, 55, 49]]}, {"c": ["2026-10-03T19:30", 29.3, 3, 3.8, 13, 0, 1], "d": [["2026-10-03", 80, 30.6, 20.6, 40, 27.7], ["2026-10-04", 80, 26.8, 20.5, 50, 37.1], ["2026-10-05", 80, 29.4, 19.6, 50, 49.3]]}, {"c": ["2026-10-03T19:30", 27.8, 2, 3, 7.6, 0, 1], "d": [["2026-10-03", 80, 29.3, 19.4, 43, 27.4], ["2026-10-04", 80, 26.6, 18.2, 43, 33.1], ["2026-10-05", 3, 29.9, 17.1, 40, 47.5]]}, {"c": ["2026-10-03T19:30", 24, 3, 5.8, 13, 0, 1], "d": [["2026-10-03", 80, 25.2, 17.2, 55, 31.7], ["2026-10-04", 95, 22.4, 15.9, 55, 36], ["2026-10-05", 80, 26.1, 15.5, 45, 48.2]]}, {"c": ["2026-10-03T19:30", 23.5, 3, 5.9, 7.9, 0, 1], "d": [["2026-10-03", 3, 24.4, 16.6, 53, 20.2], ["2026-10-04", 80, 23.5, 17, 50, 24.1], ["2026-10-05", 80, 25.5, 15.9, 50, 46.4]]}, {"c": ["2026-10-03T19:30", 22.8, 3, 6, 10.8, 0, 1], "d": [["2026-10-03", 80, 23.2, 16, 55, 16.9], ["2026-10-04", 95, 22.5, 16.3, 48, 25.9], ["2026-10-05", 80, 25.2, 15.8, 55, 46.1]]}, {"c": ["2026-10-03T19:30", 21.3, 3, 6.8, 13.3, 0, 1], "d": [["2026-10-03", 3, 22.2, 16.5, 73, 27.4], ["2026-10-04", 95, 20.9, 15.9, 58, 20.5], ["2026-10-05", 45, 23, 16, 63, 40.7]]}, {"c": ["2026-10-03T19:30", 19.7, 3, 3.1, 12.2, 0, 1], "d": [["2026-10-03", 80, 22.4, 17.5, 88, 23], ["2026-10-04", 95, 20.6, 17.3, 68, 13.7], ["2026-10-05", 80, 23.2, 16.1, 75, 47.2]]}, {"c": ["2026-10-03T19:30", 19.5, 80, 4.8, 19.8, 0.1, 1], "d": [["2026-10-03", 95, 20.6, 17.5, 75, 22.3], ["2026-10-04", 95, 19.3, 17, 83, 21.6], ["2026-10-05", 95, 21, 16.4, 76, 38.2]]}, {"c": ["2026-10-03T19:30", 23.6, 3, 5.6, 13.3, 0, 1], "d": [["2026-10-03", 81, 24.5, 17.9, 80, 26.6], ["2026-10-04", 95, 24.8, 17.3, 50, 28.1], ["2026-10-05", 95, 24.3, 17.7, 58, 67.7]]}, {"c": ["2026-10-03T19:30", 23.8, 3, 9.2, 21.6, 0, 1], "d": [["2026-10-03", 95, 24.8, 19.2, 60, 30.6], ["2026-10-04", 81, 25, 18.5, 38, 22.7], ["2026-10-05", 95, 23.2, 18.2, 87, 43.9]]}, {"c": ["2026-10-03T19:30", 21, 3, 7.7, 14.8, 0, 1], "d": [["2026-10-03", 95, 23.1, 17.8, 90, 31], ["2026-10-04", 80, 22.1, 15.5, 40, 21.6], ["2026-10-05", 95, 21, 14.6, 95, 57.6]]}, {"c": ["2026-10-03T19:30", 22.7, 3, 10.2, 23.4, 0, 1], "d": [["2026-10-03", 95, 23.3, 19.4, 100, 38.5], ["2026-10-04", 80, 23.1, 18.4, 48, 25.6], ["2026-10-05", 95, 20.7, 18, 93, 43.2]]}, {"c": ["2026-10-03T19:30", 21.5, 3, 8.5, 22, 0, 1], "d": [["2026-10-03", 95, 22.2, 18.5, 98, 36.7], ["2026-10-04", 95, 21.3, 17.4, 53, 22.3], ["2026-10-05", 95, 21.1, 17.2, 89, 44.3]]}]}, "radares": "1|A-4|JAÉN|248.4|245.2|38.3786|-3.5081|38.4059|-3.4982|a4;0|A-4|CÓRDOBA|417.6||37.7608|-4.8244|||a4;0|A-4|CÓRDOBA|416.1||37.7706|-4.8214|||a4;0|A-4|CÓRDOBA|410.1||37.8161|-4.7974|||a4;0|A-49|HUELVA|46.3||37.36|-6.5256|||ambas;0|A-49|HUELVA|50.8||37.3524|-6.5752|||ambas;0|A-4|SEVILLA|484.2||37.5096|-5.4031|||a4;0|A-4|SEVILLA|495.7||37.4842|-5.5246|||a4;0|A-4|SEVILLA|529.6||37.4326|-5.8741|||a4;0|A-49|SEVILLA|0.5||37.3877|-6.0339|||ambas;0|SE-30|SEVILLA|10.2||37.343|-5.9859|||ambas;0|SE-30|SEVILLA|11.1||37.3509|-5.9956|||ambas;0|SE-30|SEVILLA|0.6||37.4029|-5.9472|||ambas;0|SE-30|SEVILLA|0.4||37.4042|-5.9478|||ambas;0|SE-30|SEVILLA|10.5||37.347|-5.9908|||ambas;0|SE-30|SEVILLA|9.9||37.3436|-5.9868|||ambas;0|A-66|SEVILLA|795.6||37.5258|-6.0823|||a5;0|A-5|TOLEDO|57.9||40.1255|-4.2241|||a5;0|A-4|TOLEDO|41.4||40.0686|-3.6447|||a4;0|A-5|TOLEDO|139.5||39.9198|-5.0822|||a5;0|A-4|TOLEDO|40.4||40.0797|-3.6379|||a4;0|A-66|BADAJOZ|657.5||38.627|-6.369|||a5;0|A-66|BADAJOZ|685.9||38.3825|-6.3381|||a5;0|A-5|BADAJOZ|332.7||38.9479|-6.2672|||a5;0|A-4|MADRID|13.3||40.3082|-3.6918|||a4;0|A-4|MADRID|12.5||40.3159|-3.6921|||a4;0|A-4|CIUDAD REAL|230.8||38.5186|-3.4906|||a4;0|A-4|CÓRDOBA|415.2||37.7764|-4.8214|||a4;0|A-4|JAÉN|245.2||38.4058|-3.4981|||a4;0|A-5|MADRID|23||40.3038|-3.9142|||a5;0|A-5|MADRID|12.5||40.3578|-3.8183|||a5;0|A-4|CIUDAD REAL|135.6||39.326|-3.4784|||a4;0|A-4|TOLEDO|67.6||39.91|-3.4758|||a4;0|A-4|TOLEDO|95.7||39.6692|-3.5105|||a4;0|A-4|CIUDAD REAL|177.5||38.969|-3.3827|||a4;0|A-4|CIUDAD REAL|230.8||38.5075|-3.4972|||a4;0|A-5|CÁCERES|179.1||39.887|-5.5241|||a5;0|A-5|CÁCERES|183.8||39.8722|-5.5714|||a5;0|A-4|JAÉN|292.9||38.1208|-3.7602|||a4;0|A-4|JAÉN|308.3||38.0552|-3.8949|||a4;0|A-4|JAÉN|292.4||38.1235|-3.7578|||a4", "radaresFecha": "2026-10-03", "appUrl": "https://joseantper3.github.io/lopegar-app2/", "plenergy": [{"nombre": "Gines I", "provincia": "Sevilla", "zona": "Sevilla", "via": "A-49", "nota": "", "url": "https://maps.app.goo.gl/aASqbV8JsaXfPth88"}, {"nombre": "Alcalá de Guadaíra I", "provincia": "Sevilla", "zona": "Sevilla", "via": "", "nota": "", "url": "https://maps.app.goo.gl/bCy5tyk632Mkyx1x6"}, {"nombre": "Córdoba I", "provincia": "Córdoba", "zona": "Córdoba", "via": "A-4", "nota": "", "url": "https://maps.app.goo.gl/kXqR1aQuBSqQatAS6"}, {"nombre": "Madridejos I", "provincia": "Toledo", "zona": "La Mancha", "via": "A-4", "nota": "Dirección Madrid", "url": "https://maps.app.goo.gl/kM3LvYC1r52LtSfB8"}, {"nombre": "Madridejos II", "provincia": "Toledo", "zona": "La Mancha", "via": "A-4", "nota": "Dirección Huelva", "url": "https://maps.app.goo.gl/cXCww9PfWb3bgjzL7"}, {"nombre": "Alcorcón I", "provincia": "Madrid", "zona": "Madrid", "via": "A-5", "nota": "Dirección Huelva", "url": "https://maps.app.goo.gl/nzXjFQtv8vS6TmD6A"}]}</script>
+<script id="app">
+(function(){
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const S=JSON.parse(document.getElementById("state").textContent);
+const ss={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}},del(k){try{sessionStorage.removeItem(k)}catch(e){}}};
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+const I={
+ home:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+ fuel:'<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8h2a2 2 0 0 1 2 2v6a1.5 1.5 0 0 0 3 0V8l-3-3"/>',
+ box:'<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+ sos:'<path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/>',
+ deca:'<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/><path d="M9 12h3v3H9zM14 15h1M9 18h6M14 12h1"/>',
+ doc:'<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h6"/>',
+ radio:'<rect x="3" y="8" width="18" height="12" rx="2"/><path d="m7 8 9-5M16 14h.01M7 12h5M7 16h5"/>',
+ globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+ wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+ pin:'<path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+ copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+ play:'<path d="M7 4v16l13-8z"/>',
+ ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+ prev:'<path d="M19 20 9 12l10-8z"/><path d="M5 19V5"/>',
+ next:'<path d="m5 4 10 8-10 8z"/><path d="M19 5v14"/>',
+ vol:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>',
+ vollow:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/>',
+ mute:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="m17 9 5 5M22 9l-5 5"/>',
+ pause:'<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
+ cone:'<path d="M9.5 4h5l4.5 15H5z"/><path d="M3 20h18M7.5 11h9M6.2 15.5h11.6"/>',
+ cloud:'<path d="M7 18a4.5 4.5 0 1 1 .9-8.9A6 6 0 0 1 19.5 11 3.5 3.5 0 0 1 18 18z"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+ partly:'<path d="M8 4v1.5M3.5 8.5H5M4.8 4.8l1 1M12.2 4.8l-1 1"/><path d="M5.6 11.5A3.5 3.5 0 1 1 11.6 8"/><path d="M9 20a4 4 0 1 1 .8-7.9A5 5 0 0 1 19.5 13.5 3.2 3.2 0 0 1 18.5 20z"/>',
+ rain:'<path d="M7 15a4.5 4.5 0 1 1 .9-8.9A6 6 0 0 1 19.5 8 3.5 3.5 0 0 1 18 15z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>',
+ storm:'<path d="M7 14a4.5 4.5 0 1 1 .9-8.9A6 6 0 0 1 19.5 7 3.5 3.5 0 0 1 18 14z"/><path d="m12 13-2 4h4l-2 4"/>',
+ fog:'<path d="M7 12a4.5 4.5 0 1 1 .9-8.9A6 6 0 0 1 19.5 5 3.5 3.5 0 0 1 18 12z"/><path d="M4 16h16M6 20h12"/>',
+ snow:'<path d="M7 15a4.5 4.5 0 1 1 .9-8.9A6 6 0 0 1 19.5 8 3.5 3.5 0 0 1 18 15z"/><path d="M8 19h.01M12 19h.01M16 19h.01M10 22h.01M14 22h.01"/>',
+ wind:'<path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h8"/>',
+ drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
+ mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/>',
+ radar:'<circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/>',
+ gps:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+ shield:'<path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+ lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+ x:'<path d="M6 6l12 12M18 6 6 18"/>',
+ bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/>',
+ up:'<path d="m6 15 6-6 6 6"/>',down:'<path d="m6 9 6 6 6-6"/>',x:'<path d="M18 6 6 18M6 6l12 12"/>',plus:'<path d="M12 5v14M5 12h14"/>',
+ map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
+ phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>'
+};
+const ic=(n)=>'<svg class="i" viewBox="0 0 24 24" aria-hidden="true">'+I[n]+'</svg>';
+
+const VIEWS=[
+ {id:"inicio",t:"Inicio",ic:"home"},
+ {id:"ballenoil",t:"Ballenoil",ic:"fuel"},
+ {id:"plenergy",t:"Plenergy",ic:"fuel"},
+ {id:"tipsa",t:"Rutas TIPSA",short:"TIPSA",ic:"box"},
+ {id:"clima",t:"Clima en ruta",ic:"cloud"},
+ {id:"radares",t:"Radares en ruta",ic:"radar"},
+ {id:"gmaps",t:"Tráfico Google Maps",short:"Google Maps",ic:"map"},
+ {id:"asistencia",t:"Asistencia",short:"SOS",ic:"sos"},
+ {id:"facturacion",t:"Facturación",ic:"doc"},
+ {id:"deca",t:"DeCA",ic:"deca"},
+ {id:"prevencion",t:"Prevención",ic:"shield"},
+ {id:"radios",t:"Radios",ic:"radio"},
+ {id:"empresa",t:"Empresa",ic:"user"},
+ {id:"ajustes",t:"Ajustes",ic:"gear"}
+];
+const BOTTOM=["inicio","ballenoil","tipsa","asistencia","radios"];
+let view="inicio", fv="", fz="Todas", fq="", rg="Todas", tq="";
+
+function route(){const h=(location.hash||"").replace("#","");view=VIEWS.some(v=>v.id===h)?h:"inicio";render();window.scrollTo(0,0)}
+window.addEventListener("hashchange",route);
+
+function fmtPhone(n){const d=String(n).replace(/\D/g,"");return d.length===9?d.replace(/(\d{3})(\d{3})(\d{3})/,"$1 $2 $3"):n}
+function greet(){const h=new Date().getHours();return h<6?"Buenas noches":h<14?"Buenos días":h<21?"Buenas tardes":"Buenas noches"}
+
+function shell(inner){
+ const nav=VIEWS.map((v,i)=>(v.id==="ajustes"?'<div class="sep"></div>':'')+`<a href="#${v.id}" class="${view===v.id?"on":""}">${ic(v.ic)}${esc(v.t)}</a>`).join("");
+ const bot=BOTTOM.map(id=>{const v=VIEWS.find(x=>x.id===id);return `<a href="#${id}" class="${view===id?"on":""} ${id==="asistencia"?"sos":""}">${ic(v.ic)}${esc(v.short||v.t)}</a>`}).join("");
+ return `<div class="app">
+ <header class="top"><div class="top-in">
+  <a class="logo" href="#inicio" aria-label="Inicio"><img src="${S.logo}" alt="Logo de ${esc(S.empresa)}"></a>
+  <a class="brandtxt" href="#inicio"><b>${esc(S.marca)}</b><span>${esc(S.subtitulo)}</span></a>
+  <div class="player" id="player" role="group" aria-label="Reproductor de radio">
+   <button type="button" class="pb" id="pPrev" aria-label="Emisora anterior">${ic("prev")}</button>
+   <button type="button" class="pb pp" id="pPlay" aria-label="Reproducir"></button>
+   <button type="button" class="pb" id="pNext" aria-label="Emisora siguiente">${ic("next")}</button>
+   <a class="pinfo" href="#radios"><span class="pst" id="pSt"></span><b id="pName"></b></a>
+   <div class="pvol"><button type="button" class="pb" id="pMute" aria-label="Silenciar"></button><input type="range" id="pVolR" min="0" max="100" step="1" aria-label="Volumen"></div>
+   <a class="pb pext" id="pExt" href="#" target="_blank" rel="noopener" aria-label="Abrir emisora fuera de la app" hidden>${ic("ext")}</a>
+  </div>
+  <a class="iconbtn radchip" id="radChip" href="#radares" aria-label="Aviso de radares activado" title="Aviso de radares activado" ${radOn?"":"hidden"}>${ic("radar")}</a>
+  <button type="button" class="iconbtn mic${vOn?" on":""}" id="micBtn" aria-label="${vOn?"Desactivar control por voz":"Control por voz"}" aria-pressed="${vOn}" title="Control por voz">${ic("mic")}</button>
+  <a class="iconbtn" href="#ajustes" aria-label="Ajustes" title="Ajustes">${ic("gear")}</a>
+ </div></header>
+ <div class="shell"><aside class="side"><nav aria-label="Secciones">${nav}</nav></aside>
+ <main id="main">${inner}
+  <div class="foot"><span>${esc(S.empresa)} · CIF ${esc(S.facturacion.cif)}</span><span>${esc(S.lema)}</span></div>
+ </main></div>
+ <nav class="bottom" aria-label="Accesos rápidos">${bot}</nav></div>`;
+}
+function vh(eyebrow,title,p){return `<div class="vh"><span class="eyebrow">${esc(eyebrow)}</span><h1>${esc(title)}</h1>${p?`<p>${esc(p)}</p>`:""}</div>`}
+
+/* ---------- Vistas ---------- */
+function vInicio(){
+ const a=S.asistencia.telefonos[0];
+ const tiles=[
+  ["ballenoil","fuel","Ballenoil",S.estaciones.length+" estaciones"],
+  ["plenergy","fuel","Plenergy",(S.plenergy||[]).length+" estaciones"],
+  ["tipsa","box","Rutas TIPSA",S.tipsa.length+" agencias"],
+  ["clima","cloud","Clima en ruta","Huelva – Madrid"],
+  ["radares","radar","Radares en ruta",radOn?"Aviso GPS activado":RAD.length+" radares · aviso a 2 km"],
+  ["gmaps","map","Tráfico Google Maps","Atascos en directo"],
+  ["asistencia","sos","Asistencia",S.asistencia.aseguradora+" · grúa y avería","sos"],
+  ["facturacion","doc","Facturación","CIF y domicilio"],
+  ["deca","deca","DeCA","Subir y enseñar el DeCA con su QR"],
+  ["prevencion","shield","Prevención",S.prl.length+" riesgos · vídeos"],
+  ["radios","radio","Radios",S.radios.length+" emisoras"],
+  ["empresa","user","Empresa","Contacto y gerencia"]
+ ].filter((t,i,a)=>a.findIndex(x=>x[0]===t[0])===i);
+ return `<section class="hero"><span class="hi">${greet()}</span>
+  <h1>${esc(S.marca.split(" ")[0])} <em>${esc(S.marca.split(" ").slice(1).join(" "))}</em></h1>
+  <p>${esc(S.lema)}</p>
+  <div class="row"><span class="pill">Transporte nacional</span><span class="pill">Huelva · Sevilla · Madrid</span></div></section>
+  ${location.protocol==="file:"&&!window.__lgxNative?`<div class="aviso offl" role="note" style="flex-wrap:wrap">${ic("up")}<div style="flex:1;min-width:200px"><b>Instala la app</b>La has abierto desde un archivo. Instálala en este dispositivo para tener su icono, la radio, el clima en directo, la voz y el aviso de radares por GPS.</div>${(S.appUrl||"").trim()?`<button type="button" class="btn sm" id="fileInst" style="align-self:center">${ic("up")}Instalar</button>`:""}</div>`:""}
+  ${S.aviso&&S.aviso.trim()?`<div class="aviso" role="status">${ic("bell")}<div><b>Aviso a conductores</b>${esc(S.aviso)}</div></div>`:""}
+  ${instEv?`<div class="card install"><div><b>Instala la app</b><span>Icono en tu móvil u ordenador, pantalla completa y permisos guardados.</span></div><button type="button" class="btn" id="instBtn">Instalar</button></div>`:installHint()}
+  <div class="tiles">${tiles.map(t=>t[0]==="web"
+    ?`<a class="tile" href="${esc(S.web)}" target="_blank" rel="noopener"><div class="ic">${ic(t[1])}</div><div><b>${t[2]}</b><span>${esc(t[3])}</span></div></a>`
+    :`<a class="tile ${t[4]||""}" href="#${t[0]}"><div class="ic">${ic(t[1])}</div><div><b>${t[2]}</b><span>${esc(t[3])}</span></div></a>`).join("")}</div>
+  ${a?`<div class="sosbar"><div><b>Asistencia en carretera · ${esc(S.asistencia.aseguradora)}</b><span class="mono">${esc(fmtPhone(a.numero))}</span></div><a class="btn" href="#asistencia">${ic("sos")}Ver todos</a></div>`:""}`;
+}
+
+const FUEL={ballenoil:{key:"estaciones",t:"Ballenoil"},plenergy:{key:"plenergy",t:"Plenergy"}};
+const fuelList=()=>S[(FUEL[view]||FUEL.ballenoil).key]||[];
+function vFuel(){
+ const F=FUEL[view]||FUEL.ballenoil,L=fuelList();
+ if(fv!==view){fv=view;fz="Todas";fq=""}
+ const zones=["Todas",...[...new Set(L.map(s=>s.zona).filter(Boolean))]];
+ if(!zones.includes(fz))fz="Todas";
+ return vh("Repostaje",F.t,"Estaciones habituales ordenadas de sur a norte. Pulsa «Cómo llegar» para abrir la ruta en Google Maps.")+
+ `<div class="tools"><div class="search">${ic("search")}<input id="q" type="search" placeholder="Buscar población o provincia" value="${esc(fq)}" autocomplete="off" aria-label="Buscar estación"></div>
+  <div class="chips" id="zones">${zones.map(z=>`<button type="button" class="chip" aria-pressed="${z===fz}" data-z="${esc(z)}">${esc(z)}</button>`).join("")}</div></div>
+  <div class="card list" id="list"></div><p class="meta" id="count"></p>`;
+}
+const vBallenoil=vFuel,vPlenergy=vFuel;
+function drawStations(){
+ const q=norm(fq),L=fuelList();
+ const rows=L.map((s,i)=>({...s,i:i+1})).filter(s=>(fz==="Todas"||s.zona===fz)&&(!q||norm([s.nombre,s.provincia,s.nota,s.via].join(" ")).includes(q)));
+ $("#list").innerHTML=rows.length?rows.map(s=>`<div class="item"><div class="num">${String(s.i).padStart(2,"0")}</div>
+  <div class="t"><b>${esc(s.nombre)}</b><span>${esc(s.provincia)}${s.nota?" · "+esc(s.nota):""}</span>${s.via?`<span class="tag">${esc(s.via)}</span>`:""}</div>
+  ${s.url?`<a class="btn" href="${esc(s.url)}" target="_blank" rel="noopener">${ic("pin")}Cómo llegar</a>`:""}</div>`).join("")
+  :`<div class="empty">Ninguna estación coincide con la búsqueda.</div>`;
+ $("#count").textContent=rows.length+" de "+L.length+" estaciones";
+}
+
+function vTipsa(){
+ return vh("Red de agencias","Rutas TIPSA","Delegaciones de carga y descarga. Abre la ubicación exacta de cada agencia en Google Maps.")+
+ `<div class="tools"><div class="search">${ic("search")}<input id="tq" type="search" placeholder="Buscar agencia" value="${esc(tq)}" autocomplete="off" aria-label="Buscar agencia"></div></div>
+ <div class="card list" id="tlist"></div><p class="meta" id="tcount"></p>`;
+}
+function drawTipsa(){
+ const q=norm(tq);const rows=S.tipsa.map((s,i)=>({...s,i:i+1})).filter(s=>!q||norm(s.nombre+" "+(s.nota||"")).includes(q));
+ $("#tlist").innerHTML=rows.length?rows.map(s=>`<div class="item"><div class="num">${String(s.i).padStart(2,"0")}</div>
+  <div class="t"><b>${esc(s.nombre)}</b>${s.nota?`<span>${esc(s.nota)}</span>`:""}</div>
+  ${s.url?`<a class="btn" href="${esc(s.url)}" target="_blank" rel="noopener">${ic("pin")}Cómo llegar</a>`:""}</div>`).join("")
+  :`<div class="empty">Ninguna agencia coincide con la búsqueda.</div>`;
+ $("#tcount").textContent=rows.length+" de "+S.tipsa.length+" agencias";
+}
+
+function vAsistencia(){
+ const A=S.asistencia;
+ return vh("En carretera","Asistencia","Con heridos o peligro en la vía, llama primero al 112. Para grúa o avería, usa los números de la aseguradora.")+
+ `<div class="stack">
+  <div class="card emerg phone"><div class="lbl">Emergencias<small>Accidente, heridos, incendio</small></div><div class="n">112</div></div>
+  <div class="card"><div class="insurer"><b>${esc(A.aseguradora)}</b><span class="note">Números de asistencia en carretera</span></div>
+   ${A.telefonos.map(t=>`<div class="phone" style="border-top:1px solid var(--line)"><div class="lbl">${esc(t.etiqueta||"Asistencia")}<small>${esc(t.nota||"")}</small></div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span class="n">${esc(fmtPhone(t.numero))}</span>
+    <span class="acts"><a class="btn ghost sm" href="tel:${esc(String(t.numero).replace(/\s/g,""))}">${ic("phone")}Llamar</a><button class="btn ghost sm" data-copy="${esc(String(t.numero).replace(/\s/g,""))}">${ic("copy")}Copiar</button></span></div></div>`).join("")}
+  </div>
+  <div class="grid">
+   <div class="card pad stack"><h2>Si tienes una avería</h2><ol class="steps">
+    <li>Sitúa el vehículo fuera de la calzada si puedes y enciende las luces de emergencia.</li>
+    <li>Ponte el chaleco antes de bajar y activa la baliza V-16.</li>
+    <li>Llama a asistencia con matrícula, carretera, punto kilométrico y sentido.</li>
+    <li>Avisa a la empresa y al cliente si la entrega se va a retrasar.</li></ol></div>
+   <div class="card phone"><div class="lbl">Información de tráfico DGT<small>Estado de las carreteras</small></div><div class="n">011</div></div>
+  </div></div>`;
+}
+
+/* ---------- Utilidades de fecha ---------- */
+const fdate=t=>{if(!t)return "";const d=new Date(t);return isNaN(d)?t:d.toLocaleDateString("es-ES",{day:"numeric",month:"short"})+(t.length>10?", "+d.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"}):"")};
+const fkm=k=>k==null?"":String(Math.round(k*10)/10).replace(".",",");
+const hhmm=t=>new Date(t).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"});
+
+/* ---------- DeCA: subir, guardar y enseñar el Documento de Control con su QR ----------
+   En Claude (con sesión iniciada) los DeCA se guardan para toda la flota.
+   En la web, el archivo y la app de Android se guardan en el propio móvil y se ven sin cobertura. */
+const DK={mode:"",db:null,user:null,dl:null,me:null,canEdit:false,recs:[],idb:null,
+ tab:ls.get("lgx-dk-tab")==="docs"?"docs":"subir",filter:"mine",q:"",pending:null,qr:"",qrState:"idle",busy:false,open:null,armed:false,
+ f:{plate:ls.get("lgx-dk-plate")||"",date:"",ref:"",from:"",to:"",notes:""}};
+const DK_INLINE=180*1024;
+const DK_PDFJS="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js",DK_PDFW="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js",DK_JSQR="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js";
+const dkScripts={};
+function dkLoad(src){return dkScripts[src]||(dkScripts[src]=new Promise((ok,ko)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>{delete dkScripts[src];ko(new Error("script"))};document.head.appendChild(s)}))}
+async function dkPdf(){await dkLoad(DK_PDFJS);window.pdfjsLib.GlobalWorkerOptions.workerSrc=DK_PDFW;return window.pdfjsLib}
+const dkToday=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+if(!DK.f.date)DK.f.date=dkToday();
+const dkNorm=s=>String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+function dkPlateFmt(s){const p=dkNorm(s);let m;if((m=p.match(/^(\d{4})([A-Z]{3})$/)))return m[1]+" "+m[2];if((m=p.match(/^([RE])(\d{4})([A-Z]{3})$/)))return m[1]+" "+m[2]+" "+m[3];return p}
+const dkPlate=s=>`<span class="dk-plate"><span class="eu">E</span><span class="pn">${esc(dkPlateFmt(s))}</span></span>`;
+const dkKb=n=>n<1048576?Math.max(1,Math.round(n/1024))+" KB":(n/1048576).toFixed(1).replace(".",",")+" MB";
+const dkId=()=>(crypto.randomUUID?crypto.randomUUID():String(Math.random())+Date.now()).replace(/[^a-z0-9]/gi,"").slice(0,20);
+function dkDay(iso){if(!iso)return "Sin fecha";if(iso===dkToday())return "Hoy";const y=new Date(Date.now()-864e5);y.setMinutes(y.getMinutes()-y.getTimezoneOffset());if(iso===y.toISOString().slice(0,10))return "Ayer";
+ const d=new Date(iso+"T12:00:00");return d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:d.getFullYear()!==new Date().getFullYear()?"numeric":undefined})}
+const dkDate=iso=>iso?new Date(iso+"T12:00:00").toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric"}):"—";
+const dkStamp=iso=>iso?new Date(iso).toLocaleString("es-ES",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"—";
+async function dkQrSvg(text){
+ if(!text)return "";
+ try{await loadQR();if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs["UTF-8"])qrcode.stringToBytes=qrcode.stringToBytesFuncs["UTF-8"];
+  const q=qrcode(0,"M");q.addData(text);q.make();const n=q.getModuleCount(),m=4;let d="";
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+m} ${r+m}h1v1h-1z`;
+  return `<svg viewBox="0 0 ${n+2*m} ${n+2*m}" shape-rendering="crispEdges" role="img" aria-label="Código QR"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`}catch(e){return ""}
+}
+/* imágenes y QR */
+const dkImg=src=>new Promise((ok,ko)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ko(new Error("img"));i.src=src});
+function dkCanvas(img,max){const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height,s=Math.min(1,max/Math.max(w,h));const c=document.createElement("canvas");c.width=Math.round(w*s);c.height=Math.round(h*s);
+ const x=c.getContext("2d",{willReadFrequently:true});x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);return c}
+const dkBlob=(c,q)=>new Promise(ok=>c.toBlob(ok,"image/jpeg",q));
+async function dkSmall(c){for(const [mx,q] of [[1800,.8],[1600,.75],[1400,.7],[1200,.62],[1000,.55],[850,.5]]){const b=await dkBlob(Math.max(c.width,c.height)>mx?dkCanvas(c,mx):c,q);if(b&&b.size<=DK_INLINE)return b}return dkBlob(dkCanvas(c,800),.45)}
+async function dkDecode(cv){
+ if("BarcodeDetector" in window){try{const r=await new BarcodeDetector({formats:["qr_code"]}).detect(cv);if(r&&r.length)return r[0].rawValue}catch(e){}}
+ try{await dkLoad(DK_JSQR)}catch(e){return null}
+ for(const mx of [1600,1100,800]){const big=Math.max(cv.width,cv.height);const c=big>mx?dkCanvas(cv,mx):cv;const x=c.getContext("2d",{willReadFrequently:true});
+  const r=window.jsQR(x.getImageData(0,0,c.width,c.height).data,c.width,c.height,{inversionAttempts:"attemptBoth"});if(r&&r.data)return r.data;if(big<=mx)break}
+ return null}
+async function dkDecodeFile(f){const u=URL.createObjectURL(f);try{return await dkDecode(dkCanvas(await dkImg(u),2200))}finally{URL.revokeObjectURL(u)}}
+async function dkPdfPage(pdf,n,w){const p=await pdf.getPage(n);const v1=p.getViewport({scale:1});const vp=p.getViewport({scale:w/v1.width});const c=document.createElement("canvas");c.width=Math.round(vp.width);c.height=Math.round(vp.height);
+ const x=c.getContext("2d",{willReadFrequently:true});x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);await p.render({canvasContext:x,viewport:vp}).promise;return c}
+const dkB64=b=>new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(",")[1]);r.onerror=ko;r.readAsDataURL(b)});
+const dkFromB64=(b,t)=>{const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return new Blob([u],{type:t})};
+/* almacén en el móvil (IndexedDB) */
+function dkIdb(){if(DK.idb)return DK.idb;DK.idb=new Promise((ok,ko)=>{try{const r=indexedDB.open("lopegar-deca",1);r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore("recs",{keyPath:"id"});d.createObjectStore("files")};r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)}catch(e){ko(e)}});return DK.idb}
+async function dkTx(store,mode,fn){const d=await dkIdb();return new Promise((ok,ko)=>{const t=d.transaction(store,mode);const s=t.objectStore(store);const req=fn(s);t.oncomplete=()=>ok(req&&req.result);t.onerror=()=>ko(t.error);t.onabort=()=>ko(t.error)})}
+/* arranque */
+async function dkInit(){
+ if(DK.mode)return;DK.mode="init";
+ if(window.claude&&window.claude.use){
+  const [db,user,dl]=await Promise.all(["db","user","downloads"].map(n=>window.claude.use(n).catch(()=>null)));
+  DK.dl=dl;DK.user=user;
+  if(db){DK.db=db;DK.mode="cloud";
+   try{DK.me=user?await user.me():null;DK.canEdit=!!(DK.me&&DK.me.canEdit)}catch(e){}
+   if(!DK.me||!DK.me.id)DK.filter="all";
+   db.collection("deca").orderBy("createdAt","desc").limit(1000).onSnapshot(s=>{DK.recs=s.docs.map(d=>({id:d.id,...d.data()}));dkRefresh()},()=>{DK.err=true;dkRefresh()});
+   if(view==="deca")render();return}
+ }
+ DK.mode="local";
+ try{DK.recs=(await dkTx("recs","readonly",s=>s.getAll()))||[]}catch(e){DK.err=true}
+ if(view==="deca")render();
+}
+function dkRefresh(){if(view==="deca"&&!DK.busy&&DK.tab==="docs")render();if(DK.open)dkSheet(DK.open)}
+/* vista */
+function vDeca(){
+ setTimeout(dkInit,0);
+ const n=DK.mode==="cloud"&&DK.filter==="mine"&&DK.me&&DK.me.id?DK.recs.filter(r=>r.driver===DK.me.id).length:DK.recs.length;
+ return vh("Documento de control","DeCA","Sube el DeCA de cada servicio antes de salir y enséñalo con su código QR si te paran en una inspección.")+
+ `<div class="tools"><div class="chips" role="tablist"><button type="button" class="chip" aria-pressed="${DK.tab==="subir"}" data-dk="tab:subir">Subir DeCA</button><button type="button" class="chip" aria-pressed="${DK.tab==="docs"}" data-dk="tab:docs">Mis documentos${n?` · ${n}`:""}</button></div></div>
+ ${DK.mode==="init"||!DK.mode?`<p class="note">Preparando…</p>`:DK.tab==="subir"?dkUpload():dkDocs()}`;
+}
+function dkWhere(){return DK.mode==="cloud"?"Se guarda en la flota: lo ven tus compañeros con acceso a la app en Claude.":"Se guarda en este dispositivo: lo puedes enseñar aunque no tengas cobertura."}
+function dkUpload(){
+ const p=DK.pending,f=DK.f;
+ const qr=DK.qrState==="busy"?`<span class="dk-pill busy"><span class="spin"></span>Buscando el QR…</span>`
+  :DK.qr?`<div class="dk-qrrow"><div class="dk-qr" id="dkQrPrev"></div><div><span class="dk-pill ok">QR asociado</span><p class="dk-url">${esc(DK.qr)}</p></div></div>`
+  :DK.qrState==="none"?`<span class="dk-pill warn">No se ha encontrado QR</span><p class="note">Haz una foto de cerca solo al QR o pega el enlace que aparece debajo de él.</p>`
+  :`<p class="note">Al subir el documento, la app busca su QR sola.</p>`;
+ if(DK.qr)setTimeout(async()=>{const el=$("#dkQrPrev");if(el)el.innerHTML=await dkQrSvg(DK.qr)},0);
+ return `<div class="dk-steps">
+ <div class="card dk-step"><div class="dk-sh"><span>1</span><b>Documento</b></div>
+  ${p?`<div class="dk-prev">${p.thumb?`<img src="${p.thumb}" alt="Vista previa del DeCA">`:`<div class="dk-noimg">${ic("deca")}</div>`}<div><b>${esc(p.name)}</b><p class="note">${esc(p.info||"Preparando…")}</p><button type="button" class="btn ghost sm" data-dk="change">Cambiar documento</button></div></div>`
+  :`<div class="dk-two"><label class="btn dk-big" for="dkCam">${ic("deca")}Hacer foto<small>del DeCA impreso</small></label><label class="btn ghost dk-big" for="dkFile">${ic("doc")}Elegir archivo<small>PDF o imagen</small></label></div>`}
+  <input class="dk-sr" type="file" id="dkCam" accept="image/*" capture="environment"><input class="dk-sr" type="file" id="dkFile" accept="application/pdf,image/*">
+ </div>
+ <div class="card dk-step"><div class="dk-sh"><span>2</span><b>QR del DeCA</b></div>${qr}
+  <div class="links3"><label class="btn ghost sm" for="dkQrCam">Fotografiar solo el QR</label></div><input class="dk-sr" type="file" id="dkQrCam" accept="image/*" capture="environment">
+  <div class="f"><label for="dkQr">Enlace del QR <span class="note">(se rellena solo; también puedes pegarlo)</span></label><input type="url" id="dkQr" inputmode="url" placeholder="https://…" value="${esc(DK.qr)}" autocomplete="off"></div>
+ </div>
+ <form class="card dk-step" id="dkForm" novalidate><div class="dk-sh"><span>3</span><b>Servicio</b></div>
+  <div class="fields">
+   <div class="f"><label for="dk-plate">Matrícula</label><input type="text" id="dk-plate" class="dk-platein" value="${esc(f.plate)}" placeholder="1234 ABC" autocomplete="off" autocapitalize="characters"></div>
+   <div class="f"><label for="dk-date">Fecha del servicio</label><input type="date" id="dk-date" value="${esc(f.date)}"></div>
+   <div class="f"><label for="dk-ref">Nº de servicio o albarán (opcional)</label><input type="text" id="dk-ref" value="${esc(f.ref)}" placeholder="Ej. ALB-2026-10482" autocomplete="off"></div>
+   <div class="f"><label for="dk-from">Origen (opcional)</label><input type="text" id="dk-from" value="${esc(f.from)}" placeholder="Ej. Huelva"></div>
+   <div class="f"><label for="dk-to">Destino (opcional)</label><input type="text" id="dk-to" value="${esc(f.to)}" placeholder="Ej. Coslada"></div>
+  </div>
+  <div class="f"><label for="dk-notes">Notas (opcional)</label><textarea id="dk-notes" placeholder="Remolque, cliente, incidencias…">${esc(f.notes)}</textarea></div>
+  <button type="submit" class="btn dk-save"${DK.busy?" disabled":""}>${DK.busy?`<span class="spin"></span> Guardando…`:"Guardar DeCA"}</button>
+  <p class="note">${dkWhere()}</p>
+ </form></div>
+ <p class="note" style="margin-top:12px">El documento con validez ante la Inspección es el que emite el cargador o la empresa con su propio código QR; aquí se archiva y se asocia a cada vehículo y servicio.</p>`;
+}
+function dkDocs(){
+ const q=DK.q.trim().toLowerCase(),qp=dkNorm(DK.q);
+ let rows=DK.recs.filter(r=>DK.mode!=="cloud"||DK.filter==="all"||!DK.me||!DK.me.id||r.driver===DK.me.id);
+ if(q)rows=rows.filter(r=>(qp&&dkNorm(r.plate).includes(qp))||[r.ref,r.origin,r.dest,r.qrUrl,r.notes].some(v=>String(v||"").toLowerCase().includes(q)));
+ const sorted=rows.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||"")||(b.createdAt||"").localeCompare(a.createdAt||""));
+ let html="",cur=null,grp=[];const flush=()=>{if(cur!==null)html+=`<div class="dk-gh"><span>${esc(dkDay(cur))}</span><span>${grp.length}</span></div><div class="dk-list">${grp.join("")}</div>`};
+ for(const r of sorted){if(r.date!==cur){flush();cur=r.date;grp=[]}
+  const route=[r.origin,r.dest].filter(Boolean).join(" → ");
+  grp.push(`<button type="button" class="card dk-item" data-dk="open:${esc(r.id)}"><span class="l1">${dkPlate(r.plate)}${r.qrUrl?`<span class="dk-pill ok">QR oficial</span>`:`<span class="dk-pill warn">Sin QR</span>`}</span><b>${esc(route||r.ref||"DeCA")}</b><span class="note">${r.ref&&route?esc(r.ref)+" · ":""}Subido ${esc(dkStamp(r.createdAt))}</span></button>`)}
+ flush();
+ return `<div class="tools"><div class="search">${ic("search")}<input type="search" id="dkQ" value="${esc(DK.q)}" placeholder="Buscar matrícula, albarán, ciudad…" aria-label="Buscar DeCA"></div><label class="btn ghost" for="dkFind">Buscar por QR</label><input class="dk-sr" type="file" id="dkFind" accept="image/*" capture="environment"></div>
+ ${DK.mode==="cloud"?`<div class="chips" style="margin-bottom:12px"><button type="button" class="chip" aria-pressed="${DK.filter==="mine"}" data-dk="flt:mine">Mis documentos</button><button type="button" class="chip" aria-pressed="${DK.filter==="all"}" data-dk="flt:all">Toda la flota</button></div>`:""}
+ ${DK.err?`<div class="card empty">No se han podido cargar los documentos. Vuelve a abrir la app.</div>`
+  :html||`<div class="card empty">${q?`Nada coincide con «${esc(DK.q)}».`:`Aún no hay DeCA guardados. Pulsa «Subir DeCA», haz una foto del documento o elige el PDF.`}</div>`}
+ <p class="note" style="margin-top:12px">${dkWhere()}</p>`;
+}
+/* subir documento */
+async function dkPick(file){
+ if(!file)return;
+ const isPdf=file.type==="application/pdf"||/\.pdf$/i.test(file.name),isImg=/^image\//.test(file.type);
+ if(!isPdf&&!isImg){toast("Ese archivo no es un PDF ni una imagen.");return}
+ const p={name:file.name||(isPdf?"deca.pdf":"deca.jpg"),isPdf,pages:[],info:""};DK.pending=p;DK.qrState="busy";render();
+ try{let found=null;
+  if(isPdf){
+   const bytes=new Uint8Array(await file.arrayBuffer());p.orig=new Blob([bytes],{type:"application/pdf"});
+   const lib=await dkPdf();const pdf=await lib.getDocument({data:bytes.slice()}).promise;const n=Math.min(pdf.numPages,4);
+   for(let i=1;i<=n;i++){const cv=await dkPdfPage(pdf,i,1700);p.pages.push(await dkSmall(cv));if(i===1)p.thumb=cv.toDataURL("image/jpeg",.6);
+    if(!found&&i<=3)found=(await dkDecode(cv))||(await dkDecode(await dkPdfPage(pdf,i,2600)))}
+   p.info=`PDF · ${pdf.numPages} ${pdf.numPages===1?"página":"páginas"} · ${dkKb(p.orig.size)}`;
+  }else{
+   const u=URL.createObjectURL(file);const img=await dkImg(u);URL.revokeObjectURL(u);const cv=dkCanvas(img,2000);
+   p.pages.push(await dkSmall(cv));p.orig=await dkBlob(cv,.85);p.name=p.name.replace(/\.[a-z0-9]+$/i,"")+".jpg";p.thumb=cv.toDataURL("image/jpeg",.6);
+   found=await dkDecode(dkCanvas(img,2600));p.info="Foto · "+dkKb(p.orig.size);
+  }
+  if(DK.pending!==p)return;
+  if(found)DK.qr=found;DK.qrState=DK.qr?"found":"none";
+ }catch(e){console.error(e);if(DK.pending!==p)return;p.info="No se ha podido leer el archivo. Prueba con otro o haz una foto.";p.bad=true;DK.qrState=DK.qr?"found":"none"}
+ render();
+}
+async function dkSave(){
+ const p=DK.pending,f=DK.f;
+ if(!p||p.bad||!p.pages.length){toast("Primero sube el documento (paso 1).");return}
+ const plate=dkNorm(f.plate);if(plate.length<4){toast("Escribe la matrícula del vehículo.");const el=$("#dk-plate");el&&el.focus();return}
+ DK.busy=true;render();
+ const id=dkId(),qrUrl=DK.qr.trim();
+ const rec={plate,date:f.date||dkToday(),ref:f.ref.trim(),origin:f.from.trim(),dest:f.to.trim(),notes:f.notes.trim(),qrUrl,qrSvg:await dkQrSvg(qrUrl),
+  createdAt:new Date().toISOString(),file:{name:p.name,type:p.isPdf?"application/pdf":"image/jpeg",size:p.orig?p.orig.size:0,pages:p.pages.length}};
+ try{
+  if(DK.mode==="cloud"){
+   rec.driver=DK.me&&DK.me.id||null;
+   for(let i=0;i<p.pages.length;i++)await DK.db.doc("deca_files/"+id+"_p"+i).set({data:await dkB64(p.pages[i]),type:"image/jpeg"});
+   if(p.orig&&p.orig.size<=DK_INLINE){await DK.db.doc("deca_files/"+id+"_o").set({data:await dkB64(p.orig),type:p.orig.type});rec.file.orig=true}
+   await DK.db.doc("deca/"+id).set(rec);
+  }else{
+   rec.file.orig=!!p.orig;
+   await dkTx("files","readwrite",s=>s.put({pages:p.pages,orig:p.orig||null},id));
+   await dkTx("recs","readwrite",s=>s.put({id,...rec}));
+  }
+  if(!DK.recs.some(r=>r.id===id))DK.recs=[{id,...rec},...DK.recs];
+  ls.set("lgx-dk-plate",dkPlateFmt(plate));
+  DK.f={plate:dkPlateFmt(plate),date:dkToday(),ref:"",from:"",to:"",notes:""};DK.pending=null;DK.qr="";DK.qrState="idle";
+  DK.busy=false;DK.tab="docs";ls.set("lgx-dk-tab","docs");render();toast("DeCA guardado");dkSheet(id);
+ }catch(e){console.error(e);DK.busy=false;render();
+  const c=e&&e.code;toast(c==="invalid_argument"||c==="not_granted"?"Tu acceso no permite guardar: pide al responsable acceso de Colaborador.":c==="quota_exceeded"||c==="resource_exhausted"?"Se ha llenado el espacio de la app. Avisa al responsable.":"No se ha podido guardar. Vuelve a intentarlo.")}
+}
+async function dkPages(r){
+ if(DK.mode==="cloud"){const out=[];for(let i=0;i<(r.file&&r.file.pages||1);i++){const s=await DK.db.doc("deca_files/"+r.id+"_p"+i).get();if(s.exists){const d=s.data();out.push(dkFromB64(d.data,d.type))}}return out}
+ const f=await dkTx("files","readonly",s=>s.get(r.id));return f&&f.pages||[];
+}
+async function dkOrig(r){
+ if(DK.mode==="cloud"){if(r.file&&r.file.orig){const s=await DK.db.doc("deca_files/"+r.id+"_o").get();if(s.exists){const d=s.data();return dkFromB64(d.data,d.type)}}return null}
+ const f=await dkTx("files","readonly",s=>s.get(r.id));return f&&f.orig||null;
+}
+/* hoja de detalle (fuera del contenido para que no se cierre al refrescar) */
+async function dkSheet(id){
+ const r=DK.recs.find(x=>x.id===id);let el=document.getElementById("dkSheet");
+ if(!r){el&&el.remove();DK.open=null;return}
+ const first=!el||DK.open!==id;DK.open=id;
+ if(!el){el=document.createElement("div");el.id="dkSheet";el.className="dk-sheet";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");document.body.appendChild(el);document.body.style.overflow="hidden"}
+ const mine=DK.mode!=="cloud"||(DK.me&&DK.me.id&&r.driver===DK.me.id);const canDel=mine||DK.canEdit;
+ let who="";if(DK.mode==="cloud"&&r.driver&&DK.user){try{const ps=await DK.user.profiles([r.driver]);who=(ps[r.driver]&&ps[r.driver].name)||"Conductor"}catch(e){who="Conductor"}}
+ const route=[r.origin,r.dest].filter(Boolean).join(" → ");
+ const keepView=!first&&el.querySelector("#dkView")?el.querySelector("#dkView").innerHTML:"";
+ el.innerHTML=`<div class="dk-shh"><button type="button" class="btn ghost sm" data-dk="close">← Volver</button><b>${esc(dkPlateFmt(r.plate))}${r.ref?" · "+esc(r.ref):""}</b></div>
+ <div class="dk-shb">
+  <div class="card dk-hero">${r.qrUrl?`<span class="dk-pill ok">QR oficial del DeCA</span><div class="dk-qrbig">${r.qrSvg||""}</div><b>Enseña este QR en la inspección</b><p class="dk-url">${esc(r.qrUrl)}</p>`
+   :`<span class="dk-pill warn">Sin QR oficial</span><p class="note">El documento no tenía un QR legible. Si lo tiene, pulsa «Asociar QR» y fotografíalo de cerca.</p>`}</div>
+  <dl class="dk-facts"><dt>Matrícula</dt><dd>${dkPlate(r.plate)}</dd><dt>Servicio</dt><dd>${esc(dkDate(r.date))}</dd>${r.ref?`<dt>Referencia</dt><dd>${esc(r.ref)}</dd>`:""}${route?`<dt>Ruta</dt><dd>${esc(route)}</dd>`:""}${who?`<dt>Conductor</dt><dd>${esc(who)}</dd>`:""}
+   <dt>Subido</dt><dd>${esc(dkStamp(r.createdAt))}</dd><dt>Archivo</dt><dd>${esc((r.file&&r.file.type==="application/pdf"?"PDF":"Foto")+(r.file&&r.file.size?" · "+dkKb(r.file.size):""))}</dd>${r.notes?`<dt>Notas</dt><dd>${esc(r.notes)}</dd>`:""}</dl>
+  <div class="dk-acts"><button type="button" class="btn" data-dk="view">Ver documento</button>
+   ${r.qrUrl&&/^https?:\/\//i.test(r.qrUrl)?`<a class="btn ghost" href="${esc(r.qrUrl)}" target="_blank" rel="noopener">Abrir enlace oficial</a>`:""}
+   <button type="button" class="btn ghost" data-dk="dl">Descargar</button>
+   ${mine||DK.canEdit?`<label class="btn ghost" for="dkAssoc">Asociar QR</label><input class="dk-sr" type="file" id="dkAssoc" accept="image/*" capture="environment">`:""}
+   ${canDel?`<button type="button" class="btn danger" data-dk="del">Eliminar</button>`:""}</div>
+  <div id="dkView" class="dk-view">${keepView}</div>
+ </div>`;
+ if(first)el.scrollTop=0;
+}
+function dkClose(){const el=document.getElementById("dkSheet");el&&el.remove();DK.open=null;DK.armed=false;document.body.style.overflow=""}
+async function dkView(r){
+ const v=$("#dkView");if(!v)return;v.innerHTML=`<span class="dk-pill busy"><span class="spin"></span>Abriendo documento…</span>`;
+ try{const ps=await dkPages(r);if(!ps.length)throw new Error("vacío");v.innerHTML="";
+  ps.forEach((b,i)=>{const img=new Image();img.alt=`DeCA ${dkPlateFmt(r.plate)}, página ${i+1}`;img.src=URL.createObjectURL(b);v.appendChild(img)});
+  if(r.file&&r.file.type==="application/pdf")v.insertAdjacentHTML("beforeend",`<p class="note">Vista del PDF${r.file.pages>=4?" (primeras 4 páginas)":""}. «Descargar» guarda el archivo original${r.file.orig?"":" (en la flota se guarda como imagen si el PDF es grande)"}.</p>`);
+ }catch(e){v.innerHTML=`<div class="card empty">No se ha podido abrir el documento. Comprueba la conexión o vuelve a subirlo.</div>`}
+}
+async function dkDownload(r){
+ try{let b=await dkOrig(r),ext=b&&b.type==="application/pdf"?"pdf":"jpg";if(!b){b=(await dkPages(r))[0];ext="jpg"}if(!b)throw new Error("vacío");
+  const name=`DeCA_${dkNorm(r.plate)}_${r.date||""}${r.ref?"_"+r.ref.replace(/[^\w-]+/g,""):""}.${ext}`;
+  if(DK.dl){await DK.dl.save({filename:name,data:b});toast("Descarga lista");return}
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
+ }catch(e){if(!(e&&e.code==="declined"))toast("No se ha podido descargar.")}
+}
+async function dkDelete(r){
+ try{if(DK.mode==="cloud"){for(let i=0;i<(r.file&&r.file.pages||1);i++){try{await DK.db.doc("deca_files/"+r.id+"_p"+i).delete()}catch(e){}}if(r.file&&r.file.orig){try{await DK.db.doc("deca_files/"+r.id+"_o").delete()}catch(e){}}await DK.db.doc("deca/"+r.id).delete()}
+  else{await dkTx("files","readwrite",s=>s.delete(r.id));await dkTx("recs","readwrite",s=>s.delete(r.id))}
+  DK.recs=DK.recs.filter(x=>x.id!==r.id);dkClose();render();toast("DeCA eliminado");
+ }catch(e){toast("No se ha podido eliminar.")}
+}
+async function dkAssoc(r,file){
+ toast("Leyendo QR…");const t=await dkDecodeFile(file).catch(()=>null);
+ if(!t){toast("No se ha podido leer el QR. Acércate más y evita reflejos.");return}
+ const upd={qrUrl:t,qrSvg:await dkQrSvg(t)};
+ try{if(DK.mode==="cloud")await DK.db.doc("deca/"+r.id).update(upd);else await dkTx("recs","readwrite",s=>s.put({...r,...upd}));
+  Object.assign(r,upd);toast("QR asociado");dkSheet(r.id)}catch(e){toast("No se ha podido guardar el QR.")}
+}
+/* eventos */
+document.addEventListener("click",e=>{
+ const b=e.target.closest("[data-dk]");if(!b)return;const [a,arg]=b.dataset.dk.split(/:(.*)/);
+ if(a==="tab"){DK.tab=arg;ls.set("lgx-dk-tab",arg);render();return}
+ if(a==="flt"){DK.filter=arg;render();return}
+ if(a==="change"){DK.pending=null;DK.qr="";DK.qrState="idle";render();return}
+ if(a==="open"){dkSheet(arg);return}
+ if(a==="close"){dkClose();return}
+ const r=DK.recs.find(x=>x.id===DK.open);if(!r)return;
+ if(a==="view")dkView(r);
+ else if(a==="dl")dkDownload(r);
+ else if(a==="del"){if(!DK.armed){DK.armed=true;b.classList.add("armed");b.textContent="Pulsa otra vez para eliminar";setTimeout(()=>{DK.armed=false;if(b.isConnected){b.classList.remove("armed");b.textContent="Eliminar"}},4000);return}DK.armed=false;dkDelete(r)}
+});
+document.addEventListener("input",e=>{
+ const id=e.target.id||"";
+ if(id.startsWith("dk-")){DK.f[id.slice(3)]=e.target.value;return}
+ if(id==="dkQ"){DK.q=e.target.value;const pos=e.target.selectionStart;render();const q=$("#dkQ");if(q){q.focus();try{q.setSelectionRange(pos,pos)}catch(_){}}}
+});
+document.addEventListener("change",async e=>{
+ const t=e.target,id=t.id||"",f=t.files&&t.files[0];
+ if(id==="dkQr"){DK.qr=t.value.trim();DK.qrState=DK.qr?"found":(DK.pending?"none":"idle");render();return}
+ if(id==="dk-plate"){const v=dkPlateFmt(t.value);if(v){t.value=v;DK.f.plate=v}return}
+ if(!f)return;t.value="";
+ if(id==="dkCam"||id==="dkFile"){dkPick(f);return}
+ if(id==="dkQrCam"){DK.qrState="busy";render();const q=await dkDecodeFile(f).catch(()=>null);if(q){DK.qr=q;DK.qrState="found";toast("QR leído")}else{DK.qrState=DK.qr?"found":"none";toast("No se ha podido leer el QR. Acércate más y evita reflejos.")}render();return}
+ if(id==="dkFind"){toast("Leyendo QR…");const q=await dkDecodeFile(f).catch(()=>null);if(!q){toast("No se ha podido leer el QR.");return}
+  const hit=DK.recs.find(r=>r.qrUrl&&(r.qrUrl===q||q.includes(r.qrUrl)||r.qrUrl.includes(q)));if(hit){toast("Documento encontrado");dkSheet(hit.id)}else{DK.q=q;render();toast("Ningún DeCA tiene ese QR.")}return}
+ if(id==="dkAssoc"){const r=DK.recs.find(x=>x.id===DK.open);if(r)dkAssoc(r,f)}
+});
+document.addEventListener("submit",e=>{if(e.target.id==="dkForm"){e.preventDefault();dkSave()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&DK.open)dkClose()});
+window.addEventListener("hashchange",()=>{if(DK.open)dkClose()});
+
+/* ---------- Tráfico Google Maps ---------- */
+let gr="a4",gmAt=Date.now();
+const GM_RUTAS={a4:{t:"Por la A-4",via:"Sevilla · Córdoba · Despeñaperros",wp:["Córdoba","Bailén"],emb:"Córdoba"},a5:{t:"Por la A-5",via:"Sevilla · Mérida · Navalmoral",wp:["Mérida","Navalmoral de la Mata"],emb:"Mérida"}};
+const GM_ZONAS=[["Huelva",37.29,-6.80,11,"A-49 · H-30"],["Sevilla",37.38,-5.98,12,"SE-30 · A-4 · A-66"],["Córdoba",37.88,-4.78,12,"A-4 · variante"],["Despeñaperros",38.40,-3.55,11,"A-4 · Jaén / Ciudad Real"],["Mérida",38.92,-6.34,12,"A-5 · A-66"],["Madrid",40.42,-3.70,11,"M-30 · M-40 · A-4 · A-5"],["Coslada",40.43,-3.55,13,"A-2 · M-40 · Corredor del Henares"]];
+const gmDir=(o,d,wp)=>"https://www.google.com/maps/dir/?api=1"+(o?"&origin="+encodeURIComponent(o):"")+"&destination="+encodeURIComponent(d)+(wp&&wp.length?"&waypoints="+encodeURIComponent(wp.join("|")):"")+"&travelmode=driving";
+const gmMap=(la,lo,z)=>`https://www.google.com/maps/@?api=1&map_action=map&center=${la},${lo}&zoom=${z}&layer=traffic`;
+function vGmaps(){
+ const R=GM_RUTAS[gr];
+ const web=location.protocol==="https:"&&!/claude\.ai|claudeusercontent|anthropic/.test(location.hostname);
+ const a=(h,c,t,i)=>`<a class="btn${c?" "+c:""}" href="${h}" target="_blank" rel="noopener">${ic(i)}${t}</a>`;
+ return vh("En directo","Tráfico Google Maps","Atascos en tiempo real y tiempo de viaje con el tráfico de ahora, en la app de Google Maps. Elige la ruta y pulsa para abrirla.")+
+ `<div class="stamp">${ic("map")}<span>Google Maps muestra el tráfico en directo al abrir cada enlace. Mapa actualizado a las <b>${esc(hhmm(gmAt))}</b> · se renueva solo cada 10 minutos.</span></div>
+ <div class="tools"><div class="chips" id="gfil">${Object.entries(GM_RUTAS).map(([k,v])=>`<button type="button" class="chip" aria-pressed="${gr===k}" data-gr="${k}">${v.t}</button>`).join("")}</div></div>
+ <div class="grid">
+  <div class="card pad stack"><div><span class="eyebrow d" style="color:var(--brand);font-weight:700;letter-spacing:.12em;font-size:13px">Ida · ${esc(R.t)}</span><h2>Huelva → Madrid</h2><p class="note">${esc(R.via)}</p></div>
+   <div class="links3">${a(gmDir("Huelva","Madrid",R.wp),"","Ver ruta con tráfico","map")}</div></div>
+  <div class="card pad stack"><div><span class="eyebrow d" style="color:var(--brand);font-weight:700;letter-spacing:.12em;font-size:13px">Vuelta · ${esc(R.t)}</span><h2>Madrid → Huelva</h2><p class="note">${esc(R.via.split(" · ").reverse().join(" · "))}</p></div>
+   <div class="links3">${a(gmDir("Madrid","Huelva",[...R.wp].reverse()),"","Ver ruta con tráfico","map")}</div></div>
+ </div>
+ <h2 class="sec">Desde donde estoy</h2>
+ <div class="card pad stack"><p class="note" style="font-size:15px">Google Maps usa tu ubicación y te da el tiempo hasta el destino con el tráfico actual.</p>
+  <div class="links3">${a(gmDir("","Madrid"),"","A Madrid","gps")}${a(gmDir("","Sevilla"),"ghost","A Sevilla","gps")}${a(gmDir("","Huelva"),"ghost","A Huelva","gps")}</div></div>
+ <h2 class="sec">Mapa de atascos por zonas</h2>
+ <div class="tsum"><span class="lv1" style="--c:#1e7a4c">Verde: fluido</span><span class="lv2">Naranja: lento</span><span class="lv3">Rojo: atasco</span></div>
+ <div class="card list">${GM_ZONAS.map((z,i)=>`<a class="item" style="text-decoration:none" href="${gmMap(z[1],z[2],z[3])}" target="_blank" rel="noopener"><span class="num">${ic("cone")}</span><span class="t"><b style="font-size:18px;overflow-wrap:normal">${esc(z[0])}</b><span>${esc(z[4])}</span></span><span class="btn ghost sm">${ic("ext")}Abrir</span></a>`).join("")}</div>
+ ${web?`<h2 class="sec">Mapa de la ruta</h2><div class="card" style="overflow:hidden"><iframe title="Mapa de la ruta Huelva – Madrid" src="https://maps.google.com/maps?saddr=Huelva&daddr=${encodeURIComponent(R.emb)}+to:Madrid&layer=t&output=embed" style="width:100%;height:380px;border:0;display:block" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><p class="note" style="margin-top:8px">Para ver los atascos en colores, abre la ruta en Google Maps con los botones de arriba.</p>`:""}
+<p class="note" style="margin-top:12px">No manipules el móvil mientras conduces: abre la ruta antes de salir o usa el control por voz.</p>`;
+}
+/* ---------- Radares (datos DGT) + aviso por GPS a 2 km ---------- */
+const RAD=String(S.radares||"").split(";").filter(Boolean).map((x,i)=>{const a=x.split("|");return {i,t:+a[0],road:a[1],prov:a[2].charAt(0)+a[2].slice(1).toLowerCase(),km:a[3],km2:a[4],lat:+a[5],lon:+a[6],lat2:a[7]?+a[7]:null,lon2:a[8]?+a[8]:null,ruta:a[9]||"ambas"}});
+const RAD_M=2000;
+let radOn=false,radWatch=null,radPos=null,radPrev={},radAlerted={},radLock=null,radAC=null,radActive=null,rq="",rruta="todas";
+function hav(a,b,c,d){const R=6371000,t=x=>x*Math.PI/180;const dl=t(c-a),dn=t(d-b);const h=Math.sin(dl/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+const fdist=m=>m>=1000?(m/1000).toFixed(m>=10000?0:1).replace(".",",")+" km":Math.round(m/10)*10+" m";
+const radLabel=r=>(r.t?"Tramo de velocidad media":"Radar fijo");
+const radKm=r=>r.t?("km "+String(r.km).replace(".",",")+" – "+String(r.km2).replace(".",",")):("km "+String(r.km).replace(".",","));
+function radNearest(){if(!radPos)return null;let b=null;for(const r of RAD){const d=hav(radPos.lat,radPos.lon,r.lat,r.lon);if(!b||d<b.d)b={r,d}}return b}
+function beep(){try{radAC=radAC||new (window.AudioContext||window.webkitAudioContext)();const t0=radAC.currentTime;[0,.22,.44].forEach(o=>{const os=radAC.createOscillator(),g=radAC.createGain();os.type="square";os.frequency.value=1046;g.gain.setValueAtTime(.0001,t0+o);g.gain.exponentialRampToValueAtTime(.35,t0+o+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+o+.16);os.connect(g).connect(radAC.destination);os.start(t0+o);os.stop(t0+o+.18)})}catch(e){}}
+async function radStart(){
+ if(radOn)return;
+ if(!("geolocation" in navigator)){toast("Este dispositivo no permite usar el GPS desde el navegador.");return}
+ try{radAC=radAC||new (window.AudioContext||window.webkitAudioContext)();radAC.resume&&radAC.resume()}catch(e){}
+ radOn=true;radPrev={};radAlerted={};render();
+ if(window.__lgxRadar)try{window.__lgxRadar.start(RAD.map(r=>({lat:r.lat,lon:r.lon,road:r.road,km:radKm(r),tipo:r.t?"tramo de velocidad media":"radar fijo"})),RAD_M,vTts())}catch(e){}
+ radWatch=navigator.geolocation.watchPosition(onPos,err=>{
+  const m=err.code===1?"Sin permiso para el GPS. Permite la ubicación en el navegador (elige «Permitir siempre»). En la vista de claude.ai no está disponible: usa la versión publicada en Netlify.":err.code===2?"No se puede obtener la posición. Comprueba que el GPS del móvil está activado.":"El GPS tarda en responder. Sigue intentándolo…";
+  if(err.code!==1&&radPos&&Date.now()-radPos.t<30000)return; /* fallo puntual: la posición sigue llegando */
+  toast(m);if(err.code===1)radStop()},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
+ try{if(navigator.wakeLock)radLock=await navigator.wakeLock.request("screen")}catch(e){}
+ if(vTts())say("Aviso de radares activado");
+ updRadChip();
+}
+function radStop(){if(window.__lgxRadar)try{window.__lgxRadar.stop()}catch(e){}if(radWatch!=null)try{navigator.geolocation.clearWatch(radWatch)}catch(e){}radWatch=null;radOn=false;radPos=null;radActive=null;try{radLock&&radLock.release()}catch(e){}radLock=null;radBanner();updRadChip();if(view==="radares"||view==="inicio")render()}
+document.addEventListener("visibilitychange",async()=>{if(document.visibilityState==="visible"&&radOn&&!radLock&&navigator.wakeLock)try{radLock=await navigator.wakeLock.request("screen")}catch(e){}});
+function onPos(p){
+ radPos={lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy,spd:p.coords.speed,t:Date.now()};
+ let near=null;
+ for(const r of RAD){const d=hav(radPos.lat,radPos.lon,r.lat,r.lon);const prev=radPrev[r.i];radPrev[r.i]=d;
+  if(d<=RAD_M){const approaching=prev==null||d<=prev+15;
+   if(approaching&&(!near||d<near.d))near={r,d};
+   if(approaching&&!radAlerted[r.i]&&window.__lgxRadar){radAlerted[r.i]=Date.now()}
+   if(approaching&&!radAlerted[r.i]){radAlerted[r.i]=Date.now();beep();if(navigator.vibrate)try{navigator.vibrate([300,150,300])}catch(e){}
+    const txt="Atención: "+(r.t?"tramo de velocidad media":"radar fijo")+" a "+fdist(d).replace("km","kilómetros")+" en la "+r.road;
+    if(vTts())speakNow(txt)}}
+  else if(d>RAD_M+1500&&radAlerted[r.i]&&Date.now()-radAlerted[r.i]>120000)delete radAlerted[r.i]; /* vuelve a avisar si pasas otra vez más tarde */
+ }
+ radActive=near;radBanner();updRadChip();
+ if(view==="radares")drawRad(true);
+}
+function radBanner(){let b=$("#radbar");
+ if(!radActive){b&&b.remove();return}
+ if(!b){b=document.createElement("a");b.id="radbar";b.className="radbar";b.href="#radares";b.setAttribute("role","alert");document.body.appendChild(b)}
+ const r=radActive.r;b.innerHTML=`<span class="rbi">${ic("radar")}</span><span class="rbt"><small>${esc(radLabel(r))}</small><b>${esc(fdist(radActive.d))}</b><span>${esc(r.road)} · ${esc(radKm(r))} · ${esc(r.prov)}</span></span>`}
+function updRadChip(){const c=$("#radChip");if(c){c.hidden=!radOn;c.classList.toggle("alert",!!radActive)}}
+function vRadares(){
+ const cnt=k=>RAD.filter(r=>k==="todas"||r.ruta===k||r.ruta==="ambas").length;
+ return vh("Aviso por GPS","Radares en ruta","Radares fijos y de tramo de la DGT en el trayecto Huelva – Madrid por la A-4 y por la A-5. Activa el aviso y la app te avisará con un pitido y por voz a 2 km de cada radar.")+
+ `<div class="card radctl ${radOn?"on":""}"><div class="rci">${ic("gps")}</div><div class="rct"><b>${radOn?"Aviso de radares activado":"Aviso de radares desactivado"}</b><span id="radst">${radOn?(radPos?`Posición recibida · precisión ${Math.round(radPos.acc)} m`:"Buscando señal GPS…"):(window.__lgxRadar?"Funciona en segundo plano: te avisa aunque bloquees el móvil o uses otra app.":"Mantén la app abierta: el navegador no permite avisos con el móvil bloqueado. Para avisos en segundo plano, usa la app de Android o iPhone.")}</span></div>
+  <button type="button" class="btn ${radOn?"ghost":""}" id="radTgl">${radOn?"Desactivar":"Activar aviso"}</button></div>
+ <div id="radnext"></div>
+ <div class="tools"><div class="search">${ic("search")}<input id="rq" type="search" placeholder="Buscar carretera (A-4, N-435…)" value="${esc(rq)}" autocomplete="off" aria-label="Buscar radar por carretera"></div>
+ <div class="chips" id="rrut">${[["todas","Toda la ruta"],["a4","Por la A-4"],["a5","Por la A-5"]].map(c=>`<button type="button" class="chip" aria-pressed="${rruta===c[0]}" data-rr="${c[0]}">${c[1]} · ${cnt(c[0])}</button>`).join("")}</div></div>
+ <div class="card list" id="radlist"></div><p class="meta" id="radcount"></p>
+ <p class="note" style="margin-top:10px">Datos oficiales DGT (${esc(fdate(S.radaresFecha))}). Carreteras incluidas: A-49 (Huelva – Sevilla), SE-30 (enlace en Sevilla), A-4 (Sevilla – Madrid), A-66 (Sevilla – Mérida) y A-5 (Mérida – Madrid). Los avisadores de radar son legales; los detectores e inhibidores, no. Respeta siempre los límites.</p>`;
+}
+function drawRad(fromGps){
+ const L=$("#radlist");if(!L)return;
+ const st=$("#radst");if(st&&radOn)st.textContent=radPos?`Posición recibida · precisión ${Math.round(radPos.acc)} m${radPos.spd!=null&&!isNaN(radPos.spd)?" · "+Math.round(radPos.spd*3.6)+" km/h":""}`:"Buscando señal GPS…";
+ const nx=$("#radnext");if(nx){const n=radNearest();nx.innerHTML=n?`<div class="card radnear ${n.d<=RAD_M?"hot":""}"><span class="d">Radar más cercano</span><b>${esc(fdist(n.d))}</b><span>${esc(radLabel(n.r))} · ${esc(n.r.road)} ${esc(radKm(n.r))} · ${esc(n.r.prov)}</span></div>`:""}
+ if(fromGps&&document.activeElement&&document.activeElement.id==="rq")return;
+ const q=norm(rq).replace(/\s/g,"");
+ let rows=RAD.filter(r=>(rruta==="todas"||r.ruta===rruta||r.ruta==="ambas")&&(!q||norm(r.road).replace(/\s/g,"").includes(q)||norm(r.prov).includes(q)));
+ if(radPos)rows=rows.map(r=>({...r,d:hav(radPos.lat,radPos.lon,r.lat,r.lon)})).sort((a,b)=>a.d-b.d);
+ else rows.sort((a,b)=>hav(37.2614,-6.9447,a.lat,a.lon)-hav(37.2614,-6.9447,b.lat,b.lon)); /* orden del viaje: de Huelva a Madrid */
+ const shown=rows.slice(0,150);
+ L.innerHTML=shown.length?shown.map(r=>`<div class="item"><div class="num rt${r.t}">${r.t?"T":"F"}</div><div class="t"><b>${esc(r.road)} <span class="rkm">${esc(radKm(r))}</span></b><span>${esc(radLabel(r))} · ${esc(r.prov)}${r.d!=null?` · <b class="${r.d<=RAD_M?"hot":""}">${esc(fdist(r.d))}</b>`:""}</span></div>
+  <a class="btn ghost sm" href="https://www.google.com/maps?q=${r.lat},${r.lon}" target="_blank" rel="noopener">${ic("pin")}Mapa</a></div>`).join(""):`<div class="empty">No hay radares que coincidan.</div>`;
+ $("#radcount").textContent=rows.length+" radares"+(rows.length>shown.length?" · mostrando los "+shown.length+(radPos?" más cercanos":" primeros"):"");
+}
+
+/* ---------- Clima en ruta ---------- */
+const PTS=[["Huelva",37.2614,-6.9447],["Sevilla",37.3891,-5.9845],["Écija",37.5422,-5.0826],["Córdoba",37.8882,-4.7794],["Bailén",38.0937,-3.7769],["Despeñaperros",38.3417,-3.5375],["Valdepeñas",38.7621,-3.385],["Manzanares",38.9989,-3.37],["Madridejos",39.4683,-3.5331],["Aranjuez",40.0331,-3.6028],["Madrid",40.4168,-3.7038],["Zafra",38.4253,-6.4174],["Mérida",38.9161,-6.3437],["Trujillo",39.4597,-5.8828],["Navalmoral de la Mata",39.8919,-5.5403],["Talavera de la Reina",39.9635,-4.8308]];
+const RUTAS={a4:{t:"Por la A-4 (N-IV)",p:[[0,"Salida · A-49"],[1,"A-49 → A-4"],[2,"A-4"],[3,"A-4"],[4,"A-4"],[5,"A-4 · puerto de montaña"],[6,"A-4"],[7,"A-4"],[8,"A-4"],[9,"A-4"],[10,"Llegada"]]},
+ a5:{t:"Por la A-5 (N-V)",p:[[0,"Salida · A-49"],[1,"A-49 → A-66"],[11,"A-66"],[12,"A-66 → A-5"],[13,"A-5"],[14,"A-5"],[15,"A-5"],[10,"Llegada"]]}};
+let wr="a4", wd=0, WX=null, wxLive=false, wxAt=0, wxBusy=false;
+function wxCat(c){return c===0?["sun","Despejado"]:c<=2?["partly",c===1?"Poco nuboso":"Intervalos nubosos"]:c===3?["cloud","Nublado"]:c<=48?["fog","Niebla"]:c<=57?["rain","Llovizna"]:c<=67?["rain",c>=65?"Lluvia fuerte":c>=63?"Lluvia":"Lluvia débil"]:c<=77?["snow","Nieve"]:c<=82?["rain",c===82?"Chubascos fuertes":"Chubascos"]:c<=86?["snow","Chubascos de nieve"]:["storm",c>95?"Tormenta con granizo":"Tormenta"]}
+async function loadWx(force){
+ if(wxBusy||(!force&&WX&&Date.now()-wxAt<9e5))return;wxBusy=true;
+ const u="https://api.open-meteo.com/v1/forecast?latitude="+PTS.map(p=>p[1])+"&longitude="+PTS.map(p=>p[2])+"&current=temperature_2m,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_gusts_10m_max&timezone=Europe%2FMadrid&forecast_days=3";
+ try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),8000);
+  const j=await (await fetch(u,{signal:ctl.signal})).json();clearTimeout(to);
+  WX={t:j[0].current.time,p:j.map(x=>({c:[x.current.time,x.current.temperature_2m,x.current.weather_code,x.current.wind_speed_10m,x.current.wind_gusts_10m,x.current.precipitation,x.current.is_day],d:x.daily.time.map((t,i)=>[t,x.daily.weather_code[i],x.daily.temperature_2m_max[i],x.daily.temperature_2m_min[i],x.daily.precipitation_probability_max[i],x.daily.wind_gusts_10m_max[i]])}))};
+  wxLive=true;wxAt=Date.now();
+ }catch(e){if(!WX){WX=S.wx;wxLive=false}}
+ wxBusy=false;if(view==="clima")render();
+}
+function vClima(){
+ const D=WX||S.wx;if(!WX)setTimeout(()=>loadWx(),0);
+ const R=RUTAS[wr];const days=(D.p[0].d||[]).map(x=>x[0]);
+ const dl=i=>i===0?"Hoy":i===1?"Mañana":new Date(days[i]+"T12:00").toLocaleDateString("es-ES",{weekday:"long"});
+ const stops=R.p.map(([i,via])=>{const P=D.p[i],d=P.d[wd]||P.d[0];return {n:PTS[i][0],via,cur:P.c,day:d}});
+ const maxRain=stops.reduce((a,b)=>b.day[4]>a.day[4]?b:a), maxWind=stops.reduce((a,b)=>b.day[5]>a.day[5]?b:a);
+ const tmax=Math.max(...stops.map(s=>s.day[2])),tmin=Math.min(...stops.map(s=>s.day[3]));
+ const storm=stops.filter(s=>s.day[1]>=95).map(s=>s.n);
+ const warn=[];
+ if(storm.length)warn.push(["storm","Tormentas previstas en "+storm.slice(0,3).join(", ")+(storm.length>3?" y más":""),3]);
+ if(maxRain.day[4]>=60)warn.push(["rain","Lluvia muy probable en "+maxRain.n+" ("+maxRain.day[4]+" %)",2]);
+ if(maxWind.day[5]>=50)warn.push(["wind","Rachas de hasta "+Math.round(maxWind.day[5])+" km/h en "+maxWind.n,maxWind.day[5]>=70?3:2]);
+ if(tmax>=38)warn.push(["sun","Calor intenso: hasta "+Math.round(tmax)+" °C",2]);
+ if(tmin<=2)warn.push(["snow","Riesgo de heladas: mínimas de "+Math.round(tmin)+" °C",2]);
+ return vh("Previsión del trayecto","Clima en ruta","Tiempo previsto en las principales localidades del viaje Huelva – Madrid.")+
+ `<div class="stamp">${ic("cloud")}<span>${wxLive?`Datos en directo · actualizado a las <b>${esc(fdate(D.t).split(", ")[1]||"")}</b>`:`Último dato guardado: <b>${esc(fdate(D.t))}</b>. Esta vista no puede conectar en directo.`}</span>${wxLive?`<button class="btn ghost sm" id="wxre">Actualizar</button>`:""}</div>
+ <div class="tools"><div class="chips" id="wroute">${Object.entries(RUTAS).map(([k,r])=>`<button type="button" class="chip" aria-pressed="${wr===k}" data-wr="${k}">${r.t}</button>`).join("")}</div>
+ <div class="chips" id="wday">${days.map((d,i)=>`<button type="button" class="chip" aria-pressed="${wd===i}" data-wd="${i}">${esc(dl(i))}</button>`).join("")}</div></div>
+ <div class="wsum card"><div><span class="d">Temp.</span><b>${Math.round(tmin)}° – ${Math.round(tmax)}°</b></div><div><span class="d">Lluvia máx.</span><b>${maxRain.day[4]} %</b><small>${esc(maxRain.n)}</small></div><div><span class="d">Rachas máx.</span><b>${Math.round(maxWind.day[5])} km/h</b><small>${esc(maxWind.n)}</small></div></div>
+ ${warn.length?`<div class="wwarn">${warn.map(w=>`<div class="ww lv${w[2]}">${ic(w[0])}<span>${esc(w[1])}</span></div>`).join("")}</div>`:`<div class="wwarn"><div class="ww lv1">${ic("sun")}<span>Sin avisos destacables en la ruta para ${esc(dl(wd).toLowerCase())}.</span></div></div>`}
+ <ol class="wroute">${stops.map((s,k)=>{const [icn,lbl]=wxCat(wd===0?s.cur[2]:s.day[1]);const [di,dlb]=wxCat(s.day[1]);
+  return `<li class="${k===0?"first":k===stops.length-1?"last":""}"><span class="wdot"></span>
+   <div class="wn"><b>${esc(s.n)}</b><span>${esc(s.via)}</span></div>
+   <div class="wic" title="${esc(wd===0?lbl:dlb)}">${ic(wd===0?icn:di)}</div>
+   <div class="wt">${wd===0?`<b>${Math.round(s.cur[1])}°</b><span>${esc(lbl)}</span>`:`<b>${Math.round(s.day[2])}°</b><span>${esc(dlb)}</span>`}</div>
+   <div class="wx3"><span title="Máxima / mínima">${Math.round(s.day[2])}° / ${Math.round(s.day[3])}°</span><span title="Probabilidad de lluvia" class="${s.day[4]>=60?"hi":""}">${ic("drop")}${s.day[4]} %</span><span title="Rachas máximas" class="${s.day[5]>=50?"hi":""}">${ic("wind")}${Math.round(s.day[5])}</span></div></li>`}).join("")}</ol>
+ <div class="links3" style="margin-top:14px"><a class="btn ghost" href="https://www.aemet.es/es/eltiempo/prediccion/avisos" target="_blank" rel="noopener">${ic("ext")}Avisos oficiales AEMET</a></div>
+ <p class="note" style="margin-top:10px">Previsión: Open-Meteo. Rachas en km/h. Los avisos oficiales por fenómenos adversos los publica AEMET.</p>`;
+}
+
+function vFacturacion(){
+ const F=S.facturacion;const all=[F.razon,F.direccion,F.cp_ciudad,"CIF "+F.cif].join("\n");
+ const rows=[["Razón social",F.razon],["Dirección",F.direccion],["C.P. y ciudad",F.cp_ciudad],["CIF",F.cif]];
+ return vh("Para pedir factura","Datos de facturación","Muestra esta pantalla o copia los datos al repostar, en talleres o en peajes.")+
+ `<dl class="card kv">${rows.map(r=>`<div><dt>${r[0]}</dt><dd>${esc(r[1])}</dd><button class="btn ghost sm" data-copy="${esc(r[1])}">${ic("copy")}Copiar</button></div>`).join("")}</dl>
+ <div style="margin-top:12px"><button class="btn" data-copy="${esc(all)}">${ic("copy")}Copiar todos los datos</button></div>`;
+}
+
+function vRadios(){
+ const gs=["Todas",...new Set(S.radios.map(r=>r.genero).filter(Boolean))];if(!gs.includes(rg))rg="Todas";
+ const rows=S.radios.map((r,i)=>({...r,i})).filter(r=>rg==="Todas"||r.genero===rg);
+ const ab=n=>{const w=String(n).replace(/[^A-Za-z0-9ÁÉÍÓÚÑáéíóúñ ]/g,"").split(/\s+/).filter(Boolean);return (w.length>1?w[0][0]+w[1][0]:String(n).slice(0,2)).toUpperCase()};
+ return vh("En directo","Radios online","Toca una emisora para escucharla dentro de la app. Los controles de arriba siguen visibles en todas las pantallas. Configúralo con el vehículo parado.")+
+ `<div class="tools"><div class="chips" id="genres">${gs.map(g=>`<button type="button" class="chip" aria-pressed="${g===rg}" data-g="${esc(g)}">${esc(g)}</button>`).join("")}</div></div>
+ <div class="radios">${rows.map(r=>`<button type="button" class="card radio" data-radio="${r.i}" aria-pressed="false"><span class="av">${esc(ab(r.nombre))}</span><span class="rn"><b>${esc(r.nombre)}</b><span class="rs">${esc(r.genero||"")}</span></span><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span></button>`).join("")}</div>
+ <p class="meta">${rows.length} emisoras</p>`;
+}
+
+function vPrevencion(){
+ const vids=S.recursos.filter(r=>r.tipo!=="Guía"), guias=S.recursos.filter(r=>r.tipo==="Guía");
+ const li=t=>String(t||"").split("\n").map(x=>x.trim()).filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join("");
+ return vh("Seguridad y salud","Prevención de riesgos","Los riesgos más habituales del conductor de mercancías, con un ejemplo real de cada uno y qué hacer para evitarlo.")+
+ `<div class="pas card"><b class="d">Si presencias un accidente: P.A.S.</b>
+  <div class="pas3"><div><span>P</span><b>Proteger</b><small>Señaliza y evita un segundo accidente.</small></div>
+  <div><span>A</span><b>Avisar</b><small>Llama al 112: lugar, sentido y número de heridos.</small></div>
+  <div><span>S</span><b>Socorrer</b><small>Atiende sin mover a los heridos salvo peligro.</small></div></div></div>
+ <h2 class="sec">Riesgos y ejemplos</h2>
+ <div class="risks">${S.prl.map((r,i)=>`<details class="card risk"${i===0?" open":""}><summary><span class="num">${String(i+1).padStart(2,"0")}</span><span class="rt"><b>${esc(r.titulo)}</b><span>${esc(r.riesgo)}</span></span><svg class="i chev" viewBox="0 0 24 24" aria-hidden="true">${I.down}</svg></summary>
+  <div class="rbody"><div class="ex"><b class="d">Ejemplo</b><p>${esc(r.ejemplo)}</p></div>
+  <div><b class="d ok">Cómo prevenirlo</b><ul class="meds">${li(r.medidas)}</ul></div></div></details>`).join("")}</div>
+ <h2 class="sec">Vídeos</h2>
+ <p class="note" style="margin:-6px 0 12px">Se abren en una pestaña nueva. Míralos con el vehículo parado.</p>
+ <div class="vids">${vids.map(v=>`<a class="card vid" href="${esc(v.url)}" target="_blank" rel="noopener"><span class="play">${ic("play")}</span><span class="vt"><small>${esc(v.fuente)}</small><b>${esc(v.titulo)}</b><span>${esc(v.tema)}</span></span></a>`).join("")}</div>
+ ${guias.length?`<h2 class="sec">Guías oficiales</h2><div class="card list">${guias.map(g=>`<div class="item"><div class="num">${ic("doc")}</div><div class="t"><b style="font-size:17px">${esc(g.titulo)}</b><span>${esc(g.fuente)} · ${esc(g.tema)}</span></div><a class="btn ghost sm" href="${esc(g.url)}" target="_blank" rel="noopener">${ic("ext")}Abrir</a></div>`).join("")}</div>`:""}`;
+}
+
+function shareCard(){
+ const u=(S.appUrl||"").trim();
+ if(!u)return `<div class="card share"><div class="qrbox empty">${ic("phone")}</div><div><b class="d">Compartir la app</b><p>Cuando la publiques en Netlify, añade su enlace en <a href="#ajustes">Ajustes → General</a> y aquí aparecerá un código QR para abrirla en cualquier móvil u ordenador.</p></div></div>`;
+ setTimeout(drawQR,0);
+ return `<div class="card share"><div class="qrbox" id="qrbox" aria-label="Código QR de la app"></div><div><b class="d">Compartir la app</b><p>Escanea el código con la cámara del móvil para abrirla en cualquier teléfono, tableta u ordenador.</p>
+  <p class="mono qurl">${esc(u)}</p><div class="links3"><button type="button" class="btn sm" data-copy="${esc(u)}">${ic("copy")}Copiar enlace</button><a class="btn ghost sm" href="${esc(u)}" target="_blank" rel="noopener">${ic("ext")}Abrir</a></div></div></div>`;
+}
+let qrP=null;
+function loadQR(){if(window.qrcode)return Promise.resolve();if(qrP)return qrP;qrP=new Promise((ok,ko)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js";sc.onload=ok;sc.onerror=()=>{qrP=null;ko()};document.head.appendChild(sc)});return qrP}
+async function drawQR(){const b=$("#qrbox");if(!b)return;try{await loadQR();const q=qrcode(0,"M");q.addData(S.appUrl.trim());q.make();b.innerHTML=q.createSvgTag({cellSize:5,margin:2,scalable:true})}catch(e){b.innerHTML=`<span class="note">Sin conexión para dibujar el QR. Usa el enlace.</span>`}}
+function vEmpresa(){
+ const C=S.contacto;
+ return vh("Quiénes somos",S.empresa,null)+
+ `<div class="grid"><div class="card pad about"><p>${esc(S.sobre)}</p><q>${esc(S.lema)}</q></div>
+  <dl class="card kv">
+   <div><dt>Gerencia</dt><dd style="font-family:var(--f-body)">${esc(C.gerente)}<br><span class="note">${esc(C.cargo)}</span></dd><span></span></div>
+   ${C.telefonos.map(t=>`<div><dt>Teléfono</dt><dd>${esc(fmtPhone(t))}</dd><button class="btn ghost sm" data-copy="${esc(String(t).replace(/\s/g,""))}">Copiar</button></div>`).join("")}
+   <div><dt>Email</dt><dd>${esc(C.email)}</dd><button class="btn ghost sm" data-copy="${esc(C.email)}">Copiar</button></div>
+   <div><dt>Web</dt><dd>${esc(S.web.replace(/^https?:\/\//,""))}</dd><a class="btn ghost sm" href="${esc(S.web)}" target="_blank" rel="noopener">Abrir</a></div>
+  </dl></div>`;
+}
+
+/* ---------- Ajustes ---------- */
+/* El permiso de ajustes solo vive mientras la app está abierta. Únicamente sobrevive a la recarga que hace la propia app al publicar (pase de un solo uso, válido 60 s). */
+const _once=+(ss.get("lgx-unlock-once")||0);ss.del("lgx-unlock-once");ss.del("lgx-unlock");
+let unlocked=_once>0&&Date.now()-_once<60000, pin="", tab="general", draft=null, dirty=false;
+async function sha(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+function vAjustes(){
+ if(!unlocked){
+  return `<div class="card pinbox"><div class="lock">${ic("lock")}</div><h2>Ajustes</h2><p class="note">Introduce la clave para editar el contenido de la app.</p>
+  <div class="dots" id="dots">${[0,1,2,3,4,5].map(i=>`<i class="${i<pin.length?"f":""}"></i>`).join("")}</div>
+  <p class="pinerr" id="pinerr" role="alert"></p>
+  <div class="keys" id="keys">${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Borrar">←</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" aria-label="Entrar">OK</button></div>
+  <input id="pinin" type="password" inputmode="numeric" autocomplete="off" aria-label="Clave" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none">
+  </div>`;
+ }
+ if(!draft)draft=JSON.parse(JSON.stringify(S));
+ const T=[["general","General"],["estaciones","Ballenoil"],["plenergy","Plenergy"],["tipsa","TIPSA"],["asistencia","Asistencia"],["facturacion","Facturación"],["radios","Radios"],["prevencion","Prevención"],["contacto","Empresa"],["seguridad","Clave"]];
+ return vh("Administración","Ajustes","Edita el contenido y pulsa «Guardar y publicar». Todos los conductores verán los cambios al abrir la app.")+
+ `<div class="stabs" id="stabs">${T.map(t=>`<button type="button" aria-pressed="${t[0]===tab}" data-t="${t[0]}">${t[1]}</button>`).join("")}</div>
+ <div class="card pad"><div class="ed" id="ed">${editor()}</div></div>
+ <div class="savebar"><span id="dirty">${dirty?"Cambios sin guardar":"Sin cambios"}</span><div style="display:flex;gap:8px;flex-wrap:wrap">
+  <button class="btn ghost" id="lockbtn">${ic("lock")}Salir</button><button class="btn ghost" id="discard">Descartar</button><button class="btn" id="save">Guardar y publicar</button></div></div>`;
+}
+const fld=(path,label,val,type)=>`<div class="f"><label for="e_${path}">${esc(label)}</label>${type==="area"
+ ?`<textarea id="e_${path}" data-p="${path}">${esc(val)}</textarea>`
+ :`<input id="e_${path}" data-p="${path}" value="${esc(val)}" ${type==="url"?'type="url" inputmode="url"':type==="tel"?'inputmode="tel"':''}>`}</div>`;
+function listEd(key,schema,title,blank){
+ const arr=key.split(".").reduce((o,k)=>o[k],draft);
+ return `<h2>${esc(title)}</h2>`+arr.map((row,i)=>`<div class="erow"><div class="hd"><b>#${i+1}</b><div>
+  <button class="btn ghost sm" data-mv="${key}|${i}|-1" aria-label="Subir" ${i===0?"disabled":""}>${ic("up")}</button>
+  <button class="btn ghost sm" data-mv="${key}|${i}|1" aria-label="Bajar" ${i===arr.length-1?"disabled":""}>${ic("down")}</button>
+  <button class="btn danger sm" data-rm="${key}|${i}" aria-label="Eliminar">${ic("x")}</button></div></div>
+  <div class="fields">${typeof row==="string"?fld(key+"."+i,"Texto",row):schema.map(s=>fld(key+"."+i+"."+s[0],s[1],row[s[0]],s[2])).join("")}</div></div>`).join("")+
+  `<div><button class="btn ghost" data-add="${key}" data-blank='${esc(JSON.stringify(blank))}'>${ic("plus")}Añadir</button></div>`;
+}
+function editor(){
+ const d=draft;
+ if(tab==="general")return `<h2>General</h2><div class="fields">${fld("marca","Nombre visible",d.marca)}${fld("subtitulo","Subtítulo",d.subtitulo)}${fld("empresa","Razón social",d.empresa)}${fld("web","Web corporativa",d.web,"url")}${fld("appUrl","Enlace de la app publicada (Netlify), para compartirla con QR",d.appUrl||"","url")}</div>
+  ${fld("lema","Lema",d.lema)}${fld("aviso","Aviso a conductores (se muestra en Inicio; déjalo vacío para ocultarlo)",d.aviso,"area")}${fld("sobre","Texto «Quiénes somos»",d.sobre,"area")}`;
+ if(tab==="estaciones")return listEd("estaciones",[["nombre","Población"],["provincia","Provincia"],["zona","Zona (filtro)"],["via","Vía"],["nota","Nota"],["url","Enlace Google Maps","url"]],"Estaciones Ballenoil",{nombre:"",provincia:"",zona:"",via:"",nota:"",url:""});
+ if(tab==="plenergy")return listEd("plenergy",[["nombre","Población"],["provincia","Provincia"],["zona","Zona (filtro)"],["via","Vía"],["nota","Nota"],["url","Enlace Google Maps","url"]],"Estaciones Plenergy",{nombre:"",provincia:"",zona:"",via:"",nota:"",url:""});
+ if(tab==="tipsa")return listEd("tipsa",[["nombre","Agencia"],["nota","Nota"],["url","Enlace Google Maps","url"]],"Agencias TIPSA",{nombre:"",nota:"",url:""});
+ if(tab==="asistencia")return `<div class="fields">${fld("asistencia.aseguradora","Aseguradora",d.asistencia.aseguradora)}</div>`+listEd("asistencia.telefonos",[["etiqueta","Etiqueta"],["numero","Número","tel"],["nota","Nota"]],"Teléfonos de asistencia",{etiqueta:"",numero:"",nota:""});
+ if(tab==="facturacion")return `<h2>Datos de facturación</h2><div class="fields">${fld("facturacion.razon","Razón social",d.facturacion.razon)}${fld("facturacion.cif","CIF",d.facturacion.cif)}${fld("facturacion.direccion","Dirección",d.facturacion.direccion)}${fld("facturacion.cp_ciudad","C.P. y ciudad",d.facturacion.cp_ciudad)}</div>`;
+ if(tab==="radios")return listEd("radios",[["nombre","Emisora"],["genero","Categoría (filtro)"],["url","Enlace de la emisión","url"]],"Radios online",{nombre:"",genero:"",url:""});
+ if(tab==="prevencion")return listEd("prl",[["titulo","Riesgo"],["riesgo","Descripción breve","area"],["ejemplo","Ejemplo","area"],["medidas","Medidas (una por línea)","area"]],"Riesgos y ejemplos",{titulo:"",riesgo:"",ejemplo:"",medidas:""})+'<div style="height:12px"></div>'+listEd("recursos",[["titulo","Título"],["fuente","Fuente"],["tipo","Tipo (Vídeo o Guía)"],["tema","Tema"],["url","Enlace","url"]],"Vídeos y guías",{titulo:"",fuente:"",tipo:"Vídeo",tema:"",url:""});
+ if(tab==="contacto")return `<h2>Contacto de empresa</h2><div class="fields">${fld("contacto.gerente","Gerente",d.contacto.gerente)}${fld("contacto.cargo","Cargo",d.contacto.cargo)}${fld("contacto.email","Email",d.contacto.email)}</div>`+listEd("contacto.telefonos",[],"Teléfonos","");
+ if(tab==="seguridad")return `<h2>Cambiar clave de ajustes</h2><p class="note">Para cambiarla tienes que escribir primero la clave actual. La nueva se aplica al guardar y publicar. Usa solo números (de 4 a 8 cifras).</p>
+  <div class="fields"><div class="f"><label for="np0">Clave actual</label><input id="np0" type="password" inputmode="numeric" autocomplete="current-password"></div><div class="f"><label for="np1">Nueva clave</label><input id="np1" type="password" inputmode="numeric" autocomplete="new-password"></div>
+  <div class="f"><label for="np2">Repetir clave</label><input id="np2" type="password" inputmode="numeric" autocomplete="new-password"></div></div>
+  <div><button class="btn dark" id="setpin">Aplicar nueva clave</button></div>
+  <p class="note">La clave evita cambios accidentales desde el móvil de un conductor. Solo quien tenga permiso de edición en la app puede publicar cambios.</p>`;
+ return "";
+}
+function setPath(obj,path,val){const k=path.split(".");let o=obj;for(let i=0;i<k.length-1;i++)o=o[k[i]];o[k[k.length-1]]=val}
+function getPath(obj,path){return path.split(".").reduce((o,k)=>o[k],obj)}
+function markDirty(){dirty=true;const e=$("#dirty");if(e)e.textContent="Cambios sin guardar"}
+function redrawEd(){$("#ed").innerHTML=editor();markDirty()}
+
+/* Regenera la página completa a partir del estado */
+function buildDoc(state){
+ const head='<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;background:#f8f8f7}img{max-width:100%}[hidden]{display:none!important}</style></head><body>';
+ const fonts=[...document.querySelectorAll('link[rel="preconnect"],link[rel="stylesheet"]')].map(l=>l.outerHTML).join("\n");
+ const json=JSON.stringify(state).replace(/</g,"\\u003c");
+ return head+"<title>"+esc(document.title||"LOPEGAR EXPRESS")+"</title>\n"+fonts+'\n<style id="css">'+document.getElementById("css").textContent+'</style>\n<div id="root"></div>\n<div id="toast" class="toast" hidden></div>\n<script type="application/json" id="state">'+json+'<\/script>\n<script id="app">'+document.getElementById("app").textContent+"<\/script></body></html>";
+}
+async function save(){
+ const btn=$("#save");btn.disabled=true;btn.textContent="Publicando…";
+ let art=null;try{art=window.claude&&window.claude.use?await window.claude.use("artifact"):null}catch(e){}
+ if(!art){toast("Guardar no está disponible en esta vista. Abre la app desde tu cuenta de claude.ai.");btn.disabled=false;btn.textContent="Guardar y publicar";return}
+ ss.set("lgx-unlock-once",String(Date.now()));ss.set("lgx-saved","1");ss.set("lgx-tab",tab);dirty=false;
+ try{await art.publish(buildDoc(draft))}
+ catch(e){ss.del("lgx-saved");if(!e||e.code!=="conflict")ss.del("lgx-unlock-once");const c=e&&e.code;
+  toast(c==="conflict"?"Otra persona guardó cambios antes. Se recarga la versión más reciente."
+   :(c==="not_writer"||c==="not_granted"||c==="consent_required")?"Esta vista es de solo lectura: necesitas permiso de edición para publicar."
+   :c==="rate_limited"?"Demasiados guardados seguidos. Espera un minuto y vuelve a intentarlo."
+   :"No se pudo publicar. Inténtalo de nuevo en unos segundos.");
+  dirty=true;btn.disabled=false;btn.textContent="Guardar y publicar"}
+}
+
+/* ---------- Radio ---------- */
+const AU=new Audio();AU.preload="none";
+let vol=Math.min(100,Math.max(0,+(ls.get("lgx-vol")??80)||0)), muted=ls.get("lgx-mute")==="1";
+if(ls.get("lgx-vol")==="0")vol=0;
+const volFixed=(()=>{try{const t=new Audio();t.volume=.5;return t.volume!==.5}catch(e){return true}})();
+function vIsOn(){try{return vOn}catch(e){return false}}
+function applyVol(){AU.volume=(vIsOn()?Math.min(vol,20):vol)/100;AU.muted=muted||vol===0;ls.set("lgx-vol",String(vol));ls.set("lgx-mute",muted?"1":"0");updVol()}
+function updVol(){const b=$("#pMute"),r=$("#pVolR");if(!b)return;
+ const off=muted||vol===0;b.innerHTML=ic(off?"mute":vol<50?"vollow":"vol");b.setAttribute("aria-label",off?"Activar sonido":"Silenciar");b.setAttribute("aria-pressed",off);
+ r.hidden=volFixed;r.value=vol;r.style.setProperty("--v",(off?0:vol)+"%");r.setAttribute("aria-valuetext",(off?0:vol)+" %")}
+let rCur=+(ls.get("lgx-radio")||-1), rSt="idle", hls=null, hlsP=null;
+if(!(rCur>=0&&rCur<S.radios.length))rCur=-1;
+function ensureHls(){if(window.Hls)return Promise.resolve();if(hlsP)return hlsP;
+ hlsP=new Promise((ok,ko)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.17/hls.min.js";sc.onload=ok;sc.onerror=()=>{hlsP=null;ko()};document.head.appendChild(sc)});return hlsP}
+function stopAudio(){try{hls&&hls.destroy()}catch(e){}hls=null;AU.pause();AU.removeAttribute("src");AU.load()}
+function setSt(x){rSt=x;updPlayer()}
+async function playStation(i){
+ if(!S.radios.length)return;
+ rCur=(i+S.radios.length)%S.radios.length;ls.set("lgx-radio",String(rCur));
+ const r=S.radios[rCur];stopAudio();setSt("loading");meta();
+ try{
+  if(/\.m3u8(\?|$)/i.test(r.url)&&!AU.canPlayType("application/vnd.apple.mpegurl")){
+   await ensureHls();
+   if(!window.Hls||!Hls.isSupported())throw new Error("hls");
+   hls=new Hls();hls.on(Hls.Events.ERROR,(e,d)=>{if(d.fatal)fail()});hls.loadSource(r.url);hls.attachMedia(AU);
+  }else AU.src=r.url;
+  await AU.play();
+ }catch(e){if(e&&e.name==="NotAllowedError")setSt("paused");else if(!(e&&e.name==="AbortError"))fail()}
+}
+let mediaBlocked=false;
+document.addEventListener("securitypolicyviolation",e=>{if(/media|connect|default/.test(e.effectiveDirective||e.violatedDirective||"")&&(rSt==="loading"||rSt==="playing")){mediaBlocked=true;fail()}});
+function fail(){if(rSt==="error")return;setSt("error");const r=S.radios[rCur];
+ toast(mediaBlocked?"Esta vista no permite sonido de emisoras externas. Pulsa el botón ↗ para escuchar "+(r?r.nombre:"la emisora")+" fuera.":"No se pudo conectar con "+(r?r.nombre:"la emisora")+". Prueba otra o ábrela fuera de la app.")}
+function togglePlay(){if(rCur<0)return playStation(0);if(rSt==="playing"||rSt==="loading"){stopAudio();setSt("paused")}else playStation(rCur)}
+applyVol();
+AU.addEventListener("playing",()=>setSt("playing"));
+AU.addEventListener("waiting",()=>{if(rSt==="playing")setSt("loading")});
+AU.addEventListener("error",()=>{if(AU.getAttribute("src")||hls)fail()});
+AU.addEventListener("pause",()=>{if(rSt==="playing")setSt("paused")});
+function meta(){
+ if(!("mediaSession" in navigator)||rCur<0)return;const r=S.radios[rCur];
+ try{navigator.mediaSession.metadata=new MediaMetadata({title:r.nombre,artist:S.marca,album:r.genero||"Radio",artwork:[{src:S.logo,sizes:"256x256",type:"image/webp"}]})}catch(e){}
+}
+if("mediaSession" in navigator){const ms=navigator.mediaSession;
+ [["play",()=>togglePlay()],["pause",()=>{stopAudio();setSt("paused")}],["previoustrack",()=>playStation(rCur-1)],["nexttrack",()=>playStation(rCur+1)]].forEach(([a,f])=>{try{ms.setActionHandler(a,f)}catch(e){}})}
+function updPlayer(){
+ const r=rCur>=0?S.radios[rCur]:null;
+ const pp=$("#pPlay");if(!pp)return;
+ const busy=rSt==="loading",on=rSt==="playing";
+ pp.innerHTML=busy?'<span class="spin" aria-hidden="true"></span>':ic(on?"pause":"play");
+ pp.setAttribute("aria-label",on||busy?"Pausar":"Reproducir");
+ $("#player").dataset.st=rSt;
+ $("#pName").textContent=r?r.nombre:"Radio";
+ $("#pSt").textContent=on?"En directo":busy?"Conectando…":rSt==="error"?"Sin conexión":r?"En pausa":"Elige emisora";
+ const ex=$("#pExt");ex.hidden=!(rSt==="error"&&r);if(r)ex.href=r.url;
+ document.querySelectorAll("[data-radio]").forEach(b=>{const act=+b.dataset.radio===rCur&&(on||busy);b.setAttribute("aria-pressed",act);b.classList.toggle("on",act);
+  const rs=b.querySelector(".rs");if(rs){const it=S.radios[+b.dataset.radio];rs.textContent=act?(on?"Sonando ahora":"Conectando…"):(it.genero||"")}});
+ updVol();updMic();
+ if("mediaSession" in navigator)try{navigator.mediaSession.playbackState=on?"playing":"paused"}catch(e){}
+}
+
+/* ---------- Control por voz ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null, vOn=false, vDuck=null;
+const VNAV=[["inicio",["inicio","portada","principal","menu"]],["plenergy",["plenergy","plenergi","plener","plen energy"]],["ballenoil",["ballenoil","balle","gasolinera","gasolineras","repostar","gasoil","combustible"]],["tipsa",["tipsa","rutas","agencia","agencias"]],["gmaps",["google maps","google","maps","mapa","mapas","trafico","atascos","atasco","carreteras"]],["clima",["clima","tiempo","meteo","lluvia"]],["asistencia",["asistencia","sos","emergencia","grua","averia","auxilio"]],["prevencion",["prevencion","riesgos","seguridad","videos"]],["deca",["deca","de ca","documento de control","control administrativo","documento"]],["facturacion",["facturacion","factura","cif","datos fiscales"]],["radares",["radares","radar","cinemometros","multas"]],["radios",["radios","emisoras"]],["empresa",["empresa","contacto","gerente","quienes somos","compartir","codigo qr"]],["ajustes",["ajustes","configuracion"]]];
+const NUM={"cuarenta y nueve":"49","sesenta y seis":"66",cuarenta:"40",cien:"100",cuatro:"4",cinco:"5"};
+function vnorm(t){let x=norm(t).replace(/[.,;:¡!¿?]/g," ");for(const k in NUM)x=x.replace(new RegExp("\\b"+k+"\\b","g"),NUM[k]);return x.replace(/\blos 40\b/g,"los40").replace(/\bcadena 100\b/g,"cadena 100").replace(/\ba\s?-?\s?(\d+)/g,"a$1").replace(/\s+/g," ").trim()}
+let VOICE=null,vTalk=false,vPend=[];const vTts=()=>ls.get("lgx-vtts")!=="0",vCont=()=>ls.get("lgx-vcont")==="1";
+function pickVoice(){try{const vs=speechSynthesis.getVoices();VOICE=vs.find(v=>/es[-_]ES/i.test(v.lang)&&/google|m[oó]nica|luc[ií]a|elvira|helena|laura|paloma/i.test(v.name))||vs.find(v=>/es[-_]ES/i.test(v.lang))||vs.find(v=>/^es/i.test(v.lang))||null}catch(e){}}
+if(window.speechSynthesis){pickVoice();try{speechSynthesis.addEventListener("voiceschanged",pickVoice)}catch(e){}}
+function say(t){if(!t||!vTts()||!window.speechSynthesis)return;if(vOn){vPend.push(t);return}speakNow(t)}
+function speakNow(t,done){try{speechSynthesis.cancel();speechSynthesis.resume();const u=new SpeechSynthesisUtterance(t);u.lang="es-ES";if(VOICE)u.voice=VOICE;u.rate=1;u.pitch=1;vTalk=true;
+ u.onend=u.onerror=()=>{vTalk=false;done&&done()};speechSynthesis.speak(u);setTimeout(()=>{if(vTalk){vTalk=false;done&&done()}},Math.max(6000,t.length*90))}catch(e){vTalk=false;done&&done()}}
+const GEN=new Set(["cadena","radio","fm","huelva","de","la","el"]);
+function findRadio(x){const xw=" "+x+" ";let best=-1,sc=0;S.radios.forEach((r,i)=>{const all=vnorm(r.nombre).replace(/'s\b/g,"s").split(" ").filter(z=>z.length>1);const w=all.filter(z=>!GEN.has(z));const ws=w.length?w:all;
+ const hit=ws.filter(z=>xw.includes(" "+z+" ")).length;const sco=hit/ws.length+(x.includes(vnorm(r.nombre))?1:0)+all.filter(z=>GEN.has(z)&&xw.includes(" "+z+" ")).length*.01;if(hit&&sco>sc){sc=sco;best=i}});return sc>=.5?best:-1}
+function go(v,msg){location.hash="#"+v;if(msg)say(msg)}
+function vCmd(raw){
+ const x=vnorm(raw);if(!x)return false;
+ const has=(...w)=>w.some(k=>new RegExp("(^| )"+k+"( |$)").test(x));
+ if(has("ayuda","que puedo decir","comandos")){vHelp(true);say("Puedes decir el nombre de una sección, o pon y el nombre de una emisora");return true}
+ if(has("atras","volver")){history.back();return true}
+ if(has("desactivar voz","apagar voz","dejar de escuchar")){setTimeout(()=>{vStop();if(vTts())speakNow("Control por voz desactivado")},0);return true}
+ // radio
+ if(has("siguiente","siguiente emisora","otra emisora","cambia")){playStation(rCur+1);setTimeout(()=>say(S.radios[rCur].nombre),50);return true}
+ if(has("anterior","emisora anterior")){playStation(rCur<0?S.radios.length-1:rCur-1);setTimeout(()=>say(S.radios[rCur].nombre),50);return true}
+ if(has("pausa","para la radio","parar","stop","apaga la radio","quitar radio")){stopAudio();setSt("paused");return true}
+ if(has("sube","subir","mas alto","mas volumen")){vol=Math.min(100,vol+20);muted=false;applyVol();vDuck=null;toast("Volumen "+vol+" %");return true}
+ if(has("baja","bajar","mas bajo","menos volumen")){vol=Math.max(0,vol-20);applyVol();vDuck=null;toast("Volumen "+vol+" %");return true}
+ if(has("silencio","silenciar","mute")){muted=true;applyVol();return true}
+ if(has("sonido","quitar silencio","activar sonido")){muted=false;applyVol();return true}
+ const ri=findRadio(x.replace(/^(pon|poner|escuchar|escucha|reproduce|radio|emisora)\s+/,""));
+ if(ri>=0&&(has("pon","poner","escuchar","escucha","reproduce","radio","emisora")||!VNAV.some(([v,w])=>w.some(k=>x.includes(k))))){playStation(ri);say(S.radios[ri].nombre);return true}
+ if(has("reproducir","continuar","play","pon la radio","musica")){if(rSt!=="playing")togglePlay();return true}
+ // clima / trafico detalles
+ if(has("a5","n5","nacional 5","por la a5")&&(view==="clima"||has("clima","tiempo"))){wr="a5";go("clima");render();say("Clima por la A cinco");return true}
+ if(has("a4","n4","nacional 4","por la a4")&&(view==="clima"||has("clima","tiempo"))){wr="a4";go("clima");render();say("Clima por la A cuatro");return true}
+ if(has("manana","pasado manana","hoy")&&(view==="clima"||has("clima","tiempo"))){wd=has("pasado manana")?2:has("manana")?1:0;go("clima");render();say("Clima "+(wd===0?"de hoy":wd===1?"de mañana":"de pasado mañana"));return true}
+ // buscar
+ const bm=x.match(/^(buscar|busca|gasolinera en|gasolinera de|ballenoil en|ballenoil de)\s+(.+)$/);
+ if(bm){if(view==="tipsa"&&/^bus/.test(bm[1])){tq=bm[2];render()}else{fq=bm[2];fz="Todas";go("ballenoil");render()}say("Buscando "+bm[2]);return true}
+ // llamar
+ if(has("llamar asistencia","llama a la grua","llamar grua")){go("asistencia","Asistencia en carretera. Toca el número para llamar");return true}
+ // radares GPS
+ if(has("activar radares","activar avisos","avisos de radar","activar aviso de radares","activar gps","enciende el gps")){go("radares");radStart();return true}
+ if(has("desactivar radares","quitar avisos","desactivar avisos","apagar gps","desactivar gps")){radStop();vPend.push("Avisos de radar desactivados");return true}
+ if(has("radar mas cercano","proximo radar","siguiente radar")){const n=radNearest();vPend.push(n?("Próximo radar a "+fdist(n.d)+" en la "+n.r.road):"Activa primero el aviso de radares");return true}
+ // navegación por título
+ for(const [v,w] of VNAV){if(w.some(k=>new RegExp("(^| )"+k+"( |$)").test(x))){const t=VIEWS.find(z=>z.id===v).t;go(v,t);return true}}
+ return false;
+}
+function vShow(txt,state){let b=$("#vbar");if(!b){b=document.createElement("div");b.id="vbar";b.className="vbar";b.setAttribute("role","status");document.body.appendChild(b)}
+ b.hidden=false;b.dataset.st=state||"";
+ b.innerHTML=`<span class="vdot"></span><span class="vt">${esc(txt)}</span><button type="button" class="vhelp" id="vHelpBtn" aria-label="Ver comandos de voz">?</button><button type="button" class="vclose" id="vClose" aria-label="Desactivar control por voz">${ic("x")}</button>`}
+function vHelp(open){let h=$("#vhelp");if(!open){h&&h.remove();return}
+ micState().then(st=>{const n=$("#micStateNote");if(n)n.textContent=st==="granted"?"Micrófono: permitido de forma permanente en este navegador.":st==="denied"?"Micrófono bloqueado. "+micHowTo():st==="prompt"?"Micrófono: el navegador lo preguntará. Elige «Permitir siempre» o «Permitir al visitar el sitio».":""});
+ if(!h){h=document.createElement("div");h.id="vhelp";h.className="vhelpbox card";document.body.appendChild(h)}
+ h.innerHTML=`<div class="vhh"><b class="d">Comandos de voz</b><button type="button" class="pb" id="vHelpClose" aria-label="Cerrar">${ic("x")}</button></div>
+ <dl><dt>Ir a una sección</dt><dd>«Inicio», «Ballenoil», «Plenergy», «Rutas TIPSA», «Tráfico», «Clima», «Asistencia», «Prevención», «Facturación», «Radios», «Empresa»</dd>
+ <dt>Radio</dt><dd>«Pon Cadena Dial», «Siguiente», «Anterior», «Pausa», «Continuar», «Sube» / «Baja», «Silencio»</dd>
+ <dt>Buscar</dt><dd>«Gasolinera en Écija», «Buscar Madrid»</dd>
+ <dt>Clima y tráfico</dt><dd>«Clima mañana», «Clima por la A-5», «Tráfico por la A-4»</dd>
+ <dt>Otros</dt><dd>«Atrás», «Ayuda», «Desactivar voz»</dd></dl>
+ <div class="vopts"><label><input type="checkbox" id="vOptTts" ${vTts()?"checked":""}><span>Respuestas habladas</span></label>
+</div>
+ <p class="note" id="micStateNote"></p>
+ <p class="note">El micrófono queda activado (en rojo) hasta que lo vuelvas a pulsar o digas «desactivar voz». Mientras está activado, la radio baja de volumen para que te oiga.</p>`}
+let vListening=false,vErr="",vHide=null,vNetFails=0,vStream=null,vDone=new Set(),vRestarts=[],vMuteUntil=0;
+/* Mientras la voz está activada, la radio baja al 20 % para que el micrófono te oiga; vuelve a su volumen al desactivarla */
+function duck(on){if(on){AU.volume=Math.min(vol,20)/100}else{AU.volume=vol/100}AU.muted=muted||vol===0}
+function vToggle(){vOn?vStop():vOnStart()}
+/* El permiso del micrófono se pide UNA sola vez al activar: se mantiene abierto un único canal de audio y una única sesión de reconocimiento continuo hasta que se desactiva */
+/* ---- Permiso de micrófono ---- */
+async function micState(){try{const st=await navigator.permissions.query({name:"microphone"});return st.state}catch(e){return "unknown"}}
+function micHowTo(){const ua=navigator.userAgent;
+ if(/iPhone|iPad/.test(ua))return "En iPhone: toca «aA» en la barra de direcciones → Ajustes del sitio web → Micrófono → Permitir. También en Ajustes del iPhone → Safari → Micrófono → Permitir.";
+ if(/Android/.test(ua))return "En Android: toca el candado junto a la dirección → Permisos → Micrófono → Permitir. O en Chrome: ⋮ → Configuración → Configuración de sitios → Micrófono.";
+ return "En el ordenador: haz clic en el candado o el icono de ajustes a la izquierda de la dirección → Micrófono → Permitir. Si Windows lo bloquea: Configuración → Privacidad y seguridad → Micrófono → activa el acceso para tu navegador.";}
+function micSheet(state){return new Promise(res=>{
+ const d=document.createElement("div");d.className="msheet-bg";d.innerHTML=`<div class="msheet card" role="dialog" aria-modal="true" aria-labelledby="msT">
+  <div class="mic-ic">${ic("mic")}</div><h2 id="msT">${state==="denied"?"El micrófono está bloqueado":"Permiso de micrófono"}</h2>
+  ${state==="denied"?`<p>${esc(micHowTo())}</p><p class="note">Después, recarga la app y vuelve a pulsar el micrófono.</p>`
+   :`<p>El navegador te va a preguntar si permites el micrófono. Para que <b>no vuelva a preguntarlo</b>, elige:</p>
+   <ul class="meds"><li><span><b>«Permitir al visitar el sitio»</b> o <b>«Permitir siempre»</b> en Chrome y Edge.</span></li><li><span><b>«Permitir»</b> en Safari; y en Ajustes del sitio web, «Permitir» en vez de «Preguntar».</span></li></ul>
+   <p class="note">No elijas «Solo esta vez»: entonces lo pedirá cada vez que abras la app. Si la abres con doble clic en el archivo, el navegador nunca recuerda el permiso: ábrela desde su dirección web.</p>`}
+  <div class="msh-b">${state==="denied"?`<button type="button" class="btn" data-ms="0">Entendido</button>`:`<button type="button" class="btn ghost" data-ms="0">Ahora no</button><button type="button" class="btn" data-ms="1">${ic("mic")}Continuar</button>`}</div></div>`;
+ document.body.appendChild(d);d.querySelector("[data-ms]:last-child").focus();
+ d.addEventListener("click",e=>{const b=e.target.closest("[data-ms]");if(b||e.target===d){d.remove();res(!!(b&&b.dataset.ms==="1"))}});
+})}
+async function vOnStart(){
+ if(!SR){vShow("Este navegador no permite control por voz. Usa Chrome, Edge o Safari.","err");autoHide();return}
+ const ms=window.__lgxNative?"granted":await micState();
+ if(ms==="denied"){await micSheet("denied");return}
+ if(ms==="prompt"&&!vStream&&ss.get("lgx-micguide")!=="1"){ss.set("lgx-micguide","1");if(!await micSheet("prompt"))return}
+ vOn=true;updMic();clearTimeout(vHide);vShow("Activando micrófono…","hear");
+ if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&!vStream&&!window.__lgxNative){
+  try{vStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
+  catch(e){vShow(e&&e.name==="NotFoundError"?"No se encuentra ningún micrófono.":"Sin permiso para el micrófono. Permítelo en el navegador (elige «Permitir siempre»). En la vista de claude.ai no está disponible: usa la versión publicada en Netlify.","err");vStop(true);return}
+ }
+ if(!vOn)return;
+ vNetFails=0;vRestarts=[];duck(true);
+ vShow("Control por voz activado. Te escucho…","hear");
+ if(vTts())speakNow("Te escucho");
+ listen();
+}
+function listen(){
+ if(!vOn||vListening)return;
+ const now=Date.now();vRestarts=vRestarts.filter(t=>now-t<60000);vRestarts.push(now);
+ if(vRestarts.length>(window.__lgxNative?40:8)){vShow("El navegador corta el micrófono continuamente. Voz desactivada: vuelve a pulsar el botón.","err");vStop(true);return}
+ rec=new SR();rec.lang="es-ES";rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=3;
+ vErr="";vDone=new Set();
+ rec.onresult=e=>{
+  for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];
+   if(vTalk||Date.now()<vMuteUntil)continue; /* ignora lo que el propio asistente dice */
+   if(!r.isFinal){vShow(r[0].transcript,"hear");continue}
+   const key=i+"|"+r[0].transcript.trim().toLowerCase();if(vDone.has(key))continue;vDone.add(key);
+   vNetFails=0;vPend=[];let ok=false;for(let a=0;a<r.length&&!ok;a++)ok=vCmd(r[a].transcript);
+   vShow(ok?"✓ "+r[0].transcript.trim():"No entendí «"+r[0].transcript.trim()+"». Toca ? para ver qué decir.",ok?"ok":"no");
+   const t=ok?vPend.join(". "):"No te he entendido";vPend=[];if(t&&vTts())speakNow(t,()=>{vMuteUntil=Date.now()+400})}};
+ rec.onerror=e=>{vErr=e.error;
+  if(e.error==="not-allowed"||e.error==="service-not-allowed"){vShow("Sin permiso para el micrófono. Permítelo en el navegador (elige «Permitir siempre»). En la vista de claude.ai no está disponible: usa la versión publicada en Netlify.","err");vStop(true)}
+  else if(e.error==="audio-capture"){vShow("No se encuentra ningún micrófono.","err");vStop(true)}
+  else if(e.error==="network"){vNetFails++;vShow(vNetFails>=3?"Sin conexión: el reconocimiento de voz necesita internet. Voz desactivada.":"Sin conexión, reintentando…","err");if(vNetFails>=3)vStop(true)}};
+ rec.onend=()=>{vListening=false;if(vOn)setTimeout(listen,vErr==="network"?2000:300)};
+ try{rec.start();vListening=true}catch(e){vListening=false}
+}
+function autoHide(){clearTimeout(vHide);vHide=setTimeout(()=>{if(!vOn){const b=$("#vbar");b&&(b.hidden=true)}},6000)}
+function restoreDuck(){duck(false)}
+function vStop(keepMsg){vOn=false;vListening=false;if(rec){try{rec.onend=null;rec.abort()}catch(e){}}rec=null;vPend=[];
+ if(vStream){try{vStream.getTracks().forEach(t=>t.stop())}catch(e){}vStream=null}
+ try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}vTalk=false;duck(false);updMic();vHelp(false);
+ if(keepMsg)autoHide();else{const b=$("#vbar");b&&(b.hidden=true)}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&vOn&&!vListening){vRestarts=[];setTimeout(listen,300)}});
+function updMic(){document.body.classList.toggle("voice",vOn);const b=$("#micBtn");if(!b)return;b.classList.toggle("on",vOn);b.setAttribute("aria-pressed",vOn);b.setAttribute("aria-label",vOn?"Desactivar control por voz":"Control por voz")}
+
+/* ---------- Render y eventos ---------- */
+function render(){
+ const m={inicio:vInicio,ballenoil:vBallenoil,plenergy:vPlenergy,tipsa:vTipsa,asistencia:vAsistencia,facturacion:vFacturacion,deca:vDeca,radios:vRadios,prevencion:vPrevencion,gmaps:vGmaps,clima:vClima,radares:vRadares,empresa:vEmpresa,ajustes:vAjustes};
+ document.getElementById("root").innerHTML=shell(m[view]());
+ if(view==="ballenoil"||view==="plenergy")drawStations();
+ if(view==="tipsa")drawTipsa();
+ if(view==="radares")drawRad();
+ radBanner();updRadChip();
+ updPlayer();
+ if(view==="ajustes"&&!unlocked){const p=$("#pinin");p&&p.focus({preventScroll:true})}
+}
+let tt;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+
+async function pinKey(k){
+ if(k==="del")pin=pin.slice(0,-1);
+ else if(k==="ok"||pin.length>=8){}
+ else pin+=k;
+ if(k==="ok"||pin.length===6){
+  const ok=(await sha("lopegar:"+pin))===S.pinHash;
+  if(ok){unlocked=true;pin="";render();return}
+  if(k==="ok"||pin.length>=6){$("#dots").classList.add("err");$("#pinerr").textContent="Clave incorrecta. Inténtalo de nuevo.";pin="";setTimeout(()=>{const d=$("#dots");if(d){d.classList.remove("err");d.innerHTML=[0,1,2,3,4,5].map(()=>"<i></i>").join("")}},700);return}
+ }
+ $("#pinerr").textContent="";$("#dots").innerHTML=[0,1,2,3,4,5].map(i=>`<i class="${i<pin.length?"f":""}"></i>`).join("");
+}
+
+document.addEventListener("click",async e=>{
+ const c=e.target.closest("[data-copy]");
+ if(c){const t=c.dataset.copy;try{await navigator.clipboard.writeText(t);toast("Copiado")}catch(err){const dd=c.parentElement.querySelector("dd")||c.previousElementSibling;if(dd){const r=document.createRange();r.selectNodeContents(dd);const s=getSelection();s.removeAllRanges();s.addRange(r)}toast("Texto seleccionado: cópialo manualmente")}return}
+ const z=e.target.closest("[data-z]");if(z){fz=z.dataset.z;document.querySelectorAll("#zones .chip").forEach(b=>b.setAttribute("aria-pressed",b===z));drawStations();return}
+ if(e.target.closest("#micBtn")){vToggle();return}
+ if(e.target.closest("#radTgl")){radOn?radStop():radStart();return}
+ const rrb=e.target.closest("[data-rr]");if(rrb){rruta=rrb.dataset.rr;document.querySelectorAll("#rrut .chip").forEach(b=>b.setAttribute("aria-pressed",b===rrb));drawRad();return}
+ if(e.target.closest("#instBtn")){doInstall();return}
+ if(e.target.closest("#fileInst")){fileInstallSheet();return}
+ if(e.target.closest("#hintOff")){ls.set("lgx-hint-off","1");render();return}
+ if(e.target.closest("#vClose")){vStop();return}
+ if(e.target.closest("#vHelpBtn")){vHelp(!$("#vhelp"));return}
+ if(e.target.closest("#vHelpClose")){vHelp(false);return}
+ if(e.target.closest("#pPlay")){togglePlay();return}
+ if(e.target.closest("#pMute")){if(vol===0){vol=50;muted=false}else muted=!muted;applyVol();return}
+ if(e.target.closest("#pPrev")){playStation(rCur<0?S.radios.length-1:rCur-1);return}
+ if(e.target.closest("#pNext")){playStation(rCur+1);return}
+ const rb=e.target.closest("[data-radio]");if(rb){const i=+rb.dataset.radio;if(i===rCur&&(rSt==="playing"||rSt==="loading")){stopAudio();setSt("paused")}else playStation(i);return}
+ const grb=e.target.closest("[data-gr]");if(grb){gr=grb.dataset.gr;render();return}
+ const wrb=e.target.closest("[data-wr]");if(wrb){wr=wrb.dataset.wr;render();return}
+ const wdb=e.target.closest("[data-wd]");if(wdb){wd=+wdb.dataset.wd;render();return}
+ if(e.target.closest("#wxre")){loadWx(true);toast("Actualizando el tiempo…");return}
+ const g=e.target.closest("[data-g]");if(g){rg=g.dataset.g;render();return}
+ const k=e.target.closest("#keys [data-k]");if(k){pinKey(k.dataset.k);return}
+ const st=e.target.closest("#stabs [data-t]");if(st){tab=st.dataset.t;document.querySelectorAll("#stabs button").forEach(b=>b.setAttribute("aria-pressed",b===st));$("#ed").innerHTML=editor();return}
+ const mv=e.target.closest("[data-mv]");if(mv){const [key,i,d]=mv.dataset.mv.split("|");const a=getPath(draft,key),x=+i,y=x+(+d);if(y<0||y>=a.length)return;[a[x],a[y]]=[a[y],a[x]];redrawEd();return}
+ const rm=e.target.closest("[data-rm]");if(rm){const [key,i]=rm.dataset.rm.split("|");getPath(draft,key).splice(+i,1);redrawEd();return}
+ const ad=e.target.closest("[data-add]");if(ad){getPath(draft,ad.dataset.add).push(JSON.parse(ad.dataset.blank));redrawEd();const ins=[...document.querySelectorAll("#ed .erow")].pop();ins&&ins.scrollIntoView({block:"center"});return}
+ if(e.target.closest("#save")){save();return}
+ if(e.target.closest("#discard")){draft=null;dirty=false;render();toast("Cambios descartados");return}
+ if(e.target.closest("#lockbtn")){unlocked=false;ss.del("lgx-unlock-once");draft=null;dirty=false;location.hash="#inicio";return}
+ if(e.target.closest("#setpin")){const c0=$("#np0").value.trim(),a=$("#np1").value.trim(),b=$("#np2").value.trim();
+  if(!c0){toast("Introduce la clave actual");$("#np0").focus();return}
+  if((await sha("lopegar:"+c0))!==S.pinHash){toast("La clave actual no es correcta");$("#np0").value="";$("#np0").focus();return}
+  if(!/^\d{4,8}$/.test(a)){toast("La clave debe tener entre 4 y 8 números");return}
+  if(a!==b){toast("Las dos claves no coinciden");return}
+  draft.pinHash=await sha("lopegar:"+a);markDirty();$("#np0").value="";$("#np1").value="";$("#np2").value="";toast("Clave preparada. Pulsa «Guardar y publicar».");return}
+});
+document.addEventListener("input",e=>{
+ const t=e.target;
+ if(t.id==="pVolR"){vol=+t.value;muted=false;applyVol();return}
+ if(t.id==="q"){fq=t.value;drawStations();return}
+ if(t.id==="rq"){rq=t.value;drawRad();return}
+ if(t.id==="tq"){tq=t.value;drawTipsa();return}
+ if(t.dataset&&t.dataset.p){setPath(draft,t.dataset.p,t.value);markDirty();return}
+ if(t.id==="pinin"){const v=t.value.replace(/\D/g,"");t.value="";for(const ch of v)pinKey(ch);return}
+});
+document.addEventListener("change",e=>{if(e.target.id==="vOptTts")ls.set("lgx-vtts",e.target.checked?"1":"0");if(e.target.id==="vOptCont")ls.set("lgx-vcont",e.target.checked?"1":"0")});
+document.addEventListener("keydown",e=>{
+ if(view==="ajustes"&&!unlocked&&!e.target.matches("input:not(#pinin),textarea")){
+  if(/^\d$/.test(e.key)){e.preventDefault();pinKey(e.key)}else if(e.key==="Backspace"){e.preventDefault();pinKey("del")}else if(e.key==="Enter"){e.preventDefault();pinKey("ok")}
+ }
+});
+window.addEventListener("beforeunload",e=>{if(dirty&&view==="ajustes"){e.preventDefault()}});
+
+if(ss.get("lgx-saved")==="1"){ss.del("lgx-saved");tab=ss.get("lgx-tab")||"general";setTimeout(()=>toast("Cambios publicados"),300)}
+/* ---------- App instalable (solo en la web publicada, no en claude.ai) ---------- */
+let instEv=null;
+const hosted=location.protocol==="https:"&&!/claude\.ai|claudeusercontent|anthropic/.test(location.hostname);
+if(hosted){
+ [["link",{rel:"manifest",href:"manifest.webmanifest"}],["link",{rel:"apple-touch-icon",href:"icon-192.png"}],["meta",{name:"theme-color",content:"#25272b"}],["meta",{name:"apple-mobile-web-app-capable",content:"yes"}],["meta",{name:"mobile-web-app-capable",content:"yes"}],["meta",{name:"apple-mobile-web-app-status-bar-style",content:"black-translucent"}],["meta",{name:"apple-mobile-web-app-title",content:"LOPEGAR EXPRESS"}]].forEach(([t,a])=>{if(document.querySelector(a.rel?`link[rel="${a.rel}"]`:`meta[name="${a.name}"]`))return;const el=document.createElement(t);for(const k in a)el.setAttribute(k,a[k]);document.head.appendChild(el)});
+ if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();instEv=e;if(view==="inicio")render()});
+}
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const isAndroid=/Android/.test(navigator.userAgent);
+const isStandalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
+function installHint(){
+ if(!hosted||isStandalone||ls.get("lgx-hint-off")==="1")return "";
+ if(isIOS)return `<div class="card install ios"><div><b>Instala la app en tu iPhone</b><span>En Safari, toca <svg class="i shr" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 11v9h14v-9"/></svg> <b class="in">Compartir</b> y después <b class="in">Añadir a pantalla de inicio</b>. Se abrirá a pantalla completa, como una app.</span></div><button type="button" class="btn ghost sm" id="hintOff">Ocultar</button></div>`;
+ if(isAndroid)return `<div class="card install"><div><b>Instala la app en tu Android</b><span>En Chrome, toca el menú <b class="in">⋮</b> y después <b class="in">Instalar aplicación</b> (o «Añadir a pantalla de inicio»).</span></div><button type="button" class="btn ghost sm" id="hintOff">Ocultar</button></div>`;
+ return "";
+}
+async function doInstall(){if(!instEv)return;instEv.prompt();let o="";try{o=(await instEv.userChoice).outcome}catch(e){}instEv=null;render();return o}
+/* ---------- Instalar al abrir: desde el archivo HTML o desde la web ---------- */
+const SHR='<svg class="i shr" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 11v9h14v-9"/></svg>';
+function instSheet(html,onAct){
+ document.querySelectorAll(".msheet-bg.inst").forEach(x=>x.remove());
+ const d=document.createElement("div");d.className="msheet-bg inst";
+ d.innerHTML=`<div class="msheet card" role="dialog" aria-modal="true" aria-labelledby="isT"><div class="logo" style="width:64px;height:64px">${S.logo?`<img src="${S.logo}" alt="">`:""}</div>${html}</div>`;
+ document.body.appendChild(d);const f=d.querySelector(".btn:last-child");f&&f.focus();
+ d.addEventListener("click",e=>{const b=e.target.closest("[data-is]");if(!b&&e.target!==d)return;
+  const a=b?b.dataset.is:"0";if(a==="0"||a==="never"){if(a==="never")ls.set("lgx-inst-off","1");d.remove();return}onAct&&onAct(a,d)});
+ return d;
+}
+function instStepsHtml(){
+ if(isIOS)return `<ol class="steps"><li><span>Abre esta página en <b>Safari</b>.</span></li><li><span>Toca ${SHR} <b>Compartir</b> (abajo en el centro).</span></li><li><span>Baja y toca <b>Añadir a pantalla de inicio</b> y después <b>Añadir</b>.</span></li></ol>`;
+ if(isAndroid)return `<ol class="steps"><li><span>Abre esta página en <b>Chrome</b>.</span></li><li><span>Toca el menú <b>⋮</b> (arriba a la derecha).</span></li><li><span>Toca <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b>.</span></li></ol>`;
+ return `<ol class="steps"><li><span>Abre esta página en <b>Chrome</b> o <b>Edge</b>.</span></li><li><span>Pulsa el icono de instalar <b>⊕</b> a la derecha de la barra de direcciones.</span></li><li><span>Pulsa <b>Instalar</b>. En Safari del Mac: menú Archivo → <b>Añadir al Dock</b>.</span></li></ol>`;
+}
+function webInstallSheet(){
+ const body=()=>instEv
+  ?`<h2 id="isT">Instalar ${esc(S.marca)}</h2><p>Pulsa <b>Instalar</b> y confirma. Tendrás el icono en tu ${isAndroid||isIOS?"móvil":"ordenador"}, se abrirá a pantalla completa y recordará los permisos de micrófono y GPS.</p>
+    <div class="msh-b"><button type="button" class="btn ghost" data-is="never">No volver a preguntar</button><button type="button" class="btn ghost" data-is="0">Ahora no</button><button type="button" class="btn" data-is="go">${ic("up")}Instalar</button></div>`
+  :`<h2 id="isT">Instalar ${esc(S.marca)}</h2><p>Así queda instalada en tu ${isAndroid||isIOS?"móvil":"ordenador"} con su icono, como una app:</p>${instStepsHtml()}
+    <div class="msh-b"><button type="button" class="btn ghost" data-is="never">No volver a preguntar</button><button type="button" class="btn" data-is="0">Entendido</button></div>`;
+ const d=instSheet(body(),async a=>{if(a==="go"){d.remove();if(await doInstall()==="accepted")toast("Lopegar instalada: búscala en tu pantalla de inicio o escritorio")}});
+ if(!instEv){let n=0;const t=setInterval(()=>{n++;if(instEv&&document.body.contains(d)){clearInterval(t);d.querySelector(".msheet").innerHTML=d.querySelector(".logo").outerHTML+body()}if(n>12||!document.body.contains(d))clearInterval(t)},250)}
+}
+async function fileInstallSheet(){
+ const u=(S.appUrl||"").trim();
+ if(!u){return}
+ const dest=u+(u.includes("?")?"&":"?")+"instalar=1";
+ const d=instSheet(`<h2 id="isT">Instalar ${esc(S.marca)} en este dispositivo</h2>
+  <p>Has abierto la app desde un archivo. Para instalarla con su icono y todas las funciones (radio, voz, GPS de radares y clima en directo), pulsa <b>Instalar</b>: se abrirá la versión publicada y solo tendrás que confirmar.</p>
+  <p class="note" id="isNet">Comprobando la conexión con ${esc(u.replace(/^https?:\/\//,"").replace(/\/$/,""))}…</p>
+  <div class="msh-b"><button type="button" class="btn ghost" data-is="never">No volver a preguntar</button><button type="button" class="btn ghost" data-is="0">Ahora no</button><button type="button" class="btn" data-is="go">${ic("up")}Instalar</button></div>`,
+  a=>{if(a==="go"){ls.set("lgx-inst-file","1");location.href=dest}});
+ const net=d.querySelector("#isNet");
+ try{const c=new AbortController();setTimeout(()=>c.abort(),6000);await fetch(u,{mode:"no-cors",cache:"no-store",signal:c.signal});net.textContent="Necesitas internet solo para instalarla. Después se abre desde su icono."}
+ catch(e){net.innerHTML=`<b style="color:var(--sos)">No se puede llegar a ${esc(u)}.</b> Revisa que tienes internet. Si sigue fallando, la versión para instalar aún no está publicada en esa dirección: cámbiala en Ajustes → General.`}
+}
+(function autoInstall(){
+ if(window.__lgxNative||isStandalone)return;
+ const q=new URLSearchParams(location.search).get("instalar")==="1";
+ if(location.protocol==="file:"){if(ls.get("lgx-inst-file")!=="1"&&ls.get("lgx-inst-off")!=="1"&&ss.get("lgx-inst-ses")!=="1"){ss.set("lgx-inst-ses","1");setTimeout(fileInstallSheet,400)}return}
+ if(!hosted)return;
+ if(q){try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}}
+ if(q||(ls.get("lgx-inst-off")!=="1"&&ss.get("lgx-inst-web")!=="1")){ss.set("lgx-inst-web","1");setTimeout(webInstallSheet,q?300:1500)}
+})();
+/* Actualización automática del mapa de Google cada 10 minutos */
+setInterval(()=>{gmAt=Date.now();if(view==="gmaps")render()},600000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState!=="visible")return;if(Date.now()-gmAt>600000){gmAt=Date.now();if(view==="gmaps")render()}});
+route();
+})();
+</script>
+</body>
+</html>
