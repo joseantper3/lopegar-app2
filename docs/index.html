@@ -525,6 +525,16 @@ h2.sec{margin:26px 0 12px}
 .mt-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr));gap:6px}
 .mt-checks label{display:flex!important;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-family:var(--f-body)!important;text-transform:none!important;letter-spacing:0!important;color:var(--ink)!important;font-size:14px!important;font-weight:500!important;cursor:pointer}
 .mt-checks input{width:18px;height:18px;accent-color:var(--brand)}
+.mt-drv{padding:18px;display:grid;gap:12px;max-width:560px}
+.mt-drv h2{font-size:24px}
+.mt-drv>.mt-plate{justify-self:start}
+.mt-drvf{display:flex;gap:8px;flex-wrap:wrap}
+.mt-drvf input{flex:1 1 180px;min-width:0;font-size:20px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);text-transform:uppercase}
+.mt-msg{white-space:pre-wrap;font-family:var(--f-mono);font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;margin:0;overflow-wrap:anywhere}
+.mt-lockwrap{display:grid;gap:16px;justify-items:center}
+.mt-lockwrap .pinbox{margin:0;width:100%}
+.mt-lockwrap .mt-drv{width:100%;max-width:360px}
+.mt-lockwrap .pinbox{max-width:360px}
 .toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--char);color:var(--char-ink);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:30;max-width:calc(100% - 32px);text-align:center;border:1px solid var(--brand)}
 foot,footer{display:block}
 .foot{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);display:flex;gap:8px 16px;flex-wrap:wrap;justify-content:space-between}
@@ -656,7 +666,7 @@ function vInicio(){
   ["asistencia","sos","Asistencia",S.asistencia.aseguradora+" · grúa y avería","sos"],
   ["facturacion","doc","Facturación","CIF y domicilio"],
   ["deca","deca","DeCA","Subir y enseñar el DeCA con su QR"],
-  ["mant","wrench","Mantenimiento","Con clave · ITV y plan"],
+  ["mant","wrench","Mantenimiento","Km y avisos de conductores"],
   ["prevencion","shield","Prevención",S.prl.length+" riesgos · vídeos"],
   ["radios","radio","Radios",S.radios.length+" emisoras"],
   ["empresa","user","Empresa","Contacto y gerencia"]
@@ -1042,14 +1052,15 @@ function pinScreen(title,text){return `<div class="card pinbox"><div class="lock
  <div class="keys" id="keys">${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Borrar">←</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" aria-label="Entrar">OK</button></div>
  <input id="pinin" type="password" inputmode="numeric" autocomplete="off" aria-label="Clave" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none"></div>`}
 function vMant(){
- if(!unlocked)return pinScreen("Mantenimiento","Introduce la clave para ver el mantenimiento de los vehículos.");
- mtCanSave();
+ if(MT.driver&&mtV(MT.driver)&&!unlocked)return mtDriverView(mtV(MT.driver));
+ if(!unlocked)return `<div class="mt-lockwrap">${mtDriverLogin()}${pinScreen("Empresa","Clave de la empresa para ver y gestionar el mantenimiento de toda la flota.")}</div>`;
+ mtCanSave();mtLoadPartes();
  const F=mtF(),edit=!!MT.art;
  if(MT.sel&&mtV(MT.sel))return mtVehicle(mtV(MT.sel),edit);
  const subs=[["flota","Flota"],["venc","Vencimientos"],["hist","Historial"]];
  let h=vh("Taller","Mantenimiento","ITV, kilómetros y plan de mantenimiento de cada vehículo de Lopegar Express.")+
  `<div class="tools"><div class="chips">${subs.map(s=>`<button type="button" class="chip" aria-pressed="${MT.sub===s[0]}" data-mt="sub:${s[0]}">${s[1]}</button>`).join("")}</div>
-  ${edit?`<button type="button" class="btn" data-mt="newm:">${ic("wrench")}Registrar mantenimiento</button>`:""}</div>`+mtStats();
+  ${edit?`<button type="button" class="btn" data-mt="newm:">${ic("wrench")}Registrar mantenimiento</button>`:""}</div>`+mtStats()+mtPartesBox();
  if(!F.vehiculos.length)return h+`<div class="card empty">Todavía no hay vehículos.</div>`;
  h+=MT.sub==="venc"?mtVenc():MT.sub==="hist"?mtHist():mtFleet();
  h+=`<p class="note" style="margin-top:14px">${edit?"Los cambios se guardan y se publican para todos.":"Para registrar mantenimientos o actualizar kilómetros, entra desde la app en Claude con tu cuenta."}${F.fecha?" Datos de la flota recuperados el "+esc(mtD(F.fecha))+".":""}</p>
@@ -1087,6 +1098,7 @@ function mtVehicle(v,edit){const k=mtKm(v),ps=mtPlanState(v),itvSt=mtDateSt(v.it
    <dt>Plan</dt><dd>${mtIveco(v)?"Intervalos Iveco":"Intervalos generales"}</dd></dl></div>
   <div class="card mt-box"><h2>Plan de mantenimiento</h2><div class="mt-plan">${ps.map(p=>`<div><span><b>${esc(p.item)}</b><small>Cada ${mtNf.format(p.cada)} km${p.aprox?" (aprox.)":""}${p.last?" · último "+esc(mtD(p.last.fecha))+(p.last.km?" a "+mtNf.format(+p.last.km)+" km":""):""}</small></span>${p.next==null?mtPill("none","Sin registro"):mtPill(p.status,p.left<0?"Pasado "+mtNf.format(-p.left)+" km":"Faltan "+mtNf.format(p.left)+" km")}</div>`).join("")}</div></div>
  </div>
+ ${mtPartesBox(v.id)}
  <h2 class="sec">Historial</h2><div class="card mt-table">${mtMaintTable(hist,false)}</div>
  <h2 class="sec">Ficha técnica</h2><div class="card mt-box"><dl class="mt-spec">${MT_SPEC.filter(s=>v[s[1]]!=null&&v[s[1]]!=="").map(s=>`<div><dt>${esc(s[0])}</dt><dd>${esc(s[2]==="date"?mtD(v[s[1]]):(typeof v[s[1]]==="number"?mtNf.format(v[s[1]]):v[s[1]])+(s[2]&&s[2]!=="date"?" "+s[2]:""))}</dd></div>`).join("")}</dl>${v.notas?`<p class="note" style="padding:0 16px 14px">${esc(v.notas)}</p>`:""}</div>`}
 /* formularios */
@@ -1136,6 +1148,67 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-mt]");if(!
 });
 document.addEventListener("change",e=>{if(e.target.id==="mtFilter"){MT.filter=e.target.value;render()}});
 window.addEventListener("hashchange",()=>{if(location.hash!=="#mant")MT.sel=null});
+
+/* Conductores: entran con la matrícula para dar los km y avisar de fallos */
+MT.driver=ss.get("lgx-mt-driver")||null;MT.sent=null;MT.db=undefined;MT.partes=null;
+async function mtDb(){if(MT.db!==undefined)return MT.db;try{MT.db=window.claude&&window.claude.use?await window.claude.use("db"):null}catch(e){MT.db=null}return MT.db}
+function mtDriverLogin(){return `<div class="card mt-drv"><h2>Conductores</h2><p class="note">Entra con la matrícula de tu vehículo para dar los kilómetros o avisar de un fallo.</p>
+ <form id="mtDrvForm" class="mt-drvf" novalidate><input id="mtDrvPlate" class="dk-platein" placeholder="1234 ABC" autocomplete="off" autocapitalize="characters" aria-label="Matrícula"><button type="submit" class="btn">Entrar</button></form>
+ <p class="pinerr" id="mtDrvErr" role="alert"></p></div>`}
+function mtWaNum(){const t=String((S.contacto&&(S.contacto.whatsapp||(S.contacto.telefonos||[])[0]))||"").replace(/\D/g,"");return t.length===9?"34"+t:t}
+function mtParteTxt(p,v){return `LOPEGAR EXPRESS · Parte de vehículo\nMatrícula: ${v.matricula} (${v.marca} ${v.modelo||""})\nFecha: ${mtD(p.fecha)}\nKilómetros: ${p.km?mtNf.format(p.km)+" km":"—"}${p.obs?"\nObservaciones: "+p.obs:""}`}
+function mtDriverView(v){const k=mtKm(v),p=MT.sent;
+ if(p)return vh("Parte enviado","Mantenimiento","")+`<div class="card mt-drv">${mtPlate(v,"md")}
+  <h2 style="margin-top:12px">${p.saved?"Registrado. ¡Gracias!":"Último paso: envíalo a la empresa"}</h2>
+  <p class="note">${p.saved?"La empresa ya lo tiene. Si quieres, avísales también por WhatsApp.":"Pulsa el botón para enviarlo por WhatsApp (o por correo). Se abre con el mensaje ya escrito: solo tienes que darle a enviar."}</p>
+  <pre class="mt-msg">${esc(mtParteTxt(p,v))}</pre>
+  <div class="links3"><a class="btn" href="https://wa.me/${mtWaNum()}?text=${encodeURIComponent(mtParteTxt(p,v))}" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+  <a class="btn ghost" href="mailto:${esc((S.contacto&&S.contacto.email)||"")}?subject=${encodeURIComponent("Parte "+v.matricula+" · "+mtD(p.fecha))}&body=${encodeURIComponent(mtParteTxt(p,v))}">Enviar por correo</a></div>
+  <div class="links3" style="margin-top:10px"><button type="button" class="btn ghost sm" data-mt="dnew">Otro parte</button><button type="button" class="btn ghost sm" data-mt="dout">Salir</button></div></div>`;
+ return vh("Parte del vehículo","Mantenimiento","Actualiza los kilómetros y, si hace falta, avisa de cualquier fallo o carencia del vehículo.")+
+ `<form class="card mt-drv mt-form" id="mtParte" novalidate><div class="mt-dh">${mtPlate(v,"md")}<div><b class="mt-mk">${esc(v.marca)}</b><span class="note">${esc(v.modelo||"")}</span></div></div>
+  <p class="note">Última lectura: <b>${k?mtNf.format(k)+" km":"sin lectura"}</b>${v.itvValidez?" · ITV hasta "+esc(mtD(v.itvValidez)):""}</p>
+  <div class="f"><label for="mtKmIn">Kilómetros actuales</label><input id="mtKmIn" name="km" type="number" inputmode="numeric" min="0" step="1" placeholder="Mira el cuentakilómetros"></div>
+  <div class="f"><label for="mtObs">Observaciones (opcional)</label><textarea id="mtObs" name="obs" placeholder="Fallos o carencias: ruidos, testigos encendidos, luces, neumáticos, falta de material…"></textarea></div>
+  <div class="f"><label for="mtFecha">Fecha</label><input id="mtFecha" name="fecha" type="date" value="${mtIso()}"></div>
+  <button type="submit" class="btn dk-save">Enviar parte</button>
+  <button type="button" class="btn ghost sm" data-mt="dout" style="justify-self:start">Salir</button></form>`;
+}
+async function mtSendParte(f){const v=mtV(MT.driver);if(!v)return;const fd=new FormData(f);
+ const km=fd.get("km")?Math.round(+fd.get("km")):0,obs=String(fd.get("obs")||"").trim(),fecha=fd.get("fecha")||mtIso();
+ if(!km&&!obs){toast("Escribe los kilómetros o una observación.");return}
+ const last=mtKm(v);if(km&&last&&km<last){toast(`Son menos km que la última lectura (${mtNf.format(last)} km). Revisa el número.`);return}
+ const p={id:"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),vehiculoId:v.id,matricula:v.matricula,km,obs,fecha,creado:new Date().toISOString()};
+ const db=await mtDb();p.saved=false;
+ if(db){try{const u=await window.claude.use("user");if(u){const me=await u.me();if(me&&me.id)p.autor=me.id}}catch(e){}
+  try{const {saved,...doc}=p;await db.doc("partes/"+p.id).set(doc);p.saved=true}catch(e){}}
+ try{const a=JSON.parse(ls.get("lgx-partes")||"[]");a.push(p);ls.set("lgx-partes",JSON.stringify(a.slice(-50)))}catch(e){}
+ MT.sent=p;render();window.scrollTo(0,0)}
+/* partes recibidos (solo en la versión de Claude, para quien tiene la clave) */
+async function mtLoadPartes(){const db=await mtDb();if(!db||MT.partes)return;MT.partes=[];
+ db.collection("partes").orderBy("creado","desc").limit(200).onSnapshot(s=>{MT.partes=s.docs.map(d=>({id:d.id,...d.data()}));if(view==="mant"&&unlocked&&!MT.driver)render()},()=>{})}
+function mtPartesBox(vid){const L=(MT.partes||[]).filter(p=>!vid||p.vehiculoId===vid);const hist=(mtF().obs||[]).filter(o=>!vid||o.vehiculoId===vid).slice().reverse();
+ if(!L.length&&!hist.length)return vid?"":`<p class="note" style="margin:0 0 14px">${MT.db?"Aún no hay partes de conductores.":"Los partes de los conductores llegan por WhatsApp o correo; en la versión de Claude aparecen aquí."}</p>`;
+ return `<h2 class="sec" style="margin-top:${vid?"26px":"0"}">Partes de conductores</h2><div class="card mt-plan">${L.map(p=>{const v=mtV(p.vehiculoId);return `<div><span>${v?mtPlate(v,"sm"):esc(p.matricula)} <b style="display:inline">${esc(mtD(p.fecha))}${p.km?" · "+mtNf.format(p.km)+" km":""}</b>${p.obs?`<small style="display:block;color:var(--ink);font-size:14px;margin-top:4px">${esc(p.obs)}</small>`:""}</span>
+  ${MT.art?`<span class="links3" style="flex:none"><button type="button" class="btn sm" data-mt="apply:${esc(p.id)}">Guardar</button><button type="button" class="btn ghost sm" data-mt="drop:${esc(p.id)}">Descartar</button></span>`:mtPill("warn","Nuevo")}</div>`}).join("")}
+  ${hist.slice(0,vid?20:8).map(o=>{const v=mtV(o.vehiculoId);return `<div><span>${v?mtPlate(v,"sm"):""} <b style="display:inline">${esc(mtD(o.fecha))}${o.km?" · "+mtNf.format(o.km)+" km":""}</b>${o.texto?`<small style="display:block;color:var(--ink);font-size:14px;margin-top:4px">${esc(o.texto)}</small>`:""}</span>${mtPill("ok","Guardado")}</div>`}).join("")}</div>`}
+async function mtApply(id){const p=(MT.partes||[]).find(x=>x.id===id);if(!p)return;const st=JSON.parse(JSON.stringify(S));const fl=st.flota;const v=fl.vehiculos.find(x=>x.id===p.vehiculoId);if(!v)return;
+ if(p.km&&p.km>(+v.kmActual||0)){v.kmActual=p.km;v.kmFecha=p.fecha}
+ if(p.obs||p.km){(fl.obs=fl.obs||[]).push({vehiculoId:p.vehiculoId,fecha:p.fecha,km:p.km||"",texto:p.obs||""})}
+ try{await (await mtDb()).doc("partes/"+p.id).delete()}catch(e){}
+ mtPublish(st,MT.sel)}
+async function mtDrop(id){try{await (await mtDb()).doc("partes/"+id).delete();toast("Parte descartado")}catch(e){toast("No se ha podido descartar.")}}
+document.addEventListener("submit",e=>{
+ if(e.target.id==="mtDrvForm"){e.preventDefault();const n=dkNorm($("#mtDrvPlate").value);const v=mtF().vehiculos.find(x=>dkNorm(x.matricula)===n);
+  if(!v){$("#mtDrvErr").textContent="Esa matrícula no está en la flota. Revísala.";return}MT.driver=v.id;MT.sent=null;ss.set("lgx-mt-driver",v.id);render();window.scrollTo(0,0)}
+ else if(e.target.id==="mtParte"){e.preventDefault();mtSendParte(e.target)}
+});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-mt]");if(!b||view!=="mant")return;const [a,arg]=b.dataset.mt.split(/:(.*)/);
+ if(a==="dout"){MT.driver=null;MT.sent=null;ss.del("lgx-mt-driver");render()}
+ else if(a==="dnew"){MT.sent=null;render()}
+ else if(a==="apply")mtApply(arg);
+ else if(a==="drop")mtDrop(arg);
+});
 
 /* ---------- Tráfico Google Maps ---------- */
 let gr="a4",gmAt=Date.now();
