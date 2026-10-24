@@ -1152,8 +1152,8 @@ window.addEventListener("hashchange",()=>{if(location.hash!=="#mant")MT.sel=null
 /* Conductores: entran con la matrícula para dar los km y avisar de fallos */
 MT.driver=ss.get("lgx-mt-driver")||null;MT.sent=null;MT.db=undefined;MT.partes=null;
 async function mtDb(){if(MT.db!==undefined)return MT.db;try{MT.db=window.claude&&window.claude.use?await window.claude.use("db"):null}catch(e){MT.db=null}return MT.db}
-function mtDriverLogin(){return `<div class="card mt-drv"><h2>Conductores</h2><p class="note">Entra con la matrícula de tu vehículo para dar los kilómetros o avisar de un fallo.</p>
- <form id="mtDrvForm" class="mt-drvf" novalidate><input id="mtDrvPlate" class="dk-platein" placeholder="1234 ABC" autocomplete="off" autocapitalize="characters" aria-label="Matrícula"><button type="submit" class="btn">Entrar</button></form>
+function mtDriverLogin(){return `<div class="card mt-drv"><h2>Conductores</h2><p class="note">Introducir Clave de Conductor</p>
+ <form id="mtDrvForm" class="mt-drvf" novalidate><input id="mtDrvPlate" class="dk-platein" type="password" autocomplete="off" autocapitalize="characters" aria-label="Clave de conductor"><button type="submit" class="btn">Entrar</button></form>
  <p class="pinerr" id="mtDrvErr" role="alert"></p></div>`}
 function mtWaNum(){const t=String((S.contacto&&(S.contacto.whatsapp||(S.contacto.telefonos||[])[0]))||"").replace(/\D/g,"");return t.length===9?"34"+t:t}
 function mtParteTxt(p,v){return `LOPEGAR EXPRESS · Parte de vehículo\nMatrícula: ${v.matricula} (${v.marca} ${v.modelo||""})\nFecha: ${mtD(p.fecha)}\nKilómetros: ${p.km?mtNf.format(p.km)+" km":"—"}${p.obs?"\nObservaciones: "+p.obs:""}`}
@@ -1200,7 +1200,7 @@ async function mtApply(id){const p=(MT.partes||[]).find(x=>x.id===id);if(!p)retu
 async function mtDrop(id){try{await (await mtDb()).doc("partes/"+id).delete();toast("Parte descartado")}catch(e){toast("No se ha podido descartar.")}}
 document.addEventListener("submit",e=>{
  if(e.target.id==="mtDrvForm"){e.preventDefault();const n=dkNorm($("#mtDrvPlate").value);const v=mtF().vehiculos.find(x=>dkNorm(x.matricula)===n);
-  if(!v){$("#mtDrvErr").textContent="Esa matrícula no está en la flota. Revísala.";return}MT.driver=v.id;MT.sent=null;ss.set("lgx-mt-driver",v.id);render();window.scrollTo(0,0)}
+  if(!v){$("#mtDrvErr").textContent="Clave incorrecta.";return}MT.driver=v.id;MT.sent=null;ss.set("lgx-mt-driver",v.id);render();window.scrollTo(0,0)}
  else if(e.target.id==="mtParte"){e.preventDefault();mtSendParte(e.target)}
 });
 document.addEventListener("click",e=>{const b=e.target.closest("[data-mt]");if(!b||view!=="mant")return;const [a,arg]=b.dataset.mt.split(/:(.*)/);
