@@ -1356,59 +1356,47 @@ function dcHist(all){const q=DC.q.trim().toLowerCase();
   :`<div class="card empty">${q?"Ningún albarán coincide.":"Todavía no hay albaranes guardados en este dispositivo."}</div>`}
  <p class="note" style="margin-top:10px">Los albaranes se guardan en este dispositivo. Guárdalos también en PDF si los tienes que conservar o enviar.</p>`}
 /* documento para imprimir */
-function dcDoc(a){const Fa=S.facturacion||{},C=S.contacto||{},t=dcTotals(a),U=x=>esc(String(x||"").toUpperCase());
- const tel=Fa.telefono||(C.telefonos||[])[1]||(C.telefonos||[])[0]||"";const imp=a.importe&&a.importe.on;
- const cifFmt=c=>String(c||"").replace(/^([A-Z])(\d)/i,"$1-$2");
- const party=(tt,p)=>`<div class="fv-para"><span class="fv-lbl">${tt}</span>${U(p.n)}${p.dir?`<br>${U(p.dir)}`:""}${p.cif?`<br><span class="fv-nif">NIF ${esc(p.cif)}</span>`:""}${p.tel?`<br>TEL. ${esc(p.tel)}`:""}</div>`;
- const ruta=[a.carga.lugar,a.entrega.lugar].filter(Boolean).map(x=>String(x).toUpperCase()).join(" – ");
- const filas=Math.max(0,6-a.lineas.length);
- return `<div class="fv">
- <header class="fv-head"><div class="fv-logo">${S.logo?`<img src="${S.logo}" alt="">`:""}</div><div class="fv-tit">ALBARÁN</div>
-  <div class="fv-co">${U(Fa.razon||S.empresa)}<br>${U(Fa.direccion)}<br>${U(String(Fa.cp_ciudad||"").replace(/\s*\((.*)\)/," - $1"))}<br>C.I.F. ${esc(cifFmt(Fa.cif))}${tel?`<br>TELEFONO: ${esc((d=>d.length===9?d.slice(0,3)+" "+d.slice(3,5)+" "+d.slice(5,7)+" "+d.slice(7):tel)(String(tel).replace(/\D/g,"")))}`:""}${C.email?`<br>${esc(C.email)}`:""}</div></header>
- <div class="fv-num">Nº ALBARÁN: ${esc(a.num)}<br>FECHA: ${esc(mtD(a.fecha))}<br>PORTES: ${U(a.portes)}</div>
- <div class="fv-parties">${party("PARA:",a.des)}${party("REMITENTE:",a.rem)}</div>
- <table class="fv-t fv-main"><thead><tr><th style="width:12%">FECHA</th><th>ORIGEN / DESTINO</th><th style="width:12%">MATRICULA</th><th style="width:10%">KM</th>${imp?`<th style="width:8%">€/KM</th><th style="width:12%">IMPORTE/€</th>`:""}</tr></thead>
- <tbody><tr><td class="c">${esc(mtD(a.carga.fecha||a.fecha))}</td><td>${esc(ruta)}${a.entrega.fecha?`<br><small>ENTREGA ${esc(mtD(a.entrega.fecha))}</small>`:""}</td><td class="c">${esc(a.veh||"")}</td><td class="c">${t.km?dcNum.format(t.km):""}</td>${imp?`<td class="c">${t.man!=null?"":"0,20"}</td><td class="c">${t.man!=null?"":t.cD.toFixed(2).replace(".",",")}</td>`:""}</tr>
- <tr class="fv-gap"><td></td><td></td><td></td><td></td>${imp?"<td></td><td></td>":""}</tr></tbody></table>
- <table class="fv-t fv-merc"><thead><tr><th style="width:6%">Nº</th><th>DESCRIPCIÓN DE LA MERCANCÍA</th><th style="width:10%">BULTOS</th><th style="width:12%">KILOS</th><th style="width:30%">OBSERVACIONES</th></tr></thead>
- <tbody>${a.lineas.map((l,i)=>`<tr><td class="c">${i+1}</td><td>${U(l.d)}</td><td class="c">${esc(l.b)}</td><td class="c">${l.kg!==""?esc(dcNum.format(+String(l.kg).replace(",",".")||0)):""}</td><td>${esc(l.obs)}</td></tr>`).join("")}${"<tr><td></td><td></td><td></td><td></td><td></td></tr>".repeat(filas)}
- <tr class="fv-tot"><td></td><td class="r">TOTAL</td><td class="c">${t.b}</td><td class="c">${dcNum.format(t.kg)}</td><td>${a.conductor?"CONDUCTOR: "+U(a.conductor):""}</td></tr></tbody></table>
- ${imp?(t.man!=null?`<table class="fv-t fv-sum"><thead><tr><th>PRECIO PACTADO</th></tr></thead><tbody><tr><td class="c b">${dcEur.format(t.man)}</td></tr></tbody></table>`
- :`<table class="fv-t fv-sum"><thead><tr><th rowspan="2">RUTA</th><th rowspan="2">VOLUMEN</th><th colspan="2">PESO</th></tr><tr><th>Kilos</th><th>Total</th></tr></thead>
-  <tbody><tr><td class="c b">${dcEur.format(t.cD)}</td><td class="c b">${dcEur.format(t.cV)}</td><td class="c b">${dcNum.format(t.pk)}</td><td class="c b">${dcEur.format(t.cP)}</td></tr></tbody></table>`)+
- `<table class="fv-t fv-sum"><thead><tr><th rowspan="2">BASE<br>IMPONIBLE</th><th colspan="2">IVA</th><th rowspan="2">TOTAL<br>ALBARÁN</th></tr><tr><th>TIPO<br>IMPOSITIVO</th><th>IMPORTE</th></tr></thead>
-  <tbody><tr><td class="c b">${dcEur.format(t.base)}</td><td class="c b">21 %</td><td class="c b">${dcEur.format(t.iva)}</td><td class="c b">${dcEur.format(t.total)}</td></tr></tbody></table>
-  <p class="fv-seg">VOLUMEN ${esc(String((+t.vol).toFixed(1)).replace(".",","))} m³ · SEGURO INCLUIDO</p>`:""}
- ${a.obs?`<div class="fv-obs"><span class="fv-lbl">OBSERVACIONES:</span> ${esc(a.obs).replace(/\n/g,"<br>")}</div>`:""}
- <div class="fv-sigs"><div><div class="fv-sigbox"></div><span>FIRMA REMITENTE</span></div>
-  <div><div class="fv-sigbox">${a.firmaT?`<img src="${a.firmaT}" alt="">`:""}</div><span>FIRMA TRANSPORTISTA</span></div>
-  <div><div class="fv-sigbox">${a.firmaD?`<img src="${a.firmaD}" alt="">`:""}</div><span>RECIBÍ CONFORME${a.receptor?" · "+U(a.receptor):""}${a.receptorDni?" · DNI "+esc(a.receptorDni):""}</span><span>FECHA Y HORA:</span></div></div>
- ${Fa.iban?`<p class="fv-bank">Nº CTA ${U(Fa.banco||"")}:&nbsp;&nbsp;&nbsp;&nbsp;${esc(Fa.iban)}</p>`:""}</div>`}
-const AB_CSS=`.fv,.fv *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.fv{font:11.5px/1.35 Calibri,Carlito,"Segoe UI",Arial,sans-serif;color:#111;max-width:186mm;margin:0 auto}
-.fv-head{display:grid;grid-template-columns:42mm 1fr 58mm;align-items:start;gap:6mm}
-.fv-logo img{width:38mm;height:38mm;object-fit:contain}
-.fv-tit{justify-self:center;margin-top:6mm;border:1.5px solid #222;background:#c9c9c9;padding:7px 38px;font-size:13px;letter-spacing:.04em}
-.fv-co{font-size:11px;line-height:1.55;padding-top:2mm}
-.fv-num{text-align:right;font-size:11px;line-height:1.55;margin:2mm 0 4mm}
-.fv-parties{display:grid;grid-template-columns:1fr 1fr;gap:8mm;margin-bottom:5mm;font-size:11px;line-height:1.5}
-.fv-lbl{display:block}.fv-obs .fv-lbl{display:inline;font-weight:700}
-.fv-nif{font-family:"Times New Roman",serif;font-size:12px}
-.fv-t{border-collapse:collapse;width:100%;font-size:11px}
-.fv-t th{background:#c9c9c9;border:1px solid #222;padding:2px 4px;font-weight:700;text-align:center;line-height:1.2}
-.fv-t td{border-left:1px solid #222;border-right:1px solid #222;padding:2px 4px;vertical-align:top}
-.fv-main tbody tr:last-child td,.fv-merc tbody tr:last-child td{border-bottom:1px solid #222}
-.fv-main .fv-gap td{height:20mm}
-.fv-merc{margin-top:4mm}.fv-merc td{height:5.5mm}.fv-merc .fv-tot td{border-top:1px solid #222;font-weight:700}
-.fv-t .c{text-align:center}.fv-t .r{text-align:right}.fv-t .b{font-weight:700}
-.fv-sum{width:66%;margin:5mm auto 0}.fv-sum td{border:1px solid #222;padding:5px 4px}
-.fv-seg{text-align:center;font-size:9px;color:#555;margin:2mm 0 0}
-.fv-obs{margin-top:5mm;font-size:11px}
-.fv-sigs{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm;margin-top:8mm}
-.fv-sigs>div{display:flex;flex-direction:column;gap:2px;font-size:9.5px}
-.fv-sigbox{height:22mm;border-bottom:1px solid #222;display:flex;align-items:flex-end;justify-content:center}.fv-sigbox img{max-height:21mm;max-width:100%}
-.fv-bank{text-align:center;margin-top:10mm;font-size:11.5px}
-.fv small{font-size:9px}`;
+function dcDoc(a){const Fa=S.facturacion||{},C=S.contacto||{},t=dcTotals(a);const imp=a.importe&&a.importe.on;
+ const tel=Fa.telefono||(C.telefonos||[])[0]||"";const ph=x=>{const d=String(x).replace(/\D/g,"");return d.length===9?d.slice(0,3)+" "+d.slice(3,5)+" "+d.slice(5,7)+" "+d.slice(7):x};
+ const who=p=>`<b>${esc(p.n||"—")}</b>${p.dir?`<span>${esc(p.dir)}</span>`:""}${p.cif?`<span>NIF ${esc(p.cif)}</span>`:""}`;
+ return `<div class="sa">
+ <header class="sa-h"><div class="sa-co">${S.logo?`<img src="${S.logo}" alt="">`:""}<div><b>${esc(Fa.razon||S.empresa)}</b><span>${esc(Fa.direccion||"")} · ${esc(Fa.cp_ciudad||"")}</span><span>CIF ${esc(Fa.cif||"")}${tel?" · Tel. "+esc(ph(tel)):""}</span></div></div>
+  <div class="sa-n"><b>ALBARÁN</b><span>Nº ${esc(a.num)}</span><span>${esc(mtD(a.fecha))}</span></div></header>
+ <div class="sa-grid">
+  <div><small>Cliente</small>${who(a.des)}</div>
+  <div><small>Remitente</small>${who(a.rem)}</div>
+  <div><small>Recogida</small><b>${esc(a.carga.lugar||"—")}</b>${a.carga.fecha?`<span>${esc(mtD(a.carga.fecha))}</span>`:""}</div>
+  <div><small>Entrega</small><b>${esc(a.entrega.lugar||"—")}</b>${a.entrega.fecha?`<span>${esc(mtD(a.entrega.fecha))}</span>`:""}</div>
+  <div><small>Vehículo</small><b>${esc(a.veh||"—")}</b>${a.conductor?`<span>${esc(a.conductor)}</span>`:""}</div>
+  <div><small>Portes</small><b>${esc(a.portes)}</b>${t.km?`<span>${dcNum.format(t.km)} km</span>`:""}</div>
+ </div>
+ <table class="sa-t"><thead><tr><th>Mercancía</th><th class="r">Bultos</th><th class="r">Kilos</th></tr></thead>
+ <tbody>${a.lineas.map(l=>`<tr><td>${esc(l.d||"")}${l.obs?`<small>${esc(l.obs)}</small>`:""}</td><td class="r">${esc(l.b)}</td><td class="r">${l.kg!==""?esc(dcNum.format(+String(l.kg).replace(",",".")||0)):""}</td></tr>`).join("")}</tbody>
+ <tfoot><tr><td>Total</td><td class="r">${t.b}</td><td class="r">${dcNum.format(t.kg)}</td></tr></tfoot></table>
+ ${imp?`<div class="sa-p"><span>Base ${dcEur.format(t.base)}</span><span>IVA 21 % ${dcEur.format(t.iva)}</span><b>Total ${dcEur.format(t.total)}</b></div>`:""}
+ ${a.obs?`<p class="sa-o"><small>Observaciones</small>${esc(a.obs).replace(/\n/g,"<br>")}</p>`:""}
+ <div class="sa-f"><div><div class="sa-sb">${a.firmaT?`<img src="${a.firmaT}" alt="">`:""}</div><span>Transportista</span></div>
+  <div><div class="sa-sb">${a.firmaD?`<img src="${a.firmaD}" alt="">`:""}</div><span>Recibí conforme${a.receptor?" · "+esc(a.receptor):""}${a.receptorDni?" · DNI "+esc(a.receptorDni):""}</span></div></div>
+ ${Fa.iban?`<p class="sa-bank">${esc(Fa.banco||"Cuenta")} · ${esc(Fa.iban)}</p>`:""}</div>`}
+const AB_CSS=`.sa,.sa *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sa{font:12px/1.4 Arial,Helvetica,sans-serif;color:#1a1a1a;max-width:180mm;margin:0 auto}
+.sa small{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px}
+.sa-h{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:2px solid #e8571a}
+.sa-co{display:flex;gap:10px;align-items:center}.sa-co img{width:52px;height:52px;border-radius:50%}
+.sa-co div,.sa-n{display:flex;flex-direction:column}.sa-co b{font-size:15px}.sa-co span{font-size:10.5px;color:#555}
+.sa-n{text-align:right}.sa-n b{font-size:20px;letter-spacing:.06em;color:#e8571a}.sa-n span{font-size:12px}
+.sa-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;margin:16px 0}
+.sa-grid>div{display:flex;flex-direction:column}.sa-grid b{font-size:13px}.sa-grid span{font-size:11px;color:#444}
+.sa-t{width:100%;border-collapse:collapse;margin-top:6px}
+.sa-t th{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#888;text-align:left;border-bottom:1px solid #bbb;padding:5px 4px;font-weight:normal}
+.sa-t td{padding:7px 4px;border-bottom:1px solid #eee;vertical-align:top}.sa-t td small{margin:2px 0 0;text-transform:none;letter-spacing:0;font-size:10px}
+.sa-t tfoot td{border-top:1px solid #bbb;border-bottom:0;font-weight:bold}.sa-t .r{text-align:right;width:16%}
+.sa-p{display:flex;justify-content:flex-end;gap:18px;align-items:baseline;margin-top:12px;font-size:12px}.sa-p b{font-size:16px;color:#e8571a}
+.sa-o{margin:14px 0 0;font-size:11.5px}
+.sa-f{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:34px}
+.sa-f>div{display:flex;flex-direction:column;font-size:10px;color:#555}
+.sa-sb{height:22mm;border-bottom:1px solid #999;display:flex;align-items:flex-end;justify-content:center}.sa-sb img{max-height:21mm;max-width:100%}
+.sa-bank{margin-top:22px;text-align:center;font-size:10px;color:#666}`;
 (()=>{const st=document.createElement("style");st.id="fvcss";st.textContent=AB_CSS;document.head.appendChild(st)})();
 function dcPrint(a){
  let area=document.getElementById("printArea");if(!area){area=document.createElement("div");area.id="printArea";document.body.appendChild(area)}
