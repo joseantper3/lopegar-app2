@@ -683,9 +683,8 @@ function vFuel(){
  if(fv!==view){fv=view;fz="Todas";fq=""}
  const zones=["Todas",...[...new Set(L.map(s=>s.zona).filter(Boolean))]];
  if(!zones.includes(fz))fz="Todas";
- return vh("Repostaje",F.t,"Estaciones habituales ordenadas de sur a norte. Pulsa «Cómo llegar» para abrir la ruta en Google Maps.")+
- `<div class="tools"><div class="search">${ic("search")}<input id="q" type="search" placeholder="Buscar población o provincia" value="${esc(fq)}" autocomplete="off" aria-label="Buscar estación"></div>
-  <div class="chips" id="zones">${zones.map(z=>`<button type="button" class="chip" aria-pressed="${z===fz}" data-z="${esc(z)}">${esc(z)}</button>`).join("")}</div></div>
+ return vh("Repostaje",F.t,null)+
+ `<div class="tools"><div class="chips" id="zones">${zones.map(z=>`<button type="button" class="chip" aria-pressed="${z===fz}" data-z="${esc(z)}">${esc(z)}</button>`).join("")}</div></div>
   <div class="card list" id="list"></div><p class="meta" id="count"></p>`;
 }
 const vBallenoil=vFuel,vPlenergy=vFuel;
@@ -694,7 +693,7 @@ function drawStations(){
  const rows=L.map((s,i)=>({...s,i:i+1})).filter(s=>(fz==="Todas"||s.zona===fz)&&(!q||norm([s.nombre,s.provincia,s.nota,s.via].join(" ")).includes(q)));
  $("#list").innerHTML=rows.length?rows.map(s=>`<div class="item"><div class="num">${String(s.i).padStart(2,"0")}</div>
   <div class="t"><b>${esc(s.nombre)}</b><span>${esc(s.provincia)}${s.nota?" · "+esc(s.nota):""}</span>${s.via?`<span class="tag">${esc(s.via)}</span>`:""}</div>
-  ${s.url?`<a class="btn" href="${esc(s.url)}" target="_blank" rel="noopener">${ic("pin")}Cómo llegar</a>`:""}</div>`).join("")
+  ${s.url?`<a class="btn sm" href="${esc(s.url)}" target="_blank" rel="noopener">${ic("pin")}Cómo llegar</a>`:""}</div>`).join("")
   :`<div class="empty">Ninguna estación coincide con la búsqueda.</div>`;
  $("#count").textContent=rows.length+" de "+L.length+" estaciones";
 }
@@ -708,7 +707,7 @@ function drawTipsa(){
  const q=norm(tq);const rows=S.tipsa.map((s,i)=>({...s,i:i+1})).filter(s=>!q||norm(s.nombre+" "+(s.nota||"")).includes(q));
  $("#tlist").innerHTML=rows.length?rows.map(s=>`<div class="item"><div class="num">${String(s.i).padStart(2,"0")}</div>
   <div class="t"><b>${esc(s.nombre)}</b>${s.nota?`<span>${esc(s.nota)}</span>`:""}</div>
-  ${s.url?`<a class="btn" href="${esc(s.url)}" target="_blank" rel="noopener">${ic("pin")}Cómo llegar</a>`:""}</div>`).join("")
+  ${s.url?`<a class="btn sm" href="${esc(s.url)}" target="_blank" rel="noopener">${ic("pin")}Cómo llegar</a>`:""}</div>`).join("")
   :`<div class="empty">Ninguna agencia coincide con la búsqueda.</div>`;
  $("#tcount").textContent=rows.length+" de "+S.tipsa.length+" agencias";
 }
