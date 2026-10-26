@@ -1694,6 +1694,16 @@ function render(){
  updPlayer();
  if((view==="ajustes"||view==="mant")&&!unlocked){const p=$("#pinin");p&&p.focus({preventScroll:true})}
 }
+/* Copiar al portapapeles: funciona en navegador, app instalada y app de Android */
+function copyFallback(t){try{const ta=document.createElement("textarea");ta.value=t;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;top:0;left:0;opacity:0;font-size:16px";document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,t.length);const ok=document.execCommand("copy");ta.remove();return ok}catch(e){return false}}
+async function copyText(t){
+ if(window.LgxAndroid&&window.LgxAndroid.copy){try{window.LgxAndroid.copy(t);toast("Copiado");return}catch(e){}}
+ try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(t);toast("Copiado");return}}catch(e){}
+ if(copyFallback(t)){toast("Copiado");return}
+ const d=document.createElement("div");d.className="msheet-bg";d.innerHTML=`<div class="msheet card"><h2>Copiar</h2><p>Mantén pulsado el texto y elige «Copiar».</p><textarea readonly style="width:100%;min-height:130px;font:inherit;font-size:16px;padding:10px;border-radius:10px;border:1px solid var(--line)">${esc(t)}</textarea><div class="msh-b">${navigator.share?`<button type="button" class="btn ghost" data-share>Compartir</button>`:""}<button type="button" class="btn" data-x>Cerrar</button></div></div>`;
+ document.body.appendChild(d);const ta=d.querySelector("textarea");ta.focus();ta.select();
+ d.addEventListener("click",e=>{if(e.target===d||e.target.closest("[data-x]"))d.remove();if(e.target.closest("[data-share]"))navigator.share({text:t}).catch(()=>{})});
+}
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
 
 async function pinKey(k){
@@ -1710,7 +1720,7 @@ async function pinKey(k){
 
 document.addEventListener("click",async e=>{
  const c=e.target.closest("[data-copy]");
- if(c){const t=c.dataset.copy;try{await navigator.clipboard.writeText(t);toast("Copiado")}catch(err){const dd=c.parentElement.querySelector("dd")||c.previousElementSibling;if(dd){const r=document.createRange();r.selectNodeContents(dd);const s=getSelection();s.removeAllRanges();s.addRange(r)}toast("Texto seleccionado: cópialo manualmente")}return}
+ if(c){copyText(c.dataset.copy);return}
  const z=e.target.closest("[data-z]");if(z){fz=z.dataset.z;document.querySelectorAll("#zones .chip").forEach(b=>b.setAttribute("aria-pressed",b===z));drawStations();return}
  if(e.target.closest("#micBtn")){vToggle();return}
  if(e.target.closest("#radTgl")){radOn?radStop():radStart();return}
