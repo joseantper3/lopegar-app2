@@ -541,6 +541,56 @@ h2.sec{margin:26px 0 12px}
 .radio .rn{color:var(--ink)}.radio .rs{display:block;margin-top:2px;color:var(--muted)}
 .radio .av{background:var(--brand-soft);color:var(--brand)}
 .radio.on .av{background:var(--brand);color:var(--brand-ink)}
+.dc-form{display:grid;gap:12px}
+.dc-sec{padding:14px 16px;display:grid;gap:10px}
+.dc-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.dc-h b{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:16px}
+.dc-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:10px}
+.dc-wide{grid-column:1/-1}
+.dc-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.dc-form .f{display:grid;gap:4px;min-width:0}
+.dc-form .f label,.dc-sl{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:11px;color:var(--muted);margin:0}
+.dc-form input:not([type=checkbox]),.dc-form select,.dc-form textarea{font:inherit;font-size:15px;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.dc-form textarea{min-height:70px;resize:vertical}
+.dc-lines{display:grid;gap:10px}
+.dc-line{display:grid;grid-template-columns:24px minmax(0,2fr) 80px 100px minmax(0,1.5fr) 30px;gap:8px;align-items:end;padding-bottom:10px;border-bottom:1px dashed var(--line)}
+.dc-n{width:24px;height:24px;border-radius:50%;background:var(--char);color:var(--char-ink);display:grid;place-items:center;font-family:var(--f-mono);font-size:11px;margin-bottom:8px}
+.dc-x{width:30px;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--sos);font-size:20px;cursor:pointer}
+@media (max-width:640px){.dc-line{grid-template-columns:24px 1fr 1fr 30px}.dc-line .dc-n{grid-row:1;grid-column:1}.dc-line .dc-d{grid-column:2/4;grid-row:1}.dc-line .dc-x{grid-column:4;grid-row:1}.dc-line .dc-b{grid-column:2;grid-row:2}.dc-line .dc-k{grid-column:3;grid-row:2}.dc-line .dc-o{grid-column:2/4;grid-row:3}}
+.dc-sw{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}.dc-sw input{width:18px;height:18px;accent-color:var(--brand)}
+.dc-pad{position:relative;border:1px dashed var(--muted);border-radius:10px;background:#fff;height:130px;overflow:hidden;touch-action:none}
+.dc-pad canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}
+.dc-pad img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.dc-ph{position:absolute;inset:0;display:grid;place-items:center;color:#9aa0a6;font-size:13px;pointer-events:none}
+.dc-clr{position:absolute;right:6px;top:6px;border:1px solid var(--line);background:var(--panel);border-radius:6px;font-size:11px;padding:3px 8px;cursor:pointer;color:var(--ink)}
+.dc-bar{position:sticky;bottom:calc(76px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;background:var(--char);border-radius:12px;padding:10px 12px;z-index:5}
+@media (min-width:900px){.dc-bar{bottom:16px}}
+.dc-bar .btn.ghost{color:var(--char-ink);border-color:rgba(255,255,255,.25)}
+#printArea{display:none}
+@media print{
+ @page{size:A4;margin:10mm}
+ body.printing>*:not(#printArea){display:none!important}
+ body.printing #printArea{display:block!important}
+ body.printing{background:#fff!important;padding:0!important}
+ html,body{background:#fff!important}
+}
+.ab{font:12px/1.35 Arial,Helvetica,sans-serif;color:#111;max-width:190mm;margin:0 auto}
+.ab-head{display:flex;justify-content:space-between;gap:12px;border-bottom:3px solid #e8571a;padding-bottom:8px;margin-bottom:10px}
+.ab-co{display:flex;gap:10px;align-items:center}.ab-co img{width:62px;height:62px;border-radius:50%}
+.ab-co div,.ab-tit{display:flex;flex-direction:column}.ab-co b{font-size:17px}.ab-co span{font-size:11px;color:#333}
+.ab-tit{text-align:right;justify-content:center}.ab-tit b{font-size:16px;color:#e8571a;letter-spacing:.04em}.ab-tit strong{font-size:15px}
+.ab-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.ab-3{grid-template-columns:1fr 1fr 1fr}
+.ab-box{border:1px solid #999;border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;min-height:38px}
+.ab-box h4,.ab-sig h4{margin:0 0 3px;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#666}
+.ab-box b{font-size:13px}.ab-box span{font-size:11px}
+.ab-t{width:100%;border-collapse:collapse;margin:4px 0 8px}.ab-t th,.ab-t td{border:1px solid #999;padding:5px 6px;text-align:left;vertical-align:top}
+.ab-t th{background:#f0f0f0;font-size:10px;text-transform:uppercase}.ab-t .r{text-align:right}.ab-t tbody td{height:20px}
+.ab-imp{display:flex;justify-content:flex-end;gap:18px;margin-bottom:8px}.ab-imp .tot b{font-size:15px}
+.ab-obs{margin-bottom:8px}
+.ab-sigs{margin-top:10px}.ab-sig{border:1px solid #999;border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;gap:3px}
+.ab-sigbox{height:70px;display:flex;align-items:center;justify-content:center}.ab-sigbox img{max-height:70px;max-width:100%}
+.ab-sig span{font-size:10px;color:#333;border-top:1px dotted #999;padding-top:2px}
+.ab-foot{margin-top:10px;font-size:9px;color:#777;text-align:center}
 .toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--char);color:var(--char-ink);padding:10px 16px;border-radius:10px;font-weight:600;font-size:12px;z-index:30;max-width:calc(100% - 32px);text-align:center;border:1px solid var(--brand)}
 foot,footer{display:block}
 .foot{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);display:flex;gap:8px 16px;flex-wrap:wrap;justify-content:space-between}
@@ -618,6 +668,7 @@ const VIEWS=[
  {id:"facturacion",t:"Facturación",ic:"doc"},
  {id:"deca",t:"DeCA",ic:"deca"},
  {id:"mant",t:"Mantenimiento",ic:"wrench"},
+ {id:"docs",t:"Documentación",ic:"doc"},
  {id:"prevencion",t:"Prevención",ic:"shield"},
  {id:"radios",t:"Radios",ic:"radio"},
  {id:"empresa",t:"Empresa",ic:"user"},
@@ -673,6 +724,7 @@ function vInicio(){
   ["facturacion","doc","Facturación","CIF y domicilio"],
   ["deca","deca","DeCA","Subir y enseñar el DeCA con su QR"],
   ["mant","wrench","Mantenimiento","Km y avisos de conductores"],
+  ["docs","doc","Documentación","Albaranes · con clave"],
   ["prevencion","shield","Prevención",S.prl.length+" riesgos · vídeos"],
   ["radios","radio","Radios",S.radios.length+" emisoras"],
   ["empresa","user","Empresa","Contacto y gerencia"]
@@ -1215,6 +1267,159 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-mt]");if(!
  else if(a==="drop")mtDrop(arg);
 });
 
+/* ---------- Documentación: albaranes (con la clave de la empresa) ----------
+   Se guardan en este dispositivo. Se imprimen o se guardan en PDF con el diálogo de impresión. */
+const DC={tab:"nuevo",cur:null,q:""};
+const dcLoad=()=>{try{return JSON.parse(ls.get("lgx-albaranes")||"[]")}catch(e){return []}};
+const dcSaveAll=a=>{try{localStorage.setItem("lgx-albaranes",JSON.stringify(a));return true}catch(e){return false}};
+const dcEur=new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}),dcNum=new Intl.NumberFormat("es-ES",{maximumFractionDigits:2});
+function dcNextNum(){const y=new Date().getFullYear();const all=dcLoad().filter(a=>String(a.num||"").startsWith("A"+y+"-"));
+ const max=all.reduce((m,a)=>Math.max(m,+(String(a.num).split("-")[1])||0),+(ls.get("lgx-alb-seq-"+y)||0));return "A"+y+"-"+String(max+1).padStart(4,"0")}
+function dcBlank(){return {id:"al"+Date.now().toString(36),num:dcNextNum(),fecha:mtIso(),
+ rem:{n:"",cif:"",dir:"",tel:""},des:{n:"",cif:"",dir:"",tel:""},
+ carga:{lugar:"",fecha:mtIso()},entrega:{lugar:"",fecha:""},
+ veh:"",remolque:"",conductor:"",portes:"Pagados",
+ lineas:[{d:"",b:"",kg:"",obs:""}],
+ importe:{on:false,base:"",iva:21},obs:"",firmaT:"",firmaD:"",receptor:"",receptorDni:"",creado:""}}
+const dcGet=(o,p)=>p.split(".").reduce((x,k)=>x==null?x:x[k],o);
+function dcSet(o,p,v){const k=p.split(".");let x=o;for(let i=0;i<k.length-1;i++)x=x[k[i]];x[k[k.length-1]]=v}
+const dcIn=(p,label,opt={})=>{const v=dcGet(DC.cur,p);return `<div class="f${opt.wide?" dc-wide":""}"><label>${esc(label)}</label>${opt.area?`<textarea data-dc="${p}" placeholder="${esc(opt.ph||"")}">${esc(v||"")}</textarea>`:`<input data-dc="${p}" type="${opt.type||"text"}" value="${esc(v==null?"":v)}" placeholder="${esc(opt.ph||"")}"${opt.list?` list="${opt.list}"`:""}${opt.step?` step="${opt.step}" min="0" inputmode="decimal"`:""} autocomplete="off">`}</div>`};
+function dcTotals(a){const L=a.lineas||[];const b=L.reduce((s,l)=>s+(+l.b||0),0),kg=L.reduce((s,l)=>s+(+String(l.kg).replace(",",".")||0),0);
+ const base=+String(a.importe.base).replace(",",".")||0,iva=base*(+a.importe.iva||0)/100;return {b,kg,base,iva,total:base+iva}}
+function vDocs(){
+ if(!unlocked)return pinScreen("Documentación","Introduce la clave de la empresa para crear y consultar albaranes.");
+ if(!DC.cur)DC.cur=dcBlank();
+ const all=dcLoad();
+ return vh("Empresa","Documentación","Crea albaranes de transporte con los datos de Lopegar Express, fírmalos en la pantalla e imprímelos o guárdalos en PDF.")+
+ `<div class="tools"><div class="chips"><button type="button" class="chip" aria-pressed="${DC.tab==="nuevo"}" data-dc-a="tab:nuevo">${DC.cur.creado?"Editar albarán":"Nuevo albarán"}</button><button type="button" class="chip" aria-pressed="${DC.tab==="hist"}" data-dc-a="tab:hist">Albaranes guardados${all.length?" · "+all.length:""}</button></div></div>
+ ${DC.tab==="hist"?dcHist(all):dcForm()}
+ <div class="links3" style="margin-top:14px"><button type="button" class="btn ghost sm" data-dc-a="lock">${ic("lock")}Cerrar con clave</button></div>`;
+}
+function dcForm(){const a=DC.cur,F=mtF(),t=dcTotals(a);const hist=dcLoad();
+ const names=[...new Set(hist.flatMap(x=>[x.rem&&x.rem.n,x.des&&x.des.n]).filter(Boolean))];
+ const places=[...new Set(hist.flatMap(x=>[x.carga&&x.carga.lugar,x.entrega&&x.entrega.lugar]).filter(Boolean))];
+ return `<datalist id="dcNames">${names.map(n=>`<option value="${esc(n)}">`).join("")}</datalist><datalist id="dcPlaces">${places.map(n=>`<option value="${esc(n)}">`).join("")}</datalist>
+ <form id="dcForm" class="dc-form" novalidate>
+ <div class="card dc-sec"><div class="dc-h"><b>Albarán</b></div><div class="dc-g">${dcIn("num","Número")}${dcIn("fecha","Fecha",{type:"date"})}
+  <div class="f"><label>Portes</label><select data-dc="portes">${["Pagados","Debidos"].map(o=>`<option${a.portes===o?" selected":""}>${o}</option>`).join("")}</select></div></div></div>
+ <div class="dc-two">
+  <div class="card dc-sec"><div class="dc-h"><b>Remitente (cargador)</b>${hist.length?`<button type="button" class="btn ghost sm" data-dc-a="fill:rem">Último usado</button>`:""}</div><div class="dc-g">${dcIn("rem.n","Nombre o razón social",{list:"dcNames",wide:1})}${dcIn("rem.cif","CIF / NIF")}${dcIn("rem.tel","Teléfono",{type:"tel"})}${dcIn("rem.dir","Dirección",{wide:1})}</div></div>
+  <div class="card dc-sec"><div class="dc-h"><b>Destinatario</b>${hist.length?`<button type="button" class="btn ghost sm" data-dc-a="fill:des">Último usado</button>`:""}</div><div class="dc-g">${dcIn("des.n","Nombre o razón social",{list:"dcNames",wide:1})}${dcIn("des.cif","CIF / NIF")}${dcIn("des.tel","Teléfono",{type:"tel"})}${dcIn("des.dir","Dirección",{wide:1})}</div></div>
+ </div>
+ <div class="dc-two">
+  <div class="card dc-sec"><div class="dc-h"><b>Carga</b></div><div class="dc-g">${dcIn("carga.lugar","Lugar de carga",{list:"dcPlaces",wide:1})}${dcIn("carga.fecha","Fecha de carga",{type:"date"})}</div></div>
+  <div class="card dc-sec"><div class="dc-h"><b>Entrega</b></div><div class="dc-g">${dcIn("entrega.lugar","Lugar de entrega",{list:"dcPlaces",wide:1})}${dcIn("entrega.fecha","Fecha de entrega",{type:"date"})}</div></div>
+ </div>
+ <div class="card dc-sec"><div class="dc-h"><b>Vehículo y conductor</b></div><div class="dc-g">
+  <div class="f"><label>Matrícula</label><input data-dc="veh" list="dcPlates" value="${esc(a.veh)}" autocomplete="off" placeholder="0000ABC"><datalist id="dcPlates">${F.vehiculos.map(v=>`<option value="${esc(v.matricula)}">${esc(v.marca+" "+(v.modelo||""))}</option>`).join("")}</datalist></div>
+  ${dcIn("remolque","Remolque (opcional)")}${dcIn("conductor","Conductor",{wide:1})}</div></div>
+ <div class="card dc-sec"><div class="dc-h"><b>Mercancía</b><button type="button" class="btn ghost sm" data-dc-a="addl">+ Añadir línea</button></div>
+  <div class="dc-lines">${a.lineas.map((l,i)=>`<div class="dc-line"><span class="dc-n">${i+1}</span>
+   <div class="f dc-d"><label>Descripción</label><input data-dc="lineas.${i}.d" value="${esc(l.d)}" placeholder="Paquetería, palés, cajas…"></div>
+   <div class="f dc-b"><label>Bultos</label><input data-dc="lineas.${i}.b" type="number" min="0" step="1" inputmode="numeric" value="${esc(l.b)}"></div>
+   <div class="f dc-k"><label>Peso (kg)</label><input data-dc="lineas.${i}.kg" type="number" min="0" step="0.01" inputmode="decimal" value="${esc(l.kg)}"></div>
+   <div class="f dc-d dc-o"><label>Observaciones</label><input data-dc="lineas.${i}.obs" value="${esc(l.obs)}"></div>
+   ${a.lineas.length>1?`<button type="button" class="dc-x" data-dc-a="dell:${i}" aria-label="Quitar línea">×</button>`:""}</div>`).join("")}</div>
+  <p class="note" id="dcTot">Total: <b>${t.b} bultos</b> · <b>${dcNum.format(t.kg)} kg</b></p></div>
+ <div class="card dc-sec"><div class="dc-h"><b>Importe</b><label class="dc-sw"><input type="checkbox" data-dc="importe.on"${a.importe.on?" checked":""}> Incluir en el albarán</label></div>
+  ${a.importe.on?`<div class="dc-g">${dcIn("importe.base","Base imponible (€)",{type:"number",step:"0.01"})}<div class="f"><label>IVA</label><select data-dc="importe.iva">${[21,10,4,0].map(v=>`<option value="${v}"${+a.importe.iva===v?" selected":""}>${v} %</option>`).join("")}</select></div>
+   <p class="note dc-wide" id="dcImp">IVA ${dcEur.format(t.iva)} · <b>Total ${dcEur.format(t.total)}</b></p></div>`:`<p class="note">Desactivado: el albarán se imprime sin precios.</p>`}</div>
+ <div class="card dc-sec"><div class="dc-h"><b>Observaciones</b></div>${dcIn("obs","",{area:1,ph:"Instrucciones de entrega, horario, incidencias…"})}</div>
+ <div class="card dc-sec"><div class="dc-h"><b>Firmas</b></div><div class="dc-two">
+  <div><p class="dc-sl">Transportista</p>${dcPad("firmaT")}</div>
+  <div><p class="dc-sl">Recibí conforme (destinatario)</p>${dcPad("firmaD")}<div class="dc-g" style="margin-top:8px">${dcIn("receptor","Nombre de quien recibe")}${dcIn("receptorDni","DNI")}</div></div></div>
+  <p class="note">Firma con el dedo. Si no firmas aquí, el albarán sale con el espacio en blanco para firmarlo en papel.</p></div>
+ <div class="dc-bar"><button type="button" class="btn ghost" data-dc-a="new">Nuevo en blanco</button><button type="button" class="btn ghost" data-dc-a="save">Guardar</button><button type="button" class="btn" data-dc-a="print">${ic("doc")}Imprimir / PDF</button></div>
+ </form>`}
+function dcPad(k){const v=DC.cur[k];return `<div class="dc-pad"><canvas data-pad="${k}" width="600" height="200"></canvas>${v?`<img src="${v}" alt="Firma">`:`<span class="dc-ph">Firma aquí</span>`}<button type="button" class="dc-clr" data-dc-a="clr:${k}">Borrar</button></div>`}
+function dcHist(all){const q=DC.q.trim().toLowerCase();
+ let L=all.slice().sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")||(b.num||"").localeCompare(a.num||""));
+ if(q)L=L.filter(a=>[a.num,a.rem&&a.rem.n,a.des&&a.des.n,a.veh,a.entrega&&a.entrega.lugar,a.carga&&a.carga.lugar].some(v=>String(v||"").toLowerCase().includes(q)));
+ return `<div class="tools"><div class="search">${ic("search")}<input id="dcQ" type="search" value="${esc(DC.q)}" placeholder="Buscar número, cliente, matrícula…" aria-label="Buscar albarán"></div></div>
+ ${L.length?`<div class="card mt-table"><table><thead><tr><th>Nº</th><th>Fecha</th><th>Remitente → Destinatario</th><th>Vehículo</th><th></th></tr></thead><tbody>${L.map(a=>`<tr><td><b>${esc(a.num)}</b></td><td style="white-space:nowrap">${esc(mtD(a.fecha))}</td><td>${esc((a.rem&&a.rem.n)||"—")} → ${esc((a.des&&a.des.n)||"—")}<div class="note">${esc([a.carga&&a.carga.lugar,a.entrega&&a.entrega.lugar].filter(Boolean).join(" → "))}</div></td><td>${esc(a.veh||"")}</td>
+  <td><div class="links3" style="flex-wrap:nowrap"><button type="button" class="btn sm" data-dc-a="open:${esc(a.id)}">Abrir</button><button type="button" class="btn ghost sm" data-dc-a="dup:${esc(a.id)}">Duplicar</button><button type="button" class="btn ghost sm" data-dc-a="pr:${esc(a.id)}">${ic("doc")}</button><button type="button" class="btn danger sm" data-dc-a="del:${esc(a.id)}">×</button></div></td></tr>`).join("")}</tbody></table></div>`
+  :`<div class="card empty">${q?"Ningún albarán coincide.":"Todavía no hay albaranes guardados en este dispositivo."}</div>`}
+ <p class="note" style="margin-top:10px">Los albaranes se guardan en este dispositivo. Guárdalos también en PDF si los tienes que conservar o enviar.</p>`}
+/* documento para imprimir */
+function dcDoc(a){const Fa=S.facturacion||{},C=S.contacto||{},t=dcTotals(a);
+ const box=(tt,p)=>`<div class="ab-box"><h4>${tt}</h4><b>${esc(p.n||" ")}</b>${p.cif?`<span>CIF/NIF: ${esc(p.cif)}</span>`:""}${p.dir?`<span>${esc(p.dir)}</span>`:""}${p.tel?`<span>Tel. ${esc(p.tel)}</span>`:""}</div>`;
+ const sig=(tt,img,extra)=>`<div class="ab-sig"><h4>${tt}</h4><div class="ab-sigbox">${img?`<img src="${img}" alt="">`:""}</div>${extra||""}</div>`;
+ return `<div class="ab">
+ <header class="ab-head"><div class="ab-co">${S.logo?`<img src="${S.logo}" alt="">`:""}<div><b>${esc(Fa.razon||S.empresa)}</b><span>CIF ${esc(Fa.cif||"")}</span><span>${esc(Fa.direccion||"")} · ${esc(Fa.cp_ciudad||"")}</span><span>${esc((C.telefonos||[]).map(fmtPhone).join(" · "))}${C.email?" · "+esc(C.email):""}</span></div></div>
+  <div class="ab-tit"><b>ALBARÁN DE TRANSPORTE</b><span>Nº <strong>${esc(a.num)}</strong></span><span>Fecha ${esc(mtD(a.fecha))}</span><span>Portes ${esc(a.portes)}</span></div></header>
+ <div class="ab-row">${box("Remitente / Cargador",a.rem)}${box("Destinatario",a.des)}</div>
+ <div class="ab-row"><div class="ab-box"><h4>Lugar de carga</h4><b>${esc(a.carga.lugar||" ")}</b>${a.carga.fecha?`<span>Fecha: ${esc(mtD(a.carga.fecha))}</span>`:""}</div><div class="ab-box"><h4>Lugar de entrega</h4><b>${esc(a.entrega.lugar||" ")}</b>${a.entrega.fecha?`<span>Fecha: ${esc(mtD(a.entrega.fecha))}</span>`:""}</div></div>
+ <div class="ab-row ab-3"><div class="ab-box"><h4>Vehículo</h4><b>${esc(a.veh||" ")}</b></div><div class="ab-box"><h4>Remolque</h4><b>${esc(a.remolque||"—")}</b></div><div class="ab-box"><h4>Conductor</h4><b>${esc(a.conductor||" ")}</b></div></div>
+ <table class="ab-t"><thead><tr><th style="width:6%">#</th><th>Descripción de la mercancía</th><th style="width:11%">Bultos</th><th style="width:14%">Peso (kg)</th><th style="width:26%">Observaciones</th></tr></thead>
+ <tbody>${a.lineas.map((l,i)=>`<tr><td>${i+1}</td><td>${esc(l.d)}</td><td class="r">${esc(l.b)}</td><td class="r">${l.kg!==""?esc(dcNum.format(+String(l.kg).replace(",",".")||0)):""}</td><td>${esc(l.obs)}</td></tr>`).join("")}</tbody>
+ <tfoot><tr><td></td><td class="r"><b>Total</b></td><td class="r"><b>${t.b}</b></td><td class="r"><b>${dcNum.format(t.kg)}</b></td><td></td></tr></tfoot></table>
+ ${a.importe.on?`<div class="ab-imp"><span>Base imponible <b>${dcEur.format(t.base)}</b></span><span>IVA ${+a.importe.iva} % <b>${dcEur.format(t.iva)}</b></span><span class="tot">Total <b>${dcEur.format(t.total)}</b></span></div>`:""}
+ ${a.obs?`<div class="ab-box ab-obs"><h4>Observaciones</h4><span>${esc(a.obs).replace(/\n/g,"<br>")}</span></div>`:""}
+ <div class="ab-row ab-3 ab-sigs">${sig("Remitente",null)}${sig("Transportista",a.firmaT,`<span>${esc(a.conductor||"")}</span>`)}${sig("Recibí conforme · Destinatario",a.firmaD,`<span>${esc(a.receptor||"Nombre:")}${a.receptorDni?" · DNI "+esc(a.receptorDni):" · DNI:"}</span><span>Fecha y hora:</span>`)}</div>
+ <footer class="ab-foot">${esc(Fa.razon||"")} · CIF ${esc(Fa.cif||"")} · Albarán ${esc(a.num)}</footer></div>`}
+const AB_CSS=`.ab{font:12px/1.35 Arial,Helvetica,sans-serif;color:#111;max-width:190mm;margin:0 auto}
+.ab-head{display:flex;justify-content:space-between;gap:12px;border-bottom:3px solid #e8571a;padding-bottom:8px;margin-bottom:10px}
+.ab-co{display:flex;gap:10px;align-items:center}.ab-co img{width:62px;height:62px;border-radius:50%}
+.ab-co div,.ab-tit{display:flex;flex-direction:column}.ab-co b{font-size:17px}.ab-co span{font-size:11px;color:#333}
+.ab-tit{text-align:right;justify-content:center}.ab-tit b{font-size:16px;color:#e8571a;letter-spacing:.04em}.ab-tit strong{font-size:15px}
+.ab-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.ab-3{grid-template-columns:1fr 1fr 1fr}
+.ab-box{border:1px solid #999;border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;min-height:38px}
+.ab-box h4,.ab-sig h4{margin:0 0 3px;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#666}
+.ab-box b{font-size:13px}.ab-box span{font-size:11px}
+.ab-t{width:100%;border-collapse:collapse;margin:4px 0 8px}.ab-t th,.ab-t td{border:1px solid #999;padding:5px 6px;text-align:left;vertical-align:top}
+.ab-t th{background:#f0f0f0;font-size:10px;text-transform:uppercase}.ab-t .r{text-align:right}.ab-t tbody td{height:20px}
+.ab-imp{display:flex;justify-content:flex-end;gap:18px;margin-bottom:8px}.ab-imp .tot b{font-size:15px}
+.ab-obs{margin-bottom:8px}
+.ab-sigs{margin-top:10px}.ab-sig{border:1px solid #999;border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;gap:3px}
+.ab-sigbox{height:70px;display:flex;align-items:center;justify-content:center}.ab-sigbox img{max-height:70px;max-width:100%}
+.ab-sig span{font-size:10px;color:#333;border-top:1px dotted #999;padding-top:2px}
+.ab-foot{margin-top:10px;font-size:9px;color:#777;text-align:center}`;
+function dcPrint(a){
+ let area=document.getElementById("printArea");if(!area){area=document.createElement("div");area.id="printArea";document.body.appendChild(area)}
+ area.innerHTML=dcDoc(a);document.body.classList.add("printing");
+ const done=()=>{document.body.classList.remove("printing")};
+ setTimeout(()=>{
+  if(window.LgxAndroid&&window.LgxAndroid.print){try{window.LgxAndroid.print("Albaran_"+a.num)}catch(e){}setTimeout(()=>document.addEventListener("click",done,{once:true}),800);return}
+  try{window.print()}catch(e){}
+  setTimeout(()=>{done();if(window.claude&&window.claude.use)dcOffer(a)},600)},120);
+}
+async function dcOffer(a){/* dentro de Claude la impresión puede estar bloqueada: ofrecer el archivo */
+ const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Albarán ${esc(a.num)}</title><style>body{margin:12mm}@page{size:A4;margin:10mm}${AB_CSS}</style></head><body>${dcDoc(a)}<script>setTimeout(()=>print(),400)<\/script></body></html>`;
+ try{const dl=await window.claude.use("downloads");if(dl){await dl.save({filename:"Albaran_"+a.num+".html",data:new Blob([html],{type:"text/html"})});toast("Abre el archivo descargado para imprimirlo o guardarlo en PDF")}}catch(e){}
+}
+function dcStore(a){a.creado=a.creado||new Date().toISOString();a.mod=new Date().toISOString();const all=dcLoad().filter(x=>x.id!==a.id);all.push(JSON.parse(JSON.stringify(a)));
+ const y=String(a.num).match(/^A(\d{4})-(\d+)$/);if(y)ls.set("lgx-alb-seq-"+y[1],String(Math.max(+y[2],+(ls.get("lgx-alb-seq-"+y[1])||0))));
+ if(!dcSaveAll(all.slice(-150))){toast("No queda espacio en el dispositivo: borra albaranes antiguos.");return false}return true}
+function dcValid(a){if(!a.num.trim()){toast("Pon el número del albarán.");return false}if(!(a.rem.n||"").trim()||!(a.des.n||"").trim()){toast("Falta el remitente o el destinatario.");return false}return true}
+/* firma */
+function dcPads(){document.querySelectorAll("canvas[data-pad]").forEach(cv=>{if(cv._ok)return;cv._ok=1;const k=cv.dataset.pad,x=cv.getContext("2d");x.lineWidth=3;x.lineCap="round";x.lineJoin="round";x.strokeStyle="#111";
+ let dn=false,drew=false,lx=0,ly=0;const pt=e=>{const r=cv.getBoundingClientRect();return [(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]};
+ cv.addEventListener("pointerdown",e=>{dn=true;cv.setPointerCapture(e.pointerId);[lx,ly]=pt(e);const img=cv.parentElement.querySelector("img,.dc-ph");if(img)img.remove();e.preventDefault()});
+ cv.addEventListener("pointermove",e=>{if(!dn)return;const [nx,ny]=pt(e);x.beginPath();x.moveTo(lx,ly);x.lineTo(nx,ny);x.stroke();lx=nx;ly=ny;drew=true;e.preventDefault()});
+ const up=()=>{if(!dn)return;dn=false;if(drew)DC.cur[k]=cv.toDataURL("image/png")};cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up)})}
+/* eventos */
+document.addEventListener("input",e=>{const p=e.target.dataset&&e.target.dataset.dc;if(!p||view!=="docs"||!DC.cur)return;
+ const v=e.target.type==="checkbox"?e.target.checked:e.target.value;dcSet(DC.cur,p,v);
+ if(p==="importe.on"||p==="importe.iva"){render();return}
+ const t=dcTotals(DC.cur),tt=$("#dcTot"),ti=$("#dcImp");if(tt)tt.innerHTML=`Total: <b>${t.b} bultos</b> · <b>${dcNum.format(t.kg)} kg</b>`;if(ti)ti.innerHTML=`IVA ${dcEur.format(t.iva)} · <b>Total ${dcEur.format(t.total)}</b>`;
+});
+document.addEventListener("input",e=>{if(e.target.id==="dcQ"){DC.q=e.target.value;const pos=e.target.selectionStart;render();const q=$("#dcQ");if(q){q.focus();try{q.setSelectionRange(pos,pos)}catch(_){}}}});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-dc-a]");if(!b||view!=="docs")return;const [a,arg]=b.dataset.dcA.split(/:(.*)/);const all=dcLoad();
+ if(a==="tab"){DC.tab=arg;render();window.scrollTo(0,0)}
+ else if(a==="lock"){unlocked=false;render()}
+ else if(a==="addl"){DC.cur.lineas.push({d:"",b:"",kg:"",obs:""});render()}
+ else if(a==="dell"){DC.cur.lineas.splice(+arg,1);render()}
+ else if(a==="clr"){DC.cur[arg]="";render()}
+ else if(a==="fill"){const last=all.slice().sort((x,y)=>(y.mod||"").localeCompare(x.mod||""))[0];if(last){DC.cur[arg]={...last[arg]};render()}}
+ else if(a==="new"){DC.cur=dcBlank();render();window.scrollTo(0,0)}
+ else if(a==="save"){if(dcValid(DC.cur)&&dcStore(DC.cur)){toast("Albarán "+DC.cur.num+" guardado");render()}}
+ else if(a==="print"){if(!dcValid(DC.cur))return;if(dcStore(DC.cur)){render();dcPrint(DC.cur)}}
+ else if(a==="open"){const x=all.find(y=>y.id===arg);if(x){DC.cur=JSON.parse(JSON.stringify(x));DC.tab="nuevo";render();window.scrollTo(0,0)}}
+ else if(a==="dup"){const x=all.find(y=>y.id===arg);if(x){const n=JSON.parse(JSON.stringify(x));Object.assign(n,{id:"al"+Date.now().toString(36),num:dcNextNum(),fecha:mtIso(),creado:"",mod:"",firmaT:"",firmaD:"",receptor:"",receptorDni:""});n.carga.fecha=mtIso();n.entrega.fecha="";DC.cur=n;DC.tab="nuevo";render();window.scrollTo(0,0);toast("Copia lista: revisa y guarda")}}
+ else if(a==="pr"){const x=all.find(y=>y.id===arg);x&&dcPrint(x)}
+ else if(a==="del"){if(b.dataset.armed){dcSaveAll(all.filter(y=>y.id!==arg));if(DC.cur&&DC.cur.id===arg)DC.cur=dcBlank();render();toast("Albarán eliminado")}else{b.dataset.armed="1";b.textContent="¿Seguro?";setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent="×"}},3000)}}
+});
+
 /* ---------- Tráfico Google Maps ---------- */
 let gr="a4",gmAt=Date.now();
 const GM_RUTAS={a4:{t:"Por la A-4",via:"Sevilla · Córdoba · Despeñaperros",wp:["Córdoba","Bailén"],emb:"Córdoba"},a5:{t:"Por la A-5",via:"Sevilla · Mérida · Navalmoral",wp:["Mérida","Navalmoral de la Mata"],emb:"Mérida"}};
@@ -1562,7 +1767,7 @@ function updPlayer(){
 /* ---------- Control por voz ---------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let rec=null, vOn=false, vDuck=null;
-const VNAV=[["inicio",["inicio","portada","principal","menu"]],["plenergy",["plenergy","plenergi","plener","plen energy"]],["ballenoil",["ballenoil","balle","gasolinera","gasolineras","repostar","gasoil","combustible"]],["tipsa",["tipsa","rutas","agencia","agencias"]],["gmaps",["google maps","google","maps","mapa","mapas","trafico","atascos","atasco","carreteras"]],["clima",["clima","tiempo","meteo","lluvia"]],["asistencia",["asistencia","sos","emergencia","grua","averia","auxilio"]],["prevencion",["prevencion","riesgos","seguridad","videos"]],["mant",["mantenimiento","taller","itv","revision","revisiones"]],["deca",["deca","de ca","documento de control","control administrativo","documento"]],["facturacion",["facturacion","factura","cif","datos fiscales"]],["radares",["radares","radar","cinemometros","multas"]],["radios",["radios","emisoras"]],["empresa",["empresa","contacto","gerente","quienes somos","compartir","codigo qr"]],["ajustes",["ajustes","configuracion"]]];
+const VNAV=[["inicio",["inicio","portada","principal","menu"]],["plenergy",["plenergy","plenergi","plener","plen energy"]],["ballenoil",["ballenoil","balle","gasolinera","gasolineras","repostar","gasoil","combustible"]],["tipsa",["tipsa","rutas","agencia","agencias"]],["gmaps",["google maps","google","maps","mapa","mapas","trafico","atascos","atasco","carreteras"]],["clima",["clima","tiempo","meteo","lluvia"]],["asistencia",["asistencia","sos","emergencia","grua","averia","auxilio"]],["prevencion",["prevencion","riesgos","seguridad","videos"]],["docs",["documentacion","albaran","albaranes"]],["mant",["mantenimiento","taller","itv","revision","revisiones"]],["deca",["deca","de ca","documento de control","control administrativo","documento"]],["facturacion",["facturacion","factura","cif","datos fiscales"]],["radares",["radares","radar","cinemometros","multas"]],["radios",["radios","emisoras"]],["empresa",["empresa","contacto","gerente","quienes somos","compartir","codigo qr"]],["ajustes",["ajustes","configuracion"]]];
 const NUM={"cuarenta y nueve":"49","sesenta y seis":"66",cuarenta:"40",cien:"100",cuatro:"4",cinco:"5"};
 function vnorm(t){let x=norm(t).replace(/[.,;:¡!¿?]/g," ");for(const k in NUM)x=x.replace(new RegExp("\\b"+k+"\\b","g"),NUM[k]);return x.replace(/\blos 40\b/g,"los40").replace(/\bcadena 100\b/g,"cadena 100").replace(/\ba\s?-?\s?(\d+)/g,"a$1").replace(/\s+/g," ").trim()}
 let VOICE=null,vTalk=false,vPend=[];const vTts=()=>ls.get("lgx-vtts")!=="0",vCont=()=>ls.get("lgx-vcont")==="1";
@@ -1695,14 +1900,15 @@ function updMic(){document.body.classList.toggle("voice",vOn);const b=$("#micBtn
 
 /* ---------- Render y eventos ---------- */
 function render(){
- const m={inicio:vInicio,ballenoil:vBallenoil,plenergy:vPlenergy,tipsa:vTipsa,asistencia:vAsistencia,facturacion:vFacturacion,deca:vDeca,mant:vMant,radios:vRadios,prevencion:vPrevencion,gmaps:vGmaps,clima:vClima,radares:vRadares,empresa:vEmpresa,ajustes:vAjustes};
+ const m={inicio:vInicio,ballenoil:vBallenoil,plenergy:vPlenergy,tipsa:vTipsa,asistencia:vAsistencia,facturacion:vFacturacion,deca:vDeca,mant:vMant,docs:vDocs,radios:vRadios,prevencion:vPrevencion,gmaps:vGmaps,clima:vClima,radares:vRadares,empresa:vEmpresa,ajustes:vAjustes};
  document.getElementById("root").innerHTML=shell(m[view]());
  if(view==="ballenoil"||view==="plenergy")drawStations();
+ if(view==="docs")dcPads();
  if(view==="tipsa")drawTipsa();
  if(view==="radares")drawRad();
  radBanner();updRadChip();
  updPlayer();
- if((view==="ajustes"||view==="mant")&&!unlocked){const p=$("#pinin");p&&p.focus({preventScroll:true})}
+ if((view==="ajustes"||view==="mant"||view==="docs")&&!unlocked){const p=$("#pinin");p&&p.focus({preventScroll:true})}
 }
 /* Copiar al portapapeles: funciona en navegador, app instalada y app de Android */
 function copyFallback(t){try{const ta=document.createElement("textarea");ta.value=t;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;top:0;left:0;opacity:0;font-size:12px";document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,t.length);const ok=document.execCommand("copy");ta.remove();return ok}catch(e){return false}}
@@ -1777,7 +1983,7 @@ document.addEventListener("input",e=>{
 });
 document.addEventListener("change",e=>{if(e.target.id==="vOptTts")ls.set("lgx-vtts",e.target.checked?"1":"0");if(e.target.id==="vOptCont")ls.set("lgx-vcont",e.target.checked?"1":"0")});
 document.addEventListener("keydown",e=>{
- if((view==="ajustes"||view==="mant")&&!unlocked&&!e.target.matches("input:not(#pinin),textarea")){
+ if((view==="ajustes"||view==="mant"||view==="docs")&&!unlocked&&!e.target.matches("input:not(#pinin),textarea")){
   if(/^\d$/.test(e.key)){e.preventDefault();pinKey(e.key)}else if(e.key==="Backspace"){e.preventDefault();pinKey("del")}else if(e.key==="Enter"){e.preventDefault();pinKey("ok")}
  }
 });
