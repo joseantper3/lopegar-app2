@@ -560,7 +560,7 @@ h2.sec{margin:26px 0 12px}
 .dc-calc{display:grid;gap:4px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg);font-size:13px}
 .dc-calc div{display:flex;justify-content:space-between;gap:10px}.dc-calc .sub{border-top:1px solid var(--line);padding-top:6px;margin-top:2px}.dc-calc .tot{font-size:16px;color:var(--brand)}
 .dc-sw{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}.dc-sw input{width:18px;height:18px;accent-color:var(--brand)}
-.dc-pad{position:relative;border:1px dashed var(--muted);border-radius:10px;background:#fff;height:130px;overflow:hidden;touch-action:none}
+.dc-pad{position:relative;border:1px dashed var(--muted);border-radius:10px;background:#fff;height:230px;overflow:hidden;touch-action:none}
 .dc-pad canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}
 .dc-pad img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
 .dc-ph{position:absolute;inset:0;display:grid;place-items:center;color:#9aa0a6;font-size:13px;pointer-events:none}
@@ -1404,7 +1404,7 @@ const AB_CSS=`.sa,.sa *{-webkit-print-color-adjust:exact;print-color-adjust:exac
 .sa-o{margin:14px 0 0;font-size:11.5px}
 .sa-f{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:34px}
 .sa-f>div{display:flex;flex-direction:column;font-size:10px;color:#555}
-.sa-sb{height:22mm;border-bottom:1px solid #999;display:flex;align-items:flex-end;justify-content:center}.sa-sb img{max-height:21mm;max-width:100%}
+.sa-sb{height:32mm;border-bottom:1px solid #999;display:flex;align-items:flex-end;justify-content:center}.sa-sb img{max-height:31mm;max-width:100%}
 .sa-bank{margin-top:22px;text-align:center;font-size:10px;color:#666}`;
 (()=>{const st=document.createElement("style");st.id="fvcss";st.textContent=AB_CSS;document.head.appendChild(st)})();
 function dcPrint(a){
@@ -1425,7 +1425,7 @@ function dcStore(a){a.creado=a.creado||new Date().toISOString();a.mod=new Date()
  if(!dcSaveAll(all.slice(-150))){toast("No queda espacio en el dispositivo: borra albaranes antiguos.");return false}return true}
 function dcValid(a){if(!a.num.trim()){toast("Pon el número del albarán.");return false}if(!(a.rem.n||"").trim()||!(a.des.n||"").trim()){toast("Falta el remitente o el destinatario.");return false}return true}
 /* firma */
-function dcPads(){document.querySelectorAll("canvas[data-pad]").forEach(cv=>{if(cv._ok)return;cv._ok=1;const k=cv.dataset.pad,x=cv.getContext("2d");x.lineWidth=3;x.lineCap="round";x.lineJoin="round";x.strokeStyle="#111";
+function dcPads(){document.querySelectorAll("canvas[data-pad]").forEach(cv=>{if(cv._ok)return;cv._ok=1;const k=cv.dataset.pad,bx=cv.getBoundingClientRect();if(bx.width>0){cv.width=Math.round(bx.width*2);cv.height=Math.round(bx.height*2)}const x=cv.getContext("2d");x.lineWidth=5;x.lineCap="round";x.lineJoin="round";x.strokeStyle="#111";
  let dn=false,drew=false,lx=0,ly=0;const pt=e=>{const r=cv.getBoundingClientRect();return [(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]};
  cv.addEventListener("pointerdown",e=>{dn=true;cv.setPointerCapture(e.pointerId);[lx,ly]=pt(e);const img=cv.parentElement.querySelector("img,.dc-ph");if(img)img.remove();e.preventDefault()});
  cv.addEventListener("pointermove",e=>{if(!dn)return;const [nx,ny]=pt(e);x.beginPath();x.moveTo(lx,ly);x.lineTo(nx,ny);x.stroke();lx=nx;ly=ny;drew=true;e.preventDefault()});
