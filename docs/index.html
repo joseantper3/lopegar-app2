@@ -672,7 +672,6 @@ const VIEWS=[
  {id:"gmaps",t:"Tráfico Google Maps",short:"Google Maps",ic:"map"},
  {id:"asistencia",t:"Asistencia",short:"SOS",ic:"sos"},
  {id:"facturacion",t:"Facturación",ic:"doc"},
- {id:"deca",t:"DeCA",ic:"deca"},
  {id:"mant",t:"Mantenimiento",ic:"wrench"},
  {id:"docs",t:"Documentación",ic:"doc"},
  {id:"prevencion",t:"Prevención",ic:"shield"},
@@ -728,7 +727,6 @@ function vInicio(){
   ["gmaps","map","Tráfico Google Maps","Atascos en directo"],
   ["asistencia","sos","Asistencia",S.asistencia.aseguradora+" · grúa y avería","sos"],
   ["facturacion","doc","Facturación","CIF y domicilio"],
-  ["deca","deca","DeCA","Subir y enseñar el DeCA con su QR"],
   ["mant","wrench","Mantenimiento","Km y avisos de conductores"],
   ["docs","doc","Documentación","Albaranes · con clave"],
   ["prevencion","shield","Prevención",S.prl.length+" riesgos · vídeos"],
@@ -864,118 +862,13 @@ async function dkInit(){
    try{DK.me=user?await user.me():null;DK.canEdit=!!(DK.me&&DK.me.canEdit)}catch(e){}
    if(!DK.me||!DK.me.id)DK.filter="all";
    db.collection("deca").orderBy("createdAt","desc").limit(1000).onSnapshot(s=>{DK.recs=s.docs.map(d=>({id:d.id,...d.data()}));dkRefresh()},()=>{DK.err=true;dkRefresh()});
-   if(view==="deca")render();return}
+   if(view==="docs"&&DC.tab==="deca")render();return}
  }
  DK.mode="local";
  try{DK.recs=(await dkTx("recs","readonly",s=>s.getAll()))||[]}catch(e){DK.err=true}
- if(view==="deca")render();
+ if(view==="docs"&&DC.tab==="deca")render();
 }
-function dkRefresh(){if(view==="deca"&&!DK.busy&&DK.tab==="docs")render();if(DK.open)dkSheet(DK.open)}
-/* vista */
-function vDeca(){
- setTimeout(dkInit,0);
- const n=DK.mode==="cloud"&&DK.filter==="mine"&&DK.me&&DK.me.id?DK.recs.filter(r=>r.driver===DK.me.id).length:DK.recs.length;
- return vh("Documento de control","DeCA","Sube el DeCA de cada servicio antes de salir y enséñalo con su código QR si te paran en una inspección.")+
- `<div class="tools"><div class="chips" role="tablist"><button type="button" class="chip" aria-pressed="${DK.tab==="subir"}" data-dk="tab:subir">Subir DeCA</button><button type="button" class="chip" aria-pressed="${DK.tab==="docs"}" data-dk="tab:docs">Mis documentos${n?` · ${n}`:""}</button></div></div>
- ${DK.mode==="init"||!DK.mode?`<p class="note">Preparando…</p>`:DK.tab==="subir"?dkUpload():dkDocs()}`;
-}
-function dkWhere(){return DK.mode==="cloud"?"Se guarda en la flota: lo ven tus compañeros con acceso a la app en Claude.":"Se guarda en este dispositivo: lo puedes enseñar aunque no tengas cobertura."}
-function dkUpload(){
- const p=DK.pending,f=DK.f;
- const qr=DK.qrState==="busy"?`<span class="dk-pill busy"><span class="spin"></span>Buscando el QR…</span>`
-  :DK.qr?`<div class="dk-qrrow"><div class="dk-qr" id="dkQrPrev"></div><div><span class="dk-pill ok">QR asociado</span><p class="dk-url">${esc(DK.qr)}</p></div></div>`
-  :DK.qrState==="none"?`<span class="dk-pill warn">No se ha encontrado QR</span><p class="note">Haz una foto de cerca solo al QR o pega el enlace que aparece debajo de él.</p>`
-  :`<p class="note">Al subir el documento, la app busca su QR sola.</p>`;
- if(DK.qr)setTimeout(async()=>{const el=$("#dkQrPrev");if(el)el.innerHTML=await dkQrSvg(DK.qr)},0);
- return `<div class="dk-steps">
- <div class="card dk-step"><div class="dk-sh"><span>1</span><b>Documento</b></div>
-  ${p?`<div class="dk-prev">${p.thumb?`<img src="${p.thumb}" alt="Vista previa del DeCA">`:`<div class="dk-noimg">${ic("deca")}</div>`}<div><b>${esc(p.name)}</b><p class="note">${esc(p.info||"Preparando…")}</p><button type="button" class="btn ghost sm" data-dk="change">Cambiar documento</button></div></div>`
-  :`<div class="dk-two"><label class="btn dk-big" for="dkCam">${ic("deca")}Hacer foto<small>del DeCA impreso</small></label><label class="btn ghost dk-big" for="dkFile">${ic("doc")}Elegir archivo<small>PDF o imagen</small></label></div>`}
-  <input class="dk-sr" type="file" id="dkCam" accept="image/*" capture="environment"><input class="dk-sr" type="file" id="dkFile" accept="application/pdf,image/*">
- </div>
- <div class="card dk-step"><div class="dk-sh"><span>2</span><b>QR del DeCA</b></div>${qr}
-  <div class="links3"><label class="btn ghost sm" for="dkQrCam">Fotografiar solo el QR</label></div><input class="dk-sr" type="file" id="dkQrCam" accept="image/*" capture="environment">
-  <div class="f"><label for="dkQr">Enlace del QR <span class="note">(se rellena solo; también puedes pegarlo)</span></label><input type="url" id="dkQr" inputmode="url" placeholder="https://…" value="${esc(DK.qr)}" autocomplete="off"></div>
- </div>
- <form class="card dk-step" id="dkForm" novalidate><div class="dk-sh"><span>3</span><b>Servicio</b></div>
-  <div class="fields">
-   <div class="f"><label for="dk-plate">Matrícula</label><input type="text" id="dk-plate" class="dk-platein" value="${esc(f.plate)}" placeholder="1234 ABC" autocomplete="off" autocapitalize="characters"></div>
-   <div class="f"><label for="dk-date">Fecha del servicio</label><input type="date" id="dk-date" value="${esc(f.date)}"></div>
-   <div class="f"><label for="dk-ref">Nº de servicio o albarán (opcional)</label><input type="text" id="dk-ref" value="${esc(f.ref)}" placeholder="Ej. ALB-2026-10482" autocomplete="off"></div>
-   <div class="f"><label for="dk-from">Origen (opcional)</label><input type="text" id="dk-from" value="${esc(f.from)}" placeholder="Ej. Huelva"></div>
-   <div class="f"><label for="dk-to">Destino (opcional)</label><input type="text" id="dk-to" value="${esc(f.to)}" placeholder="Ej. Coslada"></div>
-  </div>
-  <div class="f"><label for="dk-notes">Notas (opcional)</label><textarea id="dk-notes" placeholder="Remolque, cliente, incidencias…">${esc(f.notes)}</textarea></div>
-  <button type="submit" class="btn dk-save"${DK.busy?" disabled":""}>${DK.busy?`<span class="spin"></span> Guardando…`:"Guardar DeCA"}</button>
-  <p class="note">${dkWhere()}</p>
- </form></div>
- <p class="note" style="margin-top:12px">El documento con validez ante la Inspección es el que emite el cargador o la empresa con su propio código QR; aquí se archiva y se asocia a cada vehículo y servicio.</p>`;
-}
-function dkDocs(){
- const q=DK.q.trim().toLowerCase(),qp=dkNorm(DK.q);
- let rows=DK.recs.filter(r=>DK.mode!=="cloud"||DK.filter==="all"||!DK.me||!DK.me.id||r.driver===DK.me.id);
- if(q)rows=rows.filter(r=>(qp&&dkNorm(r.plate).includes(qp))||[r.ref,r.origin,r.dest,r.qrUrl,r.notes].some(v=>String(v||"").toLowerCase().includes(q)));
- const sorted=rows.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||"")||(b.createdAt||"").localeCompare(a.createdAt||""));
- let html="",cur=null,grp=[];const flush=()=>{if(cur!==null)html+=`<div class="dk-gh"><span>${esc(dkDay(cur))}</span><span>${grp.length}</span></div><div class="dk-list">${grp.join("")}</div>`};
- for(const r of sorted){if(r.date!==cur){flush();cur=r.date;grp=[]}
-  const route=[r.origin,r.dest].filter(Boolean).join(" → ");
-  grp.push(`<button type="button" class="card dk-item" data-dk="open:${esc(r.id)}"><span class="l1">${dkPlate(r.plate)}${r.gen?`<span class="dk-pill ok">DeCA Lopegar</span>`:r.qrUrl?`<span class="dk-pill ok">QR oficial</span>`:`<span class="dk-pill warn">Sin QR</span>`}</span><b>${esc(route||r.ref||"DeCA")}</b><span class="note">${r.ref&&route?esc(r.ref)+" · ":""}Subido ${esc(dkStamp(r.createdAt))}</span></button>`)}
- flush();
- return `<div class="tools"><div class="search">${ic("search")}<input type="search" id="dkQ" value="${esc(DK.q)}" placeholder="Buscar matrícula, albarán, ciudad…" aria-label="Buscar DeCA"></div><label class="btn ghost" for="dkFind">Buscar por QR</label><input class="dk-sr" type="file" id="dkFind" accept="image/*" capture="environment"></div>
- ${DK.mode==="cloud"?`<div class="chips" style="margin-bottom:12px"><button type="button" class="chip" aria-pressed="${DK.filter==="mine"}" data-dk="flt:mine">Mis documentos</button><button type="button" class="chip" aria-pressed="${DK.filter==="all"}" data-dk="flt:all">Toda la flota</button></div>`:""}
- ${DK.err?`<div class="card empty">No se han podido cargar los documentos. Vuelve a abrir la app.</div>`
-  :html||`<div class="card empty">${q?`Nada coincide con «${esc(DK.q)}».`:`Aún no hay DeCA guardados. Pulsa «Subir DeCA», haz una foto del documento o elige el PDF.`}</div>`}
- <p class="note" style="margin-top:12px">${dkWhere()}</p>`;
-}
-/* subir documento */
-async function dkPick(file){
- if(!file)return;
- const isPdf=file.type==="application/pdf"||/\.pdf$/i.test(file.name),isImg=/^image\//.test(file.type);
- if(!isPdf&&!isImg){toast("Ese archivo no es un PDF ni una imagen.");return}
- const p={name:file.name||(isPdf?"deca.pdf":"deca.jpg"),isPdf,pages:[],info:""};DK.pending=p;DK.qrState="busy";render();
- try{let found=null;
-  if(isPdf){
-   const bytes=new Uint8Array(await file.arrayBuffer());p.orig=new Blob([bytes],{type:"application/pdf"});
-   const lib=await dkPdf();const pdf=await lib.getDocument({data:bytes.slice()}).promise;const n=Math.min(pdf.numPages,4);
-   for(let i=1;i<=n;i++){const cv=await dkPdfPage(pdf,i,1700);p.pages.push(await dkSmall(cv));if(i===1)p.thumb=cv.toDataURL("image/jpeg",.6);
-    if(!found&&i<=3)found=(await dkDecode(cv))||(await dkDecode(await dkPdfPage(pdf,i,2600)))}
-   p.info=`PDF · ${pdf.numPages} ${pdf.numPages===1?"página":"páginas"} · ${dkKb(p.orig.size)}`;
-  }else{
-   const u=URL.createObjectURL(file);const img=await dkImg(u);URL.revokeObjectURL(u);const cv=dkCanvas(img,2000);
-   p.pages.push(await dkSmall(cv));p.orig=await dkBlob(cv,.85);p.name=p.name.replace(/\.[a-z0-9]+$/i,"")+".jpg";p.thumb=cv.toDataURL("image/jpeg",.6);
-   found=await dkDecode(dkCanvas(img,2600));p.info="Foto · "+dkKb(p.orig.size);
-  }
-  if(DK.pending!==p)return;
-  if(found)DK.qr=found;DK.qrState=DK.qr?"found":"none";
- }catch(e){console.error(e);if(DK.pending!==p)return;p.info="No se ha podido leer el archivo. Prueba con otro o haz una foto.";p.bad=true;DK.qrState=DK.qr?"found":"none"}
- render();
-}
-async function dkSave(){
- const p=DK.pending,f=DK.f;
- if(!p||p.bad||!p.pages.length){toast("Primero sube el documento (paso 1).");return}
- const plate=dkNorm(f.plate);if(plate.length<4){toast("Escribe la matrícula del vehículo.");const el=$("#dk-plate");el&&el.focus();return}
- DK.busy=true;render();
- const id=dkId(),qrUrl=DK.qr.trim();
- const rec={plate,date:f.date||dkToday(),ref:f.ref.trim(),origin:f.from.trim(),dest:f.to.trim(),notes:f.notes.trim(),qrUrl,qrSvg:await dkQrSvg(qrUrl),
-  createdAt:new Date().toISOString(),file:{name:p.name,type:p.isPdf?"application/pdf":"image/jpeg",size:p.orig?p.orig.size:0,pages:p.pages.length}};
- try{
-  if(DK.mode==="cloud"){
-   rec.driver=DK.me&&DK.me.id||null;
-   for(let i=0;i<p.pages.length;i++)await DK.db.doc("deca_files/"+id+"_p"+i).set({data:await dkB64(p.pages[i]),type:"image/jpeg"});
-   if(p.orig&&p.orig.size<=DK_INLINE){await DK.db.doc("deca_files/"+id+"_o").set({data:await dkB64(p.orig),type:p.orig.type});rec.file.orig=true}
-   await DK.db.doc("deca/"+id).set(rec);
-  }else{
-   rec.file.orig=!!p.orig;
-   await dkTx("files","readwrite",s=>s.put({pages:p.pages,orig:p.orig||null},id));
-   await dkTx("recs","readwrite",s=>s.put({id,...rec}));
-  }
-  if(!DK.recs.some(r=>r.id===id))DK.recs=[{id,...rec},...DK.recs];
-  ls.set("lgx-dk-plate",dkPlateFmt(plate));
-  DK.f={plate:dkPlateFmt(plate),date:dkToday(),ref:"",from:"",to:"",notes:""};DK.pending=null;DK.qr="";DK.qrState="idle";
-  DK.busy=false;DK.tab="docs";ls.set("lgx-dk-tab","docs");render();toast("DeCA guardado");dkSheet(id);
- }catch(e){console.error(e);DK.busy=false;render();
-  const c=e&&e.code;toast(c==="invalid_argument"||c==="not_granted"?"Tu acceso no permite guardar: pide al responsable acceso de Colaborador.":c==="quota_exceeded"||c==="resource_exhausted"?"Se ha llenado el espacio de la app. Avisa al responsable.":"No se ha podido guardar. Vuelve a intentarlo.")}
-}
+function dkRefresh(){if(view==="docs"&&DC.tab==="deca"&&!DK.busy)render();if(DK.open)dkSheet(DK.open)}
 async function dkPages(r){
  if(DK.mode==="cloud"){const out=[];for(let i=0;i<(r.file&&r.file.pages||1);i++){const s=await DK.db.doc("deca_files/"+r.id+"_p"+i).get();if(s.exists){const d=s.data();out.push(dkFromB64(d.data,d.type))}}return out}
  const f=await dkTx("files","readonly",s=>s.get(r.id));return f&&f.pages||[];
@@ -997,13 +890,13 @@ async function dkSheet(id){
  el.innerHTML=`<div class="dk-shh"><button type="button" class="btn ghost sm" data-dk="close">← Volver</button><b>${esc(dkPlateFmt(r.plate))}${r.ref?" · "+esc(r.ref):""}</b></div>
  <div class="dk-shb">
   <div class="card dk-hero">${r.gen?`<span class="dk-pill ok">DeCA generado desde el albarán</span><div class="dk-qrbig">${r.qrSvg||""}</div><b>QR con los datos del DeCA</b><p class="dk-url" style="white-space:pre-line">${esc(r.qrUrl)}</p>`:r.qrUrl?`<span class="dk-pill ok">QR oficial del DeCA</span><div class="dk-qrbig">${r.qrSvg||""}</div><b>Enseña este QR en la inspección</b><p class="dk-url">${esc(r.qrUrl)}</p>`
-   :`<span class="dk-pill warn">Sin QR oficial</span><p class="note">El documento no tenía un QR legible. Si lo tiene, pulsa «Asociar QR» y fotografíalo de cerca.</p>`}</div>
+   :`<span class="dk-pill warn">Sin QR</span>`}</div>
   <dl class="dk-facts"><dt>Matrícula</dt><dd>${dkPlate(r.plate)}</dd><dt>Servicio</dt><dd>${esc(dkDate(r.date))}</dd>${r.ref?`<dt>Referencia</dt><dd>${esc(r.ref)}</dd>`:""}${route?`<dt>Ruta</dt><dd>${esc(route)}</dd>`:""}${who?`<dt>Conductor</dt><dd>${esc(who)}</dd>`:""}
    <dt>Subido</dt><dd>${esc(dkStamp(r.createdAt))}</dd><dt>Archivo</dt><dd>${esc((r.file&&r.file.type==="application/pdf"?"PDF":"Foto")+(r.file&&r.file.size?" · "+dkKb(r.file.size):""))}</dd>${r.notes?`<dt>Notas</dt><dd>${esc(r.notes)}</dd>`:""}</dl>
   <div class="dk-acts"><button type="button" class="btn" data-dk="view">Ver documento</button>
    ${r.qrUrl&&/^https?:\/\//i.test(r.qrUrl)?`<a class="btn ghost" href="${esc(r.qrUrl)}" target="_blank" rel="noopener">Abrir enlace oficial</a>`:""}
    <button type="button" class="btn ghost" data-dk="pr">Imprimir</button><button type="button" class="btn ghost" data-dk="dl">Descargar</button>
-   ${!r.gen&&(mine||DK.canEdit)?`<label class="btn ghost" for="dkAssoc">Asociar QR</label><input class="dk-sr" type="file" id="dkAssoc" accept="image/*" capture="environment">`:""}
+   
    ${canDel?`<button type="button" class="btn danger" data-dk="del">Eliminar</button>`:""}</div>
   <div id="dkView" class="dk-view">${keepView}</div>
  </div>`;
@@ -1030,19 +923,11 @@ async function dkDelete(r){
   DK.recs=DK.recs.filter(x=>x.id!==r.id);dkClose();render();toast("DeCA eliminado");
  }catch(e){toast("No se ha podido eliminar.")}
 }
-async function dkAssoc(r,file){
- toast("Leyendo QR…");const t=await dkDecodeFile(file).catch(()=>null);
- if(!t){toast("No se ha podido leer el QR. Acércate más y evita reflejos.");return}
- const upd={qrUrl:t,qrSvg:await dkQrSvg(t)};
- try{if(DK.mode==="cloud")await DK.db.doc("deca/"+r.id).update(upd);else await dkTx("recs","readwrite",s=>s.put({...r,...upd}));
-  Object.assign(r,upd);toast("QR asociado");dkSheet(r.id)}catch(e){toast("No se ha podido guardar el QR.")}
-}
 /* eventos */
 document.addEventListener("click",e=>{
  const b=e.target.closest("[data-dk]");if(!b)return;const [a,arg]=b.dataset.dk.split(/:(.*)/);
  if(a==="tab"){DK.tab=arg;ls.set("lgx-dk-tab",arg);render();return}
  if(a==="flt"){DK.filter=arg;render();return}
- if(a==="change"){DK.pending=null;DK.qr="";DK.qrState="idle";render();return}
  if(a==="open"){dkSheet(arg);return}
  if(a==="close"){dkClose();return}
  const r=DK.recs.find(x=>x.id===DK.open);if(!r)return;
@@ -1053,21 +938,8 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("input",e=>{
  const id=e.target.id||"";
- if(id.startsWith("dk-")){DK.f[id.slice(3)]=e.target.value;return}
  if(id==="dkQ"){DK.q=e.target.value;const pos=e.target.selectionStart;render();const q=$("#dkQ");if(q){q.focus();try{q.setSelectionRange(pos,pos)}catch(_){}}}
 });
-document.addEventListener("change",async e=>{
- const t=e.target,id=t.id||"",f=t.files&&t.files[0];
- if(id==="dkQr"){DK.qr=t.value.trim();DK.qrState=DK.qr?"found":(DK.pending?"none":"idle");render();return}
- if(id==="dk-plate"){const v=dkPlateFmt(t.value);if(v){t.value=v;DK.f.plate=v}return}
- if(!f)return;t.value="";
- if(id==="dkCam"||id==="dkFile"){dkPick(f);return}
- if(id==="dkQrCam"){DK.qrState="busy";render();const q=await dkDecodeFile(f).catch(()=>null);if(q){DK.qr=q;DK.qrState="found";toast("QR leído")}else{DK.qrState=DK.qr?"found":"none";toast("No se ha podido leer el QR. Acércate más y evita reflejos.")}render();return}
- if(id==="dkFind"){toast("Leyendo QR…");const q=await dkDecodeFile(f).catch(()=>null);if(!q){toast("No se ha podido leer el QR.");return}
-  const hit=DK.recs.find(r=>r.qrUrl&&(r.qrUrl===q||q.includes(r.qrUrl)||r.qrUrl.includes(q)));if(hit){toast("Documento encontrado");dkSheet(hit.id)}else{DK.q=q;render();toast("Ningún DeCA tiene ese QR.")}return}
- if(id==="dkAssoc"){const r=DK.recs.find(x=>x.id===DK.open);if(r)dkAssoc(r,f)}
-});
-document.addEventListener("submit",e=>{if(e.target.id==="dkForm"){e.preventDefault();dkSave()}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&DK.open)dkClose()});
 window.addEventListener("hashchange",()=>{if(DK.open)dkClose()});
 
@@ -1307,11 +1179,22 @@ function vDocs(){setTimeout(()=>{try{loadQR().catch(()=>{})}catch(e){}},0);
  if(!unlocked)return pinScreen("Documentación","Introduce la clave de la empresa para crear y consultar albaranes.");
  if(!DC.cur)DC.cur=dcBlank();
  const all=dcLoad();
- return vh("Empresa","Documentación","Crea albaranes de transporte con los datos de Lopegar Express, fírmalos en la pantalla e imprímelos o guárdalos en PDF.")+
- `<div class="tools"><div class="chips"><button type="button" class="chip" aria-pressed="${DC.tab==="nuevo"}" data-dc-a="tab:nuevo">${DC.cur.creado?"Editar albarán":"Nuevo albarán"}</button><button type="button" class="chip" aria-pressed="${DC.tab==="hist"}" data-dc-a="tab:hist">Albaranes guardados${all.length?" · "+all.length:""}</button></div></div>
- ${DC.tab==="hist"?dcHist(all):dcForm()}
+ setTimeout(dkInit,0);
+ return vh("Empresa","Documentación","Crea albaranes de transporte, fírmalos en la pantalla, imprímelos y genera su DeCA con QR.")+
+ `<div class="tools"><div class="chips"><button type="button" class="chip" aria-pressed="${DC.tab==="nuevo"}" data-dc-a="tab:nuevo">${DC.cur.creado?"Editar albarán":"Nuevo albarán"}</button><button type="button" class="chip" aria-pressed="${DC.tab==="hist"}" data-dc-a="tab:hist">Albaranes guardados${all.length?" · "+all.length:""}</button><button type="button" class="chip" aria-pressed="${DC.tab==="deca"}" data-dc-a="tab:deca">DeCA${DK.recs.length?" · "+DK.recs.length:""}</button></div></div>
+ ${DC.tab==="hist"?dcHist(all):DC.tab==="deca"?dcDecaList():dcForm()}
  <div class="links3" style="margin-top:14px"><button type="button" class="btn ghost sm" data-dc-a="lock">${ic("lock")}Cerrar con clave</button></div>`;
 }
+function dcDecaList(){
+ if(!DK.mode||DK.mode==="init")return `<p class="note">Cargando DeCA…</p>`;
+ const q=DK.q.trim().toLowerCase(),qp=dkNorm(DK.q);
+ let rows=DK.recs.slice();if(q)rows=rows.filter(r=>(qp&&dkNorm(r.plate).includes(qp))||[r.ref,r.origin,r.dest,r.notes].some(v=>String(v||"").toLowerCase().includes(q)));
+ rows.sort((a,b)=>(b.date||"").localeCompare(a.date||"")||(b.createdAt||"").localeCompare(a.createdAt||""));
+ return `<div class="tools"><div class="search">${ic("search")}<input type="search" id="dkQ" value="${esc(DK.q)}" placeholder="Buscar matrícula, número, ciudad…" aria-label="Buscar DeCA"></div></div>
+ ${DK.err?`<div class="card empty">No se han podido cargar los DeCA. Vuelve a abrir la app.</div>`:rows.length?`<div class="dk-list">${rows.map(r=>{const route=[r.origin,r.dest].filter(Boolean).join(" → ");
+  return `<button type="button" class="card dk-item" data-dk="open:${esc(r.id)}"><span class="l1">${dkPlate(r.plate)}${r.qrUrl?`<span class="dk-pill ok">Con QR</span>`:`<span class="dk-pill warn">Sin QR</span>`}</span><b>${esc(route||r.ref||"DeCA")}</b><span class="note">${esc([r.ref,dkDate(r.date)].filter(Boolean).join(" · "))}</span></button>`}).join("")}</div>`
+  :`<div class="card empty">${q?`Nada coincide con «${esc(DK.q)}».`:`Aún no hay DeCA. Abre un albarán y pulsa «Crear DeCA».`}</div>`}
+ <p class="note" style="margin-top:10px">${DK.mode==="cloud"?"Los DeCA se guardan para toda la flota.":"Los DeCA se guardan en este dispositivo y se pueden enseñar sin cobertura."}</p>`}
 function dcClientes(){const m=new Map();const add=c=>{if(!c||!(c.n||"").trim())return;const k=(c.cif||c.n).toUpperCase().replace(/[^A-Z0-9]/g,"");if(!m.has(k))m.set(k,{n:c.n||"",cif:c.cif||"",dir:c.dir||"",tel:c.tel||""})};
  (S.clientes||[]).forEach(add);dcLoad().slice().reverse().forEach(a=>{add(a.rem);add(a.des)});return [...m.values()].sort((a,b)=>a.n.localeCompare(b.n,"es"))}
 function dcCliSel(k){const L=dcClientes();return `<div class="f"><label>Elegir cliente</label><select data-dc-cli="${k}"><option value="">${L.length?"— Selecciona un cliente —":"Aún no hay clientes guardados"}</option>${L.map((c,i)=>`<option value="${i}">${esc(c.n)}${c.cif?" · "+esc(c.cif):""}</option>`).join("")}</select></div>`}
@@ -1515,7 +1398,7 @@ async function dcMakeDeca(a){try{loadQR()}catch(e){}
    await DK.db.doc("deca/"+id).set(rec);
   }else{rec.file.orig=true;await dkTx("files","readwrite",s=>s.put({pages:[small],orig:page},id));await dkTx("recs","readwrite",s=>s.put({id,...rec}))}
   DK.recs=[{id,...rec},...DK.recs.filter(r=>r.id!==id)];
-  DK.tab="docs";ls.set("lgx-dk-tab","docs");location.hash="#deca";
+  DC.tab="deca";render();window.scrollTo(0,0);
   setTimeout(()=>{dkSheet(id).then(()=>{const r=DK.recs.find(z=>z.id===id);r&&dkView(r)})},250);
   toast(old?"DeCA actualizado":"DeCA creado y guardado");
  }catch(e){console.error(e);const c=e&&e.code;toast(c==="invalid_argument"||c==="not_granted"?"Tu acceso no permite guardar: pide al responsable acceso de Colaborador.":"No se ha podido crear el DeCA. Vuelve a intentarlo.")}
@@ -1902,7 +1785,7 @@ function updPlayer(){
 /* ---------- Control por voz ---------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let rec=null, vOn=false, vDuck=null;
-const VNAV=[["inicio",["inicio","portada","principal","menu"]],["plenergy",["plenergy","plenergi","plener","plen energy"]],["ballenoil",["ballenoil","balle","gasolinera","gasolineras","repostar","gasoil","combustible"]],["tipsa",["tipsa","rutas","agencia","agencias"]],["gmaps",["google maps","google","maps","mapa","mapas","trafico","atascos","atasco","carreteras"]],["clima",["clima","tiempo","meteo","lluvia"]],["asistencia",["asistencia","sos","emergencia","grua","averia","auxilio"]],["prevencion",["prevencion","riesgos","seguridad","videos"]],["docs",["documentacion","albaran","albaranes"]],["mant",["mantenimiento","taller","itv","revision","revisiones"]],["deca",["deca","de ca","documento de control","control administrativo","documento"]],["facturacion",["facturacion","factura","cif","datos fiscales"]],["radares",["radares","radar","cinemometros","multas"]],["radios",["radios","emisoras"]],["empresa",["empresa","contacto","gerente","quienes somos","compartir","codigo qr"]],["ajustes",["ajustes","configuracion"]]];
+const VNAV=[["inicio",["inicio","portada","principal","menu"]],["plenergy",["plenergy","plenergi","plener","plen energy"]],["ballenoil",["ballenoil","balle","gasolinera","gasolineras","repostar","gasoil","combustible"]],["tipsa",["tipsa","rutas","agencia","agencias"]],["gmaps",["google maps","google","maps","mapa","mapas","trafico","atascos","atasco","carreteras"]],["clima",["clima","tiempo","meteo","lluvia"]],["asistencia",["asistencia","sos","emergencia","grua","averia","auxilio"]],["prevencion",["prevencion","riesgos","seguridad","videos"]],["docs",["documentacion","albaran","albaranes","deca","de ca","documento de control","documento"]],["mant",["mantenimiento","taller","itv","revision","revisiones"]],["facturacion",["facturacion","factura","cif","datos fiscales"]],["radares",["radares","radar","cinemometros","multas"]],["radios",["radios","emisoras"]],["empresa",["empresa","contacto","gerente","quienes somos","compartir","codigo qr"]],["ajustes",["ajustes","configuracion"]]];
 const NUM={"cuarenta y nueve":"49","sesenta y seis":"66",cuarenta:"40",cien:"100",cuatro:"4",cinco:"5"};
 function vnorm(t){let x=norm(t).replace(/[.,;:¡!¿?]/g," ");for(const k in NUM)x=x.replace(new RegExp("\\b"+k+"\\b","g"),NUM[k]);return x.replace(/\blos 40\b/g,"los40").replace(/\bcadena 100\b/g,"cadena 100").replace(/\ba\s?-?\s?(\d+)/g,"a$1").replace(/\s+/g," ").trim()}
 let VOICE=null,vTalk=false,vPend=[];const vTts=()=>ls.get("lgx-vtts")!=="0",vCont=()=>ls.get("lgx-vcont")==="1";
@@ -2035,7 +1918,7 @@ function updMic(){document.body.classList.toggle("voice",vOn);const b=$("#micBtn
 
 /* ---------- Render y eventos ---------- */
 function render(){
- const m={inicio:vInicio,ballenoil:vBallenoil,plenergy:vPlenergy,tipsa:vTipsa,asistencia:vAsistencia,facturacion:vFacturacion,deca:vDeca,mant:vMant,docs:vDocs,radios:vRadios,prevencion:vPrevencion,gmaps:vGmaps,clima:vClima,radares:vRadares,empresa:vEmpresa,ajustes:vAjustes};
+ const m={inicio:vInicio,ballenoil:vBallenoil,plenergy:vPlenergy,tipsa:vTipsa,asistencia:vAsistencia,facturacion:vFacturacion,mant:vMant,docs:vDocs,radios:vRadios,prevencion:vPrevencion,gmaps:vGmaps,clima:vClima,radares:vRadares,empresa:vEmpresa,ajustes:vAjustes};
  document.getElementById("root").innerHTML=shell(m[view]());
  if(view==="ballenoil"||view==="plenergy")drawStations();
  if(view==="docs")dcPads();
